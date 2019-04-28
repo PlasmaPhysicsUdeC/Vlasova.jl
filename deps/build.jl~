@@ -1,0 +1,26 @@
+# Compile fortran libraries to deps/src/usr/lib
+function compile_fortran(filename::String)
+    current_path = dirname(@__FILE__)
+    prefix = "$current_path/src/"
+    postfix = "$current_path/usr/lib/"
+    run(`gfortran -Wall -shared -fPIC -O3 -fopenmp -march=native $prefix$filename.f90 -o $postfix$filename.so`)
+end
+
+for file in ["advections", "velocity_filter"]
+    compile_fortran(file)
+end
+
+using BinDeps
+
+
+# Make libraries available to julia
+
+@BinDeps.setup
+
+advections = library_dependency("advections.so")
+velocity_filter = library_dependency("velocity_filter.so")
+
+provides(Binaries, URI("file:$(dirname(@__FILE__))/usr/lib/advecion.so"), advections, os = :Unix)
+provides(Binaries, URI("file:$(dirname(@__FILE__))/usr/lib/velocity_filter.so"), velocity_filter, os = :Unix)
+
+@BinDeps.install
