@@ -14,12 +14,12 @@ subroutine velocity_advection1d( Nx, Nvx2p1, coef, Ex, ux, F)
 
   !$OMP PARALLEL DO PRIVATE(I,J,coef)
   do j = 1, Nvx2p1
-    do i = 1, Nx
-      F(i, j) = F(i, j) * exp( coef * Ex(i) * ux(j) )
-    end do
+     do i = 1, Nx
+        F(i, j) = F(i, j) * exp( coef * Ex(i) * ux(j) )
+     end do
   end do
 
-return
+  return
 end subroutine velocity_advection1d
 
 subroutine space_advection1d( Nx2p1, Nvx, spaceShift, F)
@@ -32,12 +32,12 @@ subroutine space_advection1d( Nx2p1, Nvx, spaceShift, F)
 
   !$OMP PARALLEL DO PRIVATE(I,J)
   do j = 1, Nvx
-    do i = 1, Nx2p1
-      F(i, j) = F(i, j) * spaceShift(i, j)
-    end do
+     do i = 1, Nx2p1
+        F(i, j) = F(i, j) * spaceShift(i, j)
+     end do
   end do
 
-return
+  return
 end subroutine space_advection1d
 
 ! 2D advections
@@ -65,7 +65,7 @@ subroutine velocity_advection2d( Nx, Ny, Nvx2p1, Nvy, coef, Ex, Ey, ux, uy, F)
      end do
   end do
 
-return
+  return
 end subroutine velocity_advection2d
 
 subroutine space_advection2d( Nx2p1, Ny, Nvx, Nvy, spaceShift, F)
@@ -87,5 +87,5 @@ subroutine space_advection2d( Nx2p1, Ny, Nvx, Nvy, spaceShift, F)
      end do
   end do
 
-return
+  return
 end subroutine space_advection2d

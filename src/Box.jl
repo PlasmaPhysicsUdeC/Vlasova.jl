@@ -81,7 +81,7 @@ struct Box
             end
         end
     
-    # Convert (Arrays of) Integers/Reals into Arrays of Int64/Float64 (1D case)
+    # Convert (elements, Arrays or Tuples of) Integers/Reals into Tuples of Int64/Float64 (1D case)
     Box(name::String,
         Nx::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Integer,
         Nv::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Integer,

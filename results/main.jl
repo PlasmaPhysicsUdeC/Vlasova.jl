@@ -1,10 +1,10 @@
 using Vlasova
 
-function main(box::Box,     # Box
-              species::Array{Specie},
+function main(box::Box,                                    # Box parameters
+              species::Array{Specie},                      # Initial conditions
               dt, final_time;                              # Final time
               continue_from_backup = continue_from_backup, # Backup?
-              FFTW_flags = Vlasova.FFTW.ESTIMATE)          # FFTW
+              FFTW_flags = Vlasova.FFTW.ESTIMATE )         # FFTW
     
     # Integrate until
     Nt = floor(Int, final_time/dt + 1)
@@ -12,10 +12,12 @@ function main(box::Box,     # Box
     # Create whole plasma
     plasma = Plasma( species, box )
 
-    vlasova_integrator!(plasma, Nt, dt, continue_from_backup = continue_from_backup)
+    vlasova_integrator!(plasma, Nt, dt,
+                        continue_from_backup = continue_from_backup,
+                        FFTW_flags = FFTW_flags )
 end
 
-# take parameters
+# Get parameters
 include("parameters.jl")
 
 # Continue from backup ? 
@@ -24,20 +26,19 @@ include("parameters.jl")
 # FFTW flags
 (@isdefined FFTW_flags) ? nothing : FFTW_flags = Vlasova.FFTW.ESTIMATE
 
-# Multithreading
-## For FFTW
-(@isdefined FFTW_NUM_THREADS) ? Vlasova.FFTW.set_num_threads(FFTW_NUM_THREADS) : nothing
-## For advections (FORTRAN)
-(@isdefined OMP_NUM_THREADS) ? (ENV["OMP_NUM_THREADS"] = OMP_NUM_THREADS) : nothing 
-
 # Perform the simulation
 simulation_path = "data/$simulation_name"
 mkpath(simulation_path)
 run(`cp parameters.jl $simulation_path`)
 Vlasova.notify("Folder $simulation_path prepared")
 
+# Allow multithreading
+vlasova_multithread(FFTW_NUM_THREADS = num_threads,
+                    OMP_NUM_THREADS = num_threads  )
+
+# Run!
 main(box,
      species,
      dt, final_time,
      continue_from_backup = continue_from_backup,
-     FFTW_flags = FFTW_flags)
+     FFTW_flags = FFTW_flags )

@@ -1,57 +1,67 @@
-export notify, string2file, mean, suppress_stdout
+export notify, string2file, mean, suppress_stdout, hasnan
+export @hasnan
 
 # TODO: make a progressbar function
+"""
+    Prints a string both to the screen and to a file.
+    ** If a global variable disable_notify = true is defined, notify will do nothing **
 
-function notify(string::String; fileName::String = "/", mode::String = "a")
-    #=
-    Prints string both to the screen and to a file.
+    Required:
+    * string:: String to print
 
-    * If no name is provided for the file, notify() is equivalent to println()
-    * If disable_notify = true is defined, notify() does nothing.
-    =#
+    Optional, keyword:
+    * filename: String with the name of a file. 
+                If not specified, notify is equivalent to println()
+
+    * mode: String specifying the mode under which filename will be open.
+            [Options: "a" (append, default), "w" (write) ]
+"""
+function notify(string::String; filename::String = "/", mode::String = "a")
     (@isdefined disable_notify) && disable_notify ? (return nothing) : nothing
 
     println(string)
-    (fileName != "/") ? string2file(fileName, string*"\n", mode) : nothing
+    (filename != "/") ? string2file(filename, string*"\n", mode) : nothing
     return nothing
 end
 
-function string2file(fileName::String, string::String, mode::String = "a")
-    #=
-    Appends "string" to the end of a file "fileName" and immediately closes it.
-    Requires:
-    * fileName
-    * string
+"""
+    Writes a string to a file
 
-    [optional]
-    * mode: "r", read; "w", write; "a", append; "r+", special read & write
-    =#
-    open(fileName, mode) do f
+    Requires:
+    * filename: String. The name of the target file
+    * string: String to write to filename
+
+    Optional
+    * mode: Mode under which open filename.
+            [Options: "r" (read), "w" (write), "a" (append, default), "r+" (special read & write)]
+"""
+function string2file(filename::String, string::String, mode::String = "a")
+    open(filename, mode) do f
         write(f, string)
     end
     return nothing
 end
 
-
-function mean(array::Array)::Number
-    #=
-    Get the mean valuie of an N-dimensional array
+"""
+    Get the mean value of an N-dimensional array
 
     Requires:
-    * array
-
-    =#
+    * array: Array
+    
+    Returns
+    * mean: Float64
+"""
+function mean(array::Array)::Number
     return sum(array) / length( array );
 end
 
-
-macro suppress_stdout(codeBlock)
-    #=
+"""
     Executes a block of code without printing anything to screen
 
     Requires:
-    * codeBlock
-    =#
+    * codeblock
+"""
+macro suppress_stdout(codeblock)
     quote
         if ccall(:jl_generating_output, Cint, ()) == 0
             original_stdout = stdout
@@ -60,7 +70,7 @@ macro suppress_stdout(codeBlock)
         end
 
         try
-            $(esc(codeBlock))
+            $(esc(codeblock))
         finally
             if ccall(:jl_generating_output, Cint, ()) == 0
                 redirect_stdout(original_stdout)
@@ -68,4 +78,27 @@ macro suppress_stdout(codeBlock)
             end
         end
     end
+end
+
+"""
+    Test whether some element of var (or var itself) is a NaN
+"""
+macro hasnan(var)
+    quote 
+        findfirst(isnan.($var)) != nothing
+    end
+end
+
+
+"""
+    Test whether some element of var (or var itself) is a NaN
+"""
+function hasnan(var) 
+    return findfirst(isnan.(var)) != nothing
+end
+
+#TODO check this
+function halt_nan(var)
+    hasnan = @hasnan var
+    @assert !hasnan "Nan's found. Process halted."
 end

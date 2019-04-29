@@ -1,7 +1,7 @@
 # Integrator coefficients
 function integration_coefficients( dt )
-    position = -1im * [ dt/2 ]
-    velocity =  1im * [  dt  ]
+    position = -1im * [ dt ]
+    velocity = -1im * [ dt/2 ]
 
     return position, velocity
 end
@@ -9,6 +9,7 @@ end
 function step!(plasma, chargedensity, electricfield,
                poisson!, space_advection!, velocity_advection!;
                stepnumber::Integer, velocity_filtering::Bool)
+
     # Integrator BAB from Omelyan (2003)
 
     # First space advection

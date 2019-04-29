@@ -18,14 +18,14 @@ mutable struct VelocityAdvection
             
             v_wavevector = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
 
-            v_wavevector[1] = rfft_wavevector( plasma.box.v[1] )
+            v_wavevector[1] = rfft_wavevector( plasma.box.v[1] )            
             for d in 2:plasma.box.number_of_dims
                 v_wavevector[d] = wavevector( plasma.box.v[d] )
             end
             
             # Filter
             filter = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
-            for d in plasma.box.dim_axis
+            for d in 1:plasma.box.number_of_dims
                 filter[d] = anisotropic_filter( v_wavevector[d] )
             end
 
@@ -58,8 +58,9 @@ end
 
 function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
     advect_twice = false, filtering = true, advection_number = 1 )
-
+    
     for s in plasma.specie_axis
+        
         # Calculate the coefficient for this specie and advection
         advection_coefficient = (obj.advection_coefficients[advection_number] *
                                  obj.specie_coefficients[s] )
@@ -72,14 +73,14 @@ function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
         
         # Apply high-freq filter
         filtering ? lowpass_velocityfilter!( obj.transformed_DF, obj.filter, obj.N2p1... ) : nothing
-
         
         # Apply advection
         _velocity_advection!( obj.transformed_DF, electricfield, obj.wavevector,
                               advection_coefficient, obj.N2p1...)
-
+        
         # return to real space
         LinearAlgebra.ldiv!( plasma.species[s].distribution, obj.plan, obj.transformed_DF )
+        
     end
     return 0;
 end

@@ -6,8 +6,8 @@
 import HDF5
 
 # Detect if the argument given is a string
-@assert isa(ARGS[1], String) "You must start the program passing the simulation name as the first (and only) argument.\n
-                                Example: user@computer $ julia continue_from_backup simulation_name"
+@assert (!isempty(ARGS) && length(ARGS)==1 ) "You must start the program passing the simulation name as the first (and only) argument.
+                                               Example: user@computer \$ julia continue_from_backup simulation_name"
 
 simulation_path = "data/"*ARGS[1]
 

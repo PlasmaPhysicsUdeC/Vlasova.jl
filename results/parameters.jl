@@ -4,24 +4,23 @@ using Vlasova
 simulation_name = "huehu"
 
 # Space nodes
-Nx = (16, 16)
-Nv = (32, 32)
+Nx = 256
+Nv = 512
 
 # Space lengths
-Lx = (5pi, 5pi)
-vMin = (-6.0, -6.0 )            # Minimum velocities
-vMax = (6.0, 6.0 )            # Maximum velocities
+Lx = 5pi
+vMin = ( -6.0 )            # Minimum velocities
+vMax = 6.0            # Maximum velocities
 
 # Final conditions
 dt = 1e-1
-final_time = 100                # In electron plasma periods
+final_time = 150                # In electron plasma periods
 
 # Multi-threding
-FFTW_NUM_THREADS = 4
-OMP_NUM_THREADS  = 4
+num_threads = 2
 
 # Multi-specie support
-name = ["electrons", "protons"]
+name = ["electrons"]#, "protons"]
 charge = [-1.0, 1.0]
 mass = [1.0, 1836.15267389]
 temperature = [1.0, 1.0]
@@ -31,7 +30,7 @@ perturbed = [true, false]
 function perturbate!(distribution::Array{Float64}, box::Box)
     # Perturbation parameters
     mode = (1, 0)
-    amplitude = 1e-3 .* (1, 0)
+    amplitude = 5e-2 .* (1, 0)
     
     # Perturbation of the form ( Ax*cos(kx*x) + Ay*cos(ky*y) ... )
     k_mode = @. 2pi * (mode / box.Lx) * box.x
@@ -56,7 +55,7 @@ function initial_distribution(box::Box; perturbate::Bool = false)
 
     # TODO: check this
     for d in box.dim_axis, j in box.velocity_axis, i in box.space_axis
-        distribution[i, j] *= Vlasova.maxwellian1d( box.v[d][ j[d] ], driftVelocity = 0.0  )
+        distribution[i, j] *= Vlasova.maxwellian1d( box.v[d][ j[d] ], drift_velocity = 0.0  )
     end
 
     # Apply perturbation ?

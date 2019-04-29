@@ -47,7 +47,7 @@ end
     object space_advection of type SpaceAdvection.
 """
 function (space_advection::SpaceAdvection)(plasma::Plasma; advection_number::Integer = 1)
-    for s in plasma.specie_axis
+    for s in 1:plasma.number_of_species
         LinearAlgebra.mul!(space_advection.transformed_DF,
                            space_advection.plan, plasma.species[s].distribution)
         # Here happens the magic!

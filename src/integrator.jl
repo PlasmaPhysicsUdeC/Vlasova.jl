@@ -5,24 +5,24 @@
             * checkpoint_percent (10): Is the percentage accomplished between one flush of the data to the disk and another.
         """
 function vlasova_integrator!(plasma, Nt, dt;
-                            continue_from_backup::Bool = false,
-                            checkpoint_percent::Integer = 5,
-                            velocity_filtering::Bool = true,
-                            FFTW_flags = FFTW.ESTIMATE )  # TODO: Test the [nosave] case: checkpoint_percent = 100
+                             continue_from_backup::Bool = false,
+                             checkpoint_percent::Integer = 5,
+                             velocity_filtering::Bool = true,
+                             FFTW_flags = FFTW.ESTIMATE )         # TODO: Test the [nosave] case: checkpoint_percent = 100)
     
     # checkpoints
     @assert 1 <= checkpoint_percent <= 100  "checkpoint_percent must be valued between 1 and 100"
     @assert isinteger(100/checkpoint_percent) "checkpoint_percent must be a whole divisor of 100"
     checkpoint_axis = collect(Int, range(1, stop = Nt, length = Int(100/checkpoint_percent) + 1 ))
     checkpoint_step = checkpoint_axis[2] - checkpoint_axis[1]
+
+    # Make fortran libraries available to Julia
+    push!(Libdl.DL_LOAD_PATH, joinpath(dirname(@__FILE__), "../deps/usr/lib"))     # TODO: Try to change this
     
     # Initialize objects
     poisson! = Poisson(plasma, FFTW_flags = FFTW_flags)
     space_advection! = SpaceAdvection(plasma, dt, FFTW_flags = FFTW_flags)
     velocity_advection! = VelocityAdvection(plasma, dt, FFTW_flags = FFTW_flags)
-
-    # Make fortran libraries available to Julia
-#    push!(Libdl.DL_LOAD_PATH,"fortran/sharedLibraries")
     
     # Initialize quantities
     chargedensity = Array{Float64}(undef, plasma.box.Nx)
@@ -47,7 +47,6 @@ function vlasova_integrator!(plasma, Nt, dt;
         # Starting conditions
         get_density!(chargedensity, plasma )
         poisson!(electricfield, chargedensity)
-        
         timed_chargedensity[plasma.box.space_axis, 1] .= chargedensity
         timed_kinen[1, :] .= get_kinetic_energies( plasma )
         flushdata(plasma, timed_chargedensity, timed_kinen, last_iteration_saved, 1, Nt)
@@ -55,7 +54,6 @@ function vlasova_integrator!(plasma, Nt, dt;
         # First velocity advection
         velocity_advection!( plasma, electricfield )
     end
-
     iteration_axis = (last_iteration_saved[] + 1):Nt # Is this correct when restoring variables?
     
     # Main temporal loop
@@ -67,11 +65,12 @@ function vlasova_integrator!(plasma, Nt, dt;
                stepnumber = t, velocity_filtering = velocity_filtering)
         
         # Save every instant
-        timed_chargedensity[plasma.box.space_axis, t-last_iteration_saved[]] .= chargedensity
-        timed_kinen[t - last_iteration_saved[], :] .= get_kinetic_energies( plasma )
+        inst = t - last_iteration_saved[]
+        timed_chargedensity[plasma.box.space_axis, inst] .= chargedensity
+        timed_kinen[inst, :] .= get_kinetic_energies( plasma )
         if t in checkpoint_axis
             flushdata( plasma, timed_chargedensity, timed_kinen, last_iteration_saved, t, Nt)
-            last_checkpoint_saved = findfirst( t .== checkpoint_axis ) - 1
+            last_checkpoint_saved = findfirst( t .== checkpoint_axis ) - 1 # TODO: use an accumulator for this
             
             elapsed_time = round(Dates.now() - start_time, Dates.Second )
             notify("\t $(last_checkpoint_saved*checkpoint_percent)% accomplished in $elapsed_time")
@@ -119,7 +118,7 @@ function flushdata(plasma, timed_chargedensity, timed_kinen, last_iteration_save
     
     shared_file = HDF5.h5open("data/"*plasma.box.simulation_name*"/shared_data.h5", "r+")
     shared_file["chargedensity"][UnitRange.(1, plasma.box.Nx)..., (last_it+1):t] = timed_chargedensity[plasma.box.space_axis, 1:(t-last_it)]
-    shared_file["total_kinetic_energy"][(last_iteration_saved[]+1):t] = dropdims( sum( timed_kinen[1:(t-last_it), :], dims = 2 ), dims = 2 )
+    shared_file["total_kinetic_energy"][(last_it+1):t] = dropdims( sum( timed_kinen[1:(t-last_it), :], dims = 2 ), dims = 2 )
     
     HDF5.close(shared_file)
 
@@ -127,7 +126,7 @@ function flushdata(plasma, timed_chargedensity, timed_kinen, last_iteration_save
     for s in plasma.specie_axis
         species_file = HDF5.h5open("data/"*plasma.box.simulation_name*"/"*plasma.species[s].name*".h5", "r+")
         s == 1 ? (species_file["last_iteration_saved"][:] = t) : nothing
-        species_file["distribution"][:,:,:,:] = plasma.species[s].distribution
+        species_file["distribution"][UnitRange.(1, plasma.box.N)...] = plasma.species[s].distribution
         HDF5.close(species_file)
     end
 

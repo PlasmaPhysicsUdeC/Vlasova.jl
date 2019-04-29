@@ -12,10 +12,10 @@ subroutine velocity_filter1d(Nx, Nvx2p1, filter, F)
 
   !$OMP PARALLEL DO PRIVATE(I,J,vfilter)
   do j = 1, Nvx2p1
-    vfilter = filter(j)
-    do i = 1, Nx
-      F(i, j) = F(i, j) * vfilter
-    end do
+     vfilter = filter(j)
+     do i = 1, Nx
+        F(i, j) = F(i, j) * vfilter
+     end do
   end do
 
   return
@@ -29,7 +29,7 @@ subroutine velocity_filter2d(Nx, Ny, Nvx2p1, Nvy, filter1, filter2, F)
 
   integer:: i, j, k, l
   real*8:: vfilter
-  
+
   !$OMP PARALLEL DO PRIVATE(I,J,K,L,vfilter)
   do l = 1, Nvy
      do k = 1, Nvx2p1
@@ -41,6 +41,6 @@ subroutine velocity_filter2d(Nx, Ny, Nvx2p1, Nvy, filter1, filter2, F)
         end do
      end do
   end do
-  
+
   return
 end subroutine velocity_filter2d
