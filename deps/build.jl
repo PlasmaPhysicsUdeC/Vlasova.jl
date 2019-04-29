@@ -1,5 +1,5 @@
-#TODO: THIS IS WRONG!
-using BinDeps
+#TODO: Use BinDeps!
+# using BinDeps
 
 # Compile fortran libraries to deps/src/usr/lib
 function compile_fortran(filename::String)
