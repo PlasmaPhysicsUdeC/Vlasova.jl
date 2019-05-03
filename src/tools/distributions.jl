@@ -42,6 +42,6 @@ function bump_on_tail1d(v; vtb::Float64 = 0.5, vdb::Float64 = 4.5, nc::Float64 =
     =#
     
     c1 = nc / sqrt(2pi) # Normalization constant
-    c1 = nb / (vtb * sqrt(2pi)) # Normalization constant
+    c2 = nb / (vtb * sqrt(2pi)) # Normalization constant
     return @. c1 * exp( -0.5*v^2 ) + c2 * exp( -0.5 * ((v - vdb)/vtb)^2 )
 end
