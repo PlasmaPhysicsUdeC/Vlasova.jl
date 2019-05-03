@@ -59,12 +59,12 @@ end
 function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
     advect_twice = false, filtering = true, advection_number = 1 )
     
-    for s in plasma.specie_axis
+    for s in 1:plasma.number_of_species
         
         # Calculate the coefficient for this specie and advection
-        advection_coefficient = (obj.advection_coefficients[advection_number] *
-                                 obj.specie_coefficients[s] )
-
+        advection_coefficient = -(obj.advection_coefficients[advection_number] *
+                                  obj.specie_coefficients[s] )
+        
         # Apply advection twice?
         advect_twice ? (advection_coefficient *= 2) : nothing
         
@@ -77,7 +77,7 @@ function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
         # Apply advection
         _velocity_advection!( obj.transformed_DF, electricfield, obj.wavevector,
                               advection_coefficient, obj.N2p1...)
-        
+
         # return to real space
         LinearAlgebra.ldiv!( plasma.species[s].distribution, obj.plan, obj.transformed_DF )
         

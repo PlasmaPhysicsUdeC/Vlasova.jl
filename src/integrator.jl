@@ -6,7 +6,7 @@
         """
 function vlasova_integrator!(plasma, Nt, dt;
                              continue_from_backup::Bool = false,
-                             checkpoint_percent::Integer = 5,
+                             checkpoint_percent::Integer = 10,
                              velocity_filtering::Bool = true,
                              FFTW_flags = FFTW.ESTIMATE )         # TODO: Test the [nosave] case: checkpoint_percent = 100)
     
@@ -23,14 +23,14 @@ function vlasova_integrator!(plasma, Nt, dt;
     poisson! = Poisson(plasma, FFTW_flags = FFTW_flags)
     space_advection! = SpaceAdvection(plasma, dt, FFTW_flags = FFTW_flags)
     velocity_advection! = VelocityAdvection(plasma, dt, FFTW_flags = FFTW_flags)
-    
+
     # Initialize quantities
     chargedensity = Array{Float64}(undef, plasma.box.Nx)
     electricfield = poisson!(chargedensity)
     
     ## Timed quantities
-    timed_chargedensity = Array{Float64}(undef, (plasma.box.Nx..., checkpoint_step + 1) )
-    timed_kinen = Array{Float64}(undef, (checkpoint_step + 1, plasma.number_of_species) )
+    timed_chargedensity = Array{Float64}(undef, (plasma.box.Nx..., checkpoint_step ) )
+    timed_kinen = Array{Float64}(undef, (checkpoint_step, plasma.number_of_species) )
 
     last_iteration_saved = Ref(0)
     if continue_from_backup
@@ -50,7 +50,7 @@ function vlasova_integrator!(plasma, Nt, dt;
         timed_chargedensity[plasma.box.space_axis, 1] .= chargedensity
         timed_kinen[1, :] .= get_kinetic_energies( plasma )
         flushdata(plasma, timed_chargedensity, timed_kinen, last_iteration_saved, 1, Nt)
-
+        
         # First velocity advection
         velocity_advection!( plasma, electricfield )
     end
@@ -59,7 +59,7 @@ function vlasova_integrator!(plasma, Nt, dt;
     # Main temporal loop
     notify("\tEntering main loop...")
     start_time = Dates.now() # Measure execution time of the main loop
-    for t in iteration_axis[2:end]
+    for t in iteration_axis 
         step!( plasma, chargedensity, electricfield,
                poisson!, space_advection!, velocity_advection!,
                stepnumber = t, velocity_filtering = velocity_filtering)
@@ -92,6 +92,9 @@ function restore_variables!( plasma, last_iteration_saved )
 end
 
 function initialize_h5files(plasma, Nt)
+    # Make folder to save data
+    mkpath("data/"*plasma.box.simulation_name)
+    
     # File for the charge density
     shared_file = HDF5.h5open("data/"*plasma.box.simulation_name*"/shared_data.h5", "w")
     shared_file["chargedensity"] = Array{Float64}(undef, (plasma.box.Nx..., Nt))

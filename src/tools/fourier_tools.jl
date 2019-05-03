@@ -1,4 +1,4 @@
-export wavevector, rfft_wavevector, rfft_derivative
+export wavevector, rfft_wavevector, anisotropic_filter
 
 function wavevector(vector::Array{Float64, 1})
     N = size(vector, 1)

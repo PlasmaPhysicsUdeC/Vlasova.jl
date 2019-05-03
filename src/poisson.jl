@@ -5,7 +5,7 @@
             julia> poisson!(electricfield, chargedensity)
     where chargedensity is the charge density of the plasma and electricfield is preallocated 
 """
-struct Poisson
+mutable struct Poisson          # Todo: mutable, isnt it?
     fourier_density::Array{Complex{Float64}}
     integrate::Array{Array{Complex{Float64}}}
     plan::FFTW.FFTWPlan
@@ -20,7 +20,7 @@ struct Poisson
             plan = FFTW.plan_rfft( Array{Float64}(undef, plasma.box.Nx),
                                    plasma.box.space_dims, flags = FFTW_flags ) # TODO: FFTW_flags
             
-            fourier_density = Array{Complex{Float64}}(undef, Nx2p1 )
+            fourier_density = zeros(Complex{Float64}, Nx2p1 )
             
             k = Array{Array{Float64, 1}}(undef, plasma.box.number_of_dims)
 
@@ -30,7 +30,7 @@ struct Poisson
             end
             
             k2 = zeros( Nx2p1 )
-            for d in plasma.box.dim_axis, i in fourier_axis
+            for d in 1:plasma.box.number_of_dims, i in fourier_axis
                 k2[i] += ( k[d][ i[d] ] )^2
             end
             k2[1] = Inf  # So that the inverse yields 0.0. Ensure quasineutrality

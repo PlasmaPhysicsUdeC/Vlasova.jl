@@ -11,11 +11,13 @@ subroutine velocity_advection1d( Nx, Nvx2p1, coef, Ex, ux, F)
   complex*16, intent(inout):: F(Nx, Nvx2p1)
 
   integer:: i, j
+  real*8:: u
 
-  !$OMP PARALLEL DO PRIVATE(I,J,coef)
+  !$OMP PARALLEL DO PRIVATE(i,j,u)
   do j = 1, Nvx2p1
+     u = ux(j)
      do i = 1, Nx
-        F(i, j) = F(i, j) * exp( coef * Ex(i) * ux(j) )
+        F(i, j) = F(i, j) * exp( coef * Ex(i) * u )
      end do
   end do
 
@@ -30,7 +32,7 @@ subroutine space_advection1d( Nx2p1, Nvx, spaceShift, F)
 
   integer:: i, j
 
-  !$OMP PARALLEL DO PRIVATE(I,J)
+  !$OMP PARALLEL DO PRIVATE(i,j)
   do j = 1, Nvx
      do i = 1, Nx2p1
         F(i, j) = F(i, j) * spaceShift(i, j)
@@ -52,7 +54,7 @@ subroutine velocity_advection2d( Nx, Ny, Nvx2p1, Nvy, coef, Ex, Ey, ux, uy, F)
   integer:: i, j, k ,l
   real*8:: u1, u2
 
-  !$OMP PARALLEL DO PRIVATE(I,J,K,L,coef,u1,u2)
+  !$OMP PARALLEL DO PRIVATE(i,j,k,l,u1,u2)
   do l = 1, Nvy
      u2 = uy(l)
      do k = 1, Nvx2p1
@@ -76,7 +78,7 @@ subroutine space_advection2d( Nx2p1, Ny, Nvx, Nvy, spaceShift, F)
 
   integer:: i, j, k ,l
 
-  !$OMP PARALLEL DO PRIVATE(I,J,K,L)
+  !$OMP PARALLEL DO PRIVATE(i,j,k,l)
   do l = 1, Nvy
      do k = 1, Nvx
         do j = 1, Ny
