@@ -1,7 +1,7 @@
 # Integrator coefficients
 function integration_coefficients( dt )
-    position = -1im * [ dt ]
-    velocity = 1im * [ dt/2 ]
+    position = [  dt  ]
+    velocity = [ dt/2 ]
 
     return position, velocity
 end

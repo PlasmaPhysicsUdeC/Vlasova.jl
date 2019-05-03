@@ -62,11 +62,11 @@ function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
     for s in 1:plasma.number_of_species
         
         # Calculate the coefficient for this specie and advection
-        advection_coefficient = -(obj.advection_coefficients[advection_number] *
-                                  obj.specie_coefficients[s] )
+        coefficient = - 1im * (obj.advection_coefficients[advection_number] *
+                               obj.specie_coefficients[s] )
         
         # Apply advection twice?
-        advect_twice ? (advection_coefficient *= 2) : nothing
+        advect_twice ? (coefficient *= 2) : nothing
         
         # DF to velocity Fourier-space
         LinearAlgebra.mul!(obj.transformed_DF, obj.plan, plasma.species[s].distribution )
@@ -76,7 +76,7 @@ function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
         
         # Apply advection
         _velocity_advection!( obj.transformed_DF, electricfield, obj.wavevector,
-                              advection_coefficient, obj.N2p1...)
+                              coefficient, obj.N2p1...)
 
         # return to real space
         LinearAlgebra.ldiv!( plasma.species[s].distribution, obj.plan, obj.transformed_DF )

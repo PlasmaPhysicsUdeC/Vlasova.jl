@@ -31,7 +31,7 @@ mutable struct SpaceAdvection
             end
             shift[a] = Array{Array{Complex{Float64}}}(undef, plasma.number_of_species)
             for s in plasma.specie_axis
-                shift[a][s] = exp.( tmp * pos_coefficients[a] * specie_coefficients[s] )
+                shift[a][s] = exp.( -1im * pos_coefficients[a] * specie_coefficients[s] * tmp )
             end
         end
         # Make struct
