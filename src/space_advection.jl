@@ -1,4 +1,4 @@
-mutable struct SpaceAdvection
+struct SpaceAdvection
     plan::FFTW.FFTWPlan
     transformed_DF::Array{Complex{Float64}}
     shift::Array{Array{Array{Complex{Float64}}}}

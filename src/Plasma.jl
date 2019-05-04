@@ -9,7 +9,7 @@
         where the distribution function is an array of 2N dimensions,
         and N is the number of spatial dimensions
     """
-mutable struct Specie
+struct Specie
     name::String
     charge::Float64
     mass::Float64
@@ -44,7 +44,7 @@ end
                                     parameters );
         *** This struct is dependent on the Specie and Box structs ***
         """
-mutable struct Plasma
+struct Plasma
     species::Array{Specie}
     box::Box
     number_of_species::Int64

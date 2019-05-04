@@ -1,4 +1,4 @@
-mutable struct VelocityAdvection
+struct VelocityAdvection
     plan::FFTW.FFTWPlan
     transformed_DF::Array{Complex{Float64}}
     wavevector::Array{Array{Float64}}
@@ -57,7 +57,7 @@ function anisotropic_filter(u::Array{Float64})
 end
 
 function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
-    advect_twice = false, filtering = true, advection_number = 1 )
+    advect_twice = false, filtering = false, advection_number = 1 )
     
     for s in 1:plasma.number_of_species
         

@@ -51,8 +51,8 @@ function vlasova_integrator!(plasma, Nt, dt;
         timed_kinen[1, :] .= get_kinetic_energies( plasma )
         flushdata(plasma, timed_chargedensity, timed_kinen, last_iteration_saved, 1, Nt)
         
-        # First velocity advection
-        velocity_advection!( plasma, electricfield )
+        # # First velocity advection
+        # velocity_advection!( plasma, electricfield )
     end
     iteration_axis = (last_iteration_saved[] + 1):Nt # Is this correct when restoring variables?
     
