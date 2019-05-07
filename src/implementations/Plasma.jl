@@ -1,66 +1,4 @@
 """
-    Defines a charged specie in a Vlasovian plasma.
-    Contains and requires the following properties of a charged specie:
-        * name :: String
-        * charge :: Real
-        * mass :: Real
-        * temperature :: Real
-        * distribution function :: Array{Real}
-        where the distribution function is an array of 2N dimensions,
-        and N is the number of spatial dimensions
-    """
-struct Specie
-    name::String
-    charge::Float64
-    mass::Float64
-    temperature::Float64
-    distribution::Array{Float64}
-
-    # Constructors
-    # Take reals, but turn them into Float64
-    Specie(name::String,
-           charge::Real,
-           mass::Real,
-           temperature::Real,
-           distribution::Array{T} where T <: Real
-           ) = new( name,
-                    Float64(charge),
-                    Float64(mass),
-                    Float64(temperature),
-                    Float64.(distribution) )
-end
-
-"""
-    Defines a Vlasovian Plasma, and contains:
-        * species: An array of Specie elements
-        * box: The parameters of the simulation, of type Box
-        * number_of_species: The number of charged species contained in the plasma
-        * specie_axis: A tuple of indices, to iterate over each specie.
-        
-        To be defined, it required to specify species and box:
-            julia> parameters = Box( ... );
-            julia> plasma = Plasma([Specie(...),
-                                    Specie(...)],
-                                    parameters );
-        *** This struct is dependent on the Specie and Box structs ***
-        """
-struct Plasma
-    species::Array{Specie}
-    box::Box
-    number_of_species::Int64
-    specie_axis::Base.OneTo{Int64}
-    
-    # Constructors
-    # Calculate derived quantities from the array of species
-    Plasma(s::Array{Specie},
-           p::Box ) = new(s,
-                          p,
-                          size(s, 1),
-                          Base.OneTo(size(s, 1))
-                          )
-end
-
-"""
 Collects the total charge density of an element of type plasma
 """
 function get_density(plasma::Plasma)
@@ -99,7 +37,7 @@ end
 
 
 """
-Returns an array, where the i-th component corresponsd to the kinetic energy of the
+Returns an array, where the i-th component corresponds to the kinetic energy of the
 i-th charged specie of the plasma.
 """
 function get_kinetic_energies(plasma::Plasma)
