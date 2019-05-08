@@ -1,4 +1,8 @@
 # To avoid closures, parameters will be passed between functions in a container
+
+"""
+    Store the information about the physical Box inside which the simulation runs. #TODO
+"""
 struct Box
     # Fundamental quantities
     simulation_name::String
