@@ -1,3 +1,4 @@
-simulations/
+docs/
 deps/usr/lib/
-docs/build/
+
+simulations/
