@@ -33,10 +33,10 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
             if a == 'A'
                 pos_adv_num += 1
                 sadv!(plasma, advection_number = pos_adv_num)
-           else
-                vel_adv_num += 1
                 get_density!(chargedensity, plasma)
                 poisson!(electricfield, chargedensity)
+           else
+                vel_adv_num += 1
                 vadv!(plasma, electricfield,
                       advection_number = vel_adv_num,
                       filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per iteration
