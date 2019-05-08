@@ -23,9 +23,12 @@ struct Specie
            mass::Real,
            temperature::Real,
            distribution::Array{T} where T <: Real
-           ) = new( name,
+           ) = begin
+               @assert length( size(distribution) ) > 1 "The distribution provided is 1-dimensional. It should have 2n dimensions where n >= 1"
+               new( name,
                     Float64(charge),
                     Float64(mass),
                     Float64(temperature),
                     Float64.(distribution) )
+           end
 end

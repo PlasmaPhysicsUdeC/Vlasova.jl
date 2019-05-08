@@ -13,7 +13,7 @@
         *** This struct is dependent on the Specie and Box structs ***
         """
 struct Plasma
-    species::Array{Specie}
+    species::Array{Specie, 1}
     box::Box
     number_of_species::Int64
     specie_axis::Base.OneTo{Int64}
@@ -21,11 +21,20 @@ struct Plasma
     # Constructors
     # Calculate derived quantities from the array of species
     Plasma(s::Union{T, Array{T}} where T <: Specie,
-           p::Box ) = begin
+           b::Box ) = begin
                isarray = typeof(s) <: Array
                isarray ? nothing : (s = [s])
+               sdims = div.([length( size(s[i].distribution) ) for i in 1:length(s)], 2)
+               for i in 2:length(s)
+                   @assert sdims[i] == sdims[1] "The sizes of the distribution functions of the species do not match."
+               end
+               bdim = b.number_of_dims
+               sdim = sdims[1]
+               bd = "($bdim + $bdim)"
+               sd = "($sdim + $sdim)"
+               @assert bdim == sdim "The species are $sd-dimensional, but the box provided is $bd-dimensional."
                new(s,
-                   p,
+                   b,
                    size(s, 1),
                    Base.OneTo(size(s, 1))
                    )
