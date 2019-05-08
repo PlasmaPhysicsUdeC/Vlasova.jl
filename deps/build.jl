@@ -1,5 +1,4 @@
-#TODO: Use BinDeps!
-# using BinDeps
+#TODO: Use BinDeps
 
 # Compile fortran libraries to deps/src/usr/lib
 function compile_fortran(filename::String)
@@ -14,19 +13,3 @@ source_code = ["advections", "velocity_filter"]
 for file in source_code
     compile_fortran(file)
 end
-
-# @BinDeps.setup
-
-# for file in source_code
-#     # Use gfortran to compile source code
-#     compile_fortran(file)
-
-#     lib = library_dependency("$file.so")
-#     # Make library generated available to julia
-#     provides(Binaries,
-#              URI("file:$(dirname(@__FILE__))/usr/lib/$file.so"),
-#              lib,
-#              os = :Unix)
-# end
-
-# @BinDeps.install
