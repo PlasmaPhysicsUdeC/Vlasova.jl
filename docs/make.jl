@@ -1,13 +1,22 @@
 using Documenter, Vlasova
 
-makedocs(sitename="Vlasova.jl",
+
+(@isdefined format) ? nothing : (format = Documenter.HTML() )
+
+makedocs(format = format,
+         sitename="Vlasova.jl",
+         authors = "Jorge Gidi",
          modules = [Vlasova],
          pages = [
-             "index.md",
-             "structs" => "structs.md",
-             "functions" => [
-                 "Exported functions" => "functions_public.md"
-                 "Private functions" => "functions_private.md"
-                 
+             "Manual" => [
+                 "Guide" => "guide.md"
+             ],
+             
+             "Examples" => "examples.md",
+             "API" => [
+                 "Structs" => "structs.md"
+                 "Functions" => "functions.md"
              ]
-         ])
+             
+         ]
+         )

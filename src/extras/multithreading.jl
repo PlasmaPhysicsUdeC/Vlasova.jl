@@ -1,5 +1,5 @@
 """
-Allows vlasova to use multithreading on the fourier transforms ( through FFTW )
+Allow vlasova to use multithreading on the fourier transforms ( through FFTW )
 and the space and velocity advections ( through OpenMP )
 """
 function vlasova_multithread(; FFTW_NUM_THREADS = 0, OMP_NUM_THREADS = 0)
