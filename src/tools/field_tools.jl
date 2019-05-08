@@ -36,7 +36,14 @@ function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
 end
 
 """
-    Obtains the elecectricfield from a charge distribution.
+    Obtains the electric field from a charge density.
+
+    In general, te electric field returned is an array of arrays, where the first array
+    correspond to the electric field along the first dimension and so on.
+
+    In the case where the charge density depends on time, the electric field will continue
+    to be an array of arrays, where each of them will be the electric field along one dimensions
+    having the same dependence on time as the charge density.
 """
 function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: check!
 
