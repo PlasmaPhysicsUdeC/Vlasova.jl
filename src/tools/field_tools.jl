@@ -1,4 +1,4 @@
-export get_electrostatic_energy, get_electric_field, get_kinetic_energy, get_density
+export get_electrostatic_energy, get_energy_density, get_electric_field, get_kinetic_energy, get_density
 
 raw"""
     Obtains the electrostatic energy from the charge density.
@@ -33,6 +33,30 @@ function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
     es = sum( abs2.( FFTW.rfft( chargedensity, box.space_dims )) ./ k2, dims = box.space_dims )
 
     return (prod(box.dx) / prod(box.Nx) ) * dropdims( es, dims = box.space_dims)
+end
+
+"""
+Obtain the spatial density of electrostatic energy from a charge density.
+"""
+function get_energy_density( chargedensity::Array{Float64}, box::Box )
+    
+    Nx2p1 = Tuple( (i == 1) ? fld( box.Nx[1], 2 ) + 1 : box.Nx[i] for i in 1:box.number_of_dims )
+    fourier_axis = CartesianIndices( Nx2p1 )
+
+    k = Array{Array{Float64, 1}}(undef, box.number_of_dims)
+    k[1] = rfft_wavevector( box.x[1] )
+    for d in 2:box.number_of_dims
+        k[d] = wavevector( box.x[d] )
+    end
+
+    k2 = zeros( Nx2p1 )
+    for d in 1:box.number_of_dims, i in CartesianIndices( Nx2p1 )
+        k2[i] += ( k[d][ i[d] ] )^2
+    end
+    k2[1] = Inf  # So that the inverse yields 0.0
+
+    es = abs2.( FFTW.rfft( chargedensity, box.space_dims )) ./ k2
+    return FFTW.irfft( es, box.Nx[1], box.space_dims )
 end
 
 """
