@@ -3,6 +3,27 @@
 
 ! 1D advections
 
+! subroutine velocity_advection1d( Nx, Nvx2p1, coef, Ex, ux, F)
+!   implicit none
+!   integer, intent(in):: Nx, Nvx2p1
+!   real*8, intent(in)::  Ex(Nx), ux(Nvx2p1)
+!   complex*16, intent(in):: coef
+!   complex*16, intent(inout):: F(Nx, Nvx2p1)
+
+!   integer:: i, j
+!   real*8:: u
+
+!   !$OMP PARALLEL DO PRIVATE(i,j,u)
+!   do j = 1, Nvx2p1
+!      u = ux(j)
+!      do i = 1, Nx
+!         F(i, j) = F(i, j) * exp( coef * Ex(i) * u )
+!      end do
+!   end do
+
+!   return
+! end subroutine velocity_advection1d
+
 subroutine velocity_advection1d( Nx, Nvx2p1, coef, Ex, ux, F)
   implicit none
   integer, intent(in):: Nx, Nvx2p1
@@ -10,19 +31,19 @@ subroutine velocity_advection1d( Nx, Nvx2p1, coef, Ex, ux, F)
   complex*16, intent(in):: coef
   complex*16, intent(inout):: F(Nx, Nvx2p1)
 
-  integer:: i, j
-  real*8:: u
+  integer:: j
+  complex*16:: tmp(Nx)
+  
+  tmp = exp( coef * ( ux(2) - ux(1) ) * Ex )
 
-  !$OMP PARALLEL DO PRIVATE(i,j,u)
+  !$OMP PARALLEL DO PRIVATE(j)
   do j = 1, Nvx2p1
-     u = ux(j)
-     do i = 1, Nx
-        F(i, j) = F(i, j) * exp( coef * Ex(i) * u )
-     end do
+     F(:, j) = F(:, j) * tmp**(j-1)
   end do
 
   return
 end subroutine velocity_advection1d
+
 
 subroutine space_advection1d( Nx2p1, Nvx, spaceShift, F)
   implicit none
