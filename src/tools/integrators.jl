@@ -1,4 +1,13 @@
-export verlet_pos, verlet_vel
+export verlet_position, verlet_velocity, mclachlan_velocity
 
-verlet_pos = VlasovaIntegrator("ABA", [0.5, 1.0, 0.5])
-verlet_vel = VlasovaIntegrator("BAB", [0.5, 1.0, 0.5])
+verlet_position = VlasovaIntegrator("ABA", [0.5,
+                                            1.0,
+                                            0.5])
+verlet_velocity = VlasovaIntegrator("BAB", [0.5,
+                                            1.0,
+                                            0.5])
+
+mclachlan_velocity = VlasovaIntegrator("BABA", [1 - 1/sqrt(2),
+                                                1/sqrt(2),
+                                                1/sqrt(2),
+                                                1 - 1/sqrt(2)])
