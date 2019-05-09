@@ -8,6 +8,7 @@ makedocs(format = format,
          authors = "Jorge Gidi",
          modules = [Vlasova],
          pages = [
+             "Index" => "index.md",
              "Manual" => [
                  "Guide" => "guide.md"
              ],
