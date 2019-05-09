@@ -56,7 +56,7 @@ function get_energy_density( chargedensity::Array{Float64}, box::Box )
     k2[1] = Inf  # So that the inverse yields 0.0
 
     es = abs2.( FFTW.rfft( chargedensity, box.space_dims )) ./ k2
-    return FFTW.irfft( es, box.Nx[1], box.space_dims )
+    return (prod(box.dx) / prod(box.Nx[1])) * FFTW.irfft( es, box.Nx[1], box.space_dims )
 end
 
 """
