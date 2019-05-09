@@ -11,3 +11,9 @@ mclachlan_velocity = VlasovaIntegrator("BABA", [1 - 1/sqrt(2),
                                                 1/sqrt(2),
                                                 1/sqrt(2),
                                                 1 - 1/sqrt(2)])
+
+BABAB = VlasovaIntegrator("BABAB", [0.19318332750378361,
+                                    0.5,
+                                    0.6136333449924327,
+                                    0.5,
+                                    0.19318332750378361 ])
