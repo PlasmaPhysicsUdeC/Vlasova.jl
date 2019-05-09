@@ -1,4 +1,4 @@
-export verlet_position, verlet_velocity, mclachlan_velocity
+export verlet_position, verlet_velocity, mclachlan_velocity, BABAB
 
 verlet_position = VlasovaIntegrator("ABA", [0.5,
                                             1.0,
