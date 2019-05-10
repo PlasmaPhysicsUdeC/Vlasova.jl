@@ -9,7 +9,7 @@ export get_kinetic_energy,
     
 
 """
-    Obtains the kinetic energy from a distribution function
+    Obtain the kinetic energy from a distribution function
     Requires:
     * distribution: Array of Float64
     * box: Element of type Box
@@ -101,6 +101,21 @@ function get_k2( box::Box )
     return k2
 end
 
+"""
+    Obtain the electric field from a charge distribution.
+    
+    In general, the electric field will be an array where the n-th component is the electric field
+    along the n-th dimension.
+
+    If the charge density depends upon time, the electrif field will also depend on time.
+
+    ```@example
+    using Vlasova
+    box = Box("sim", 64, 64, 2pi, -6, 6 ); 
+    chargedensity = sin.( box.x[1] );
+    Ex = get_electric_field(chargedensity, box)
+    ```
+"""
 function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: check!
 
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
@@ -159,17 +174,10 @@ function get_power_per_mode( chargedensity::Array{Float64}, box::Box )
 end
 
 
+
 """
-    Obtains the electric field from a charge density.
-
-    In general, te electric field returned is an array of arrays, where the first array
-    correspond to the electric field along the first dimension and so on.
-
-    In the case where the charge density depends on time, the electric field will continue
-    to be an array of arrays, where each of them will be the electric field along one dimensions
-    having the same dependence on time as the charge density.
+    Obtain the energy density fourier-transformed in space and time.
 """
-
 function get_dispersion_relation(chargedensity::Array{Float64}, box::Box)
     efield = get_electric_field(chargedensity, box)
 
