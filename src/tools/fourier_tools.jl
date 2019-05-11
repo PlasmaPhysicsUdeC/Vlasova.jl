@@ -25,9 +25,10 @@ end
     with the form used in Vlasova.jl
 """
 function rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
-    k = Array{Array{Float64, 1}}( undef, length(vector) )
+    number_of_dims = length(vector)
+    k = Array{Array{Float64, 1}}( undef, number_of_dims )
     k[1] = rfft_wavevector( vector[1] )
-    for d in 2:box.number_of_dims
+    for d in 2:number_of_dims
         k[d] = wavevector( vector[d] )
     end
     return k
