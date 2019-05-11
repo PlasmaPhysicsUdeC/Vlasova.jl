@@ -80,7 +80,9 @@ end
 
 """
     Obtain the squared wavevector,
+
     `k^2 = k_1^2 + k_2^2 + ... k_n^2`
+
     where k_1 is a half of the first wavevector as it would be used on a real DFT.
 """
 function get_k2( box::Box )
@@ -118,6 +120,9 @@ end
 """
 function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: check!
 
+    Nx2p1 = Tuple( (i == 1) ? fld( box.Nx[1], 2 ) + 1 : box.Nx[i] for i in 1:box.number_of_dims )
+    fourier_axis = CartesianIndices( Nx2p1 )
+    
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
     
     integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
