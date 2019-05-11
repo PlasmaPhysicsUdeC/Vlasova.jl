@@ -117,6 +117,7 @@ function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: che
     
     Nx2p1, fourier_axis = get_rfft_dims( box )
     
+    k = rfft_wavevector( box.x )
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
     
     integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
@@ -130,6 +131,7 @@ function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: che
     end
 
     efield = Array{Array{Float64}}(undef, box.number_of_dims)
+    fourier_density = FFTW.rfft( chargedensity )
     for d in 1:box.number_of_dims
         efield[d] = FFTW.irfft( integrate[d] .* fourier_density, box.Nx[1], box.space_dims )
     end
@@ -179,8 +181,11 @@ end
 """
 function get_dispersion_relation(chargedensity::Array{Float64}, box::Box)
     efield = get_electric_field(chargedensity, box)
-
-    disprel = zeros(Complex{Float64}, length(size(chargedensity)) )
+    Nx2p1, = get_rfft_dims( box )
+    dens_size = size( chargedensity )
+    disp_size = Tuple( i == 1 ? ( fld(dens_size[i], 2) + 1 ) : dens_size[i] for i in 1:length(dens_size) )
+    
+    disprel = zeros(Float64, disp_size )
     for d in 1:box.number_of_dims
         disprel += abs2.( FFTW.rfft( efield[d] ) )
     end
