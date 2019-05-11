@@ -86,17 +86,12 @@ end
     where k_1 is a half of the first wavevector as it would be used on a real DFT.
 """
 function get_k2( box::Box )
-    Nx2p1 = Tuple( (i == 1) ? fld( box.Nx[1], 2 ) + 1 : box.Nx[i] for i in 1:box.number_of_dims )
-    fourier_axis = CartesianIndices( Nx2p1 )
+    Nx2p1, fourier_axis = get_rfft_dims( box )
 
-    k = Array{Array{Float64, 1}}(undef, box.number_of_dims)
-    k[1] = rfft_wavevector( box.x[1] )
-    for d in 2:box.number_of_dims
-        k[d] = wavevector( box.x[d] )
-    end
+    k = rfft_wavevector( box.x )
 
     k2 = zeros( Nx2p1 )
-    for d in 1:box.number_of_dims, i in CartesianIndices( Nx2p1 )
+    for d in 1:box.number_of_dims, i in fourier_axis
         k2[i] += ( k[d][ i[d] ] )^2
     end
 
@@ -119,9 +114,8 @@ end
     ```
 """
 function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: check!
-
-    Nx2p1 = Tuple( (i == 1) ? fld( box.Nx[1], 2 ) + 1 : box.Nx[i] for i in 1:box.number_of_dims )
-    fourier_axis = CartesianIndices( Nx2p1 )
+    
+    Nx2p1, fourier_axis = get_rfft_dims( box )
     
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
     
