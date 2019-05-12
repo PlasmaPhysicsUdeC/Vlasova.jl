@@ -156,7 +156,7 @@ function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
     
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
 
-    es = sum(abs2, FFTW.rfft( chargedensity, box.space_dims ) ./ k2, dims = box.space_dims )
+    es = sum(abs2.(FFTW.rfft( chargedensity, box.space_dims )) ./ k2, dims = box.space_dims )
 
     return (prod(box.dx) / prod(box.Nx) ) * dropdims( es, dims = box.space_dims)
 end
@@ -171,7 +171,7 @@ function get_power_per_mode( chargedensity::Array{Float64}, box::Box )
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
 
     es = abs2.( FFTW.rfft( chargedensity, box.space_dims )) ./ k2
-    return (prod(box.dx) / prod(box.Nx[1])) * es # TODO: check normalizations
+    return (prod(box.dx) / prod(box.Nx)) * es # TODO: check normalizations
 end
 
 
@@ -181,13 +181,13 @@ end
 """
 function get_dispersion_relation(chargedensity::Array{Float64}, box::Box)
     efield = get_electric_field(chargedensity, box)
-    Nx2p1, = get_rfft_dims( box )
-    dens_size = size( chargedensity )
-    disp_size = Tuple( i == 1 ? ( fld(dens_size[i], 2) + 1 ) : dens_size[i] for i in 1:length(dens_size) )
     
-    disprel = zeros(Float64, disp_size )
+    dens_size = size( chargedensity )
+    #disp_size = Tuple( i == 1 ? ( fld(dens_size[i], 2) + 1 ) : dens_size[i] for i in 1:length(dens_size) )
+    
+    disprel = zeros(Float64, dens_size )
     for d in 1:box.number_of_dims
-        disprel += abs2.( FFTW.rfft( efield[d] ) )
+        disprel += abs2.( FFTW.fft( efield[d] ) )
     end
     return disprel              # TODO: scaling?
 end
