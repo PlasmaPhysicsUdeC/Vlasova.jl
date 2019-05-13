@@ -180,14 +180,22 @@ end
     Obtain the energy density fourier-transformed in space and time.
 """
 function get_dispersion_relation(chargedensity::Array{Float64}, box::Box)
+
+    k2 = get_k2(box); k2[1] = Inf # So that the inverse yields 0.0
+    
+    disprel = abs2.( FFTW.rfft( chargedensity ) ) ./ k2
+
+    return disprel
+end
+#
+# TODO: This 2 functions give different results. Why?
+#
+function get_dispersion_relation2(chargedensity::Array{Float64}, box::Box)
     efield = get_electric_field(chargedensity, box)
     
-    dens_size = size( chargedensity )
-    #disp_size = Tuple( i == 1 ? ( fld(dens_size[i], 2) + 1 ) : dens_size[i] for i in 1:length(dens_size) )
-    
-    disprel = zeros(Float64, dens_size )
-    for d in 1:box.number_of_dims
-        disprel += abs2.( FFTW.fft( efield[d] ) )
+    disprel = abs2.( FFTW.rfft(efield[1]) )
+    for d in 2:box.number_of_dims
+        disprel += abs2.( FFTW.rfft( efield[d] ) )
     end
     return disprel              # TODO: scaling?
 end
