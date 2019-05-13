@@ -1,8 +1,8 @@
 
 function (d::DataSaver)(plasma::Plasma, t::Integer)
 
-    it = t - d.last_iteration_saved 
-    d.chargedensity[plasma.box.space_axis, it] = get_density( plasma )
+    it = t - d.last_iteration_saved
+    d.chargedensity[UnitRange.(1, plasma.box.Nx)..., it] = get_density( plasma )
     d.kinetic_energy[it, :] = get_kinetic_energies( plasma )
 end
 
