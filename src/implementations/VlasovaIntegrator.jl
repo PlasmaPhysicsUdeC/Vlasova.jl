@@ -10,7 +10,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     # Preallocated to make operations in place
     chargedensity = get_density( plasma )
     electricfield = poisson!( chargedensity )
-
+    
     checkpoint_percent = fld(100, length(datasaver.checkpoint_axis) - 1)
     iteration_axis = (datasaver.last_iteration_saved + 1):Nt
     time_axis = (0:Nt-1)*dt

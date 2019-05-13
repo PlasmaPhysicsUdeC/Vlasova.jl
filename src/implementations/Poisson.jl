@@ -11,7 +11,7 @@
 function (poisson::Poisson)(electricfield, chargedensity )
     LinearAlgebra.mul!( poisson.fourier_density, poisson.plan, chargedensity)
     
-    for d in length(electricfield)
+    for d in axes(electricfield, 1)
         LinearAlgebra.ldiv!( electricfield[d], poisson.plan, poisson.integrate[d] .* poisson.fourier_density )
     end
     return 0;
@@ -23,7 +23,7 @@ end
 function (poisson::Poisson)(chargedensity)
     Nx = size( chargedensity )
     electricfield = Array{Array{Float64}}(undef, length(Nx))
-    for d in 1:length(Nx)
+    for d in axes(electricfield, 1)
         electricfield[d] = similar(chargedensity)
     end
     poisson( electricfield, chargedensity) # Call in-place version
