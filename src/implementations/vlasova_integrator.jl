@@ -9,6 +9,7 @@ function vlasova_integrator!(plasma, final_time, dt;
                              continue_from_backup::Bool = false,
                              checkpoint_percent::Integer = 10,
                              velocity_filtering::Bool = true,
+                             progress_file::String = "/",
                              FFTW_flags = FFTW.ESTIMATE )         # TODO: Test the [nosave] case: checkpoint_percent = 100)
     # Number of iterations
     Nt = floor(Int, final_time/dt + 1)
@@ -32,6 +33,7 @@ function vlasova_integrator!(plasma, final_time, dt;
     integrator(plasma, Nt, dt,
                poisson, space_advection, velocity_advection,
                velocity_filtering,
-               datasaver )
+               datasaver,
+               progress_file = progress_file)
     return; # nothing
 end

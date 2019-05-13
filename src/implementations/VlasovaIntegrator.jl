@@ -5,7 +5,8 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                          sadv!::SpaceAdvection,
                                          vadv!::VelocityAdvection,
                                          velocity_filtering::Bool,
-                                         datasaver::DataSaver)
+                                         datasaver::DataSaver;
+                                         progress_file::String = "/")
 
     # Preallocated to make operations in place
     chargedensity = get_density( plasma )
@@ -24,7 +25,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     #               advection_number = 1)
     #     end
     # end
-    notify("Entering main loop...")
+    notify("Entering main loop...", filename = progress_file, mode = "w")
     start_time = Dates.now()
     for t in iteration_axis     # Time loop
         pos_adv_num = 0
@@ -49,7 +50,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
             # Inform progress
             accomplished = (datasaver.checkpoints_reached - 1) * checkpoint_percent
             elapsed = round(Dates.now() - start_time, Dates.Second )
-            notify("\t$accomplished% accomplished in $elapsed") 
+            notify("\t$accomplished% accomplished in $elapsed", filename = progress_file) 
         end
     end
     return 0;
