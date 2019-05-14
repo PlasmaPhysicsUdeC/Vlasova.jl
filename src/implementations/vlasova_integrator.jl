@@ -5,7 +5,7 @@
             * checkpoint_percent [10]: Is the percentage accomplished between one flush of the data to the disk and another.
 """
 function vlasova_integrator!(plasma, final_time, dt;
-                             integrator::VlasovaIntegrator = verlet_vel,
+                             integrator::VlasovaIntegrator = verlet_velocity,
                              continue_from_backup::Bool = false,
                              checkpoint_percent::Integer = 10,
                              velocity_filtering::Bool = true,
