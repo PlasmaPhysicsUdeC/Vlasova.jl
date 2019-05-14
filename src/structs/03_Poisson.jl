@@ -22,28 +22,18 @@ struct Poisson          # Todo: mutable, isnt it?
             
             fourier_density = zeros(Complex{Float64}, Nx2p1 )
             
-            k = Array{Array{Float64, 1}}(undef, plasma.box.number_of_dims)
-
-            k[1] = rfft_wavevector( plasma.box.x[1] )
-            for d in 2:plasma.box.number_of_dims
-                k[d] = wavevector( plasma.box.x[d] )
-            end
-            
-            k2 = zeros( Nx2p1 )
-            for d in 1:plasma.box.number_of_dims, i in fourier_axis
-                k2[i] += ( k[d][ i[d] ] )^2
-            end
+            k = rfft_wavevector( plasma.box.x )
+            k2 = get_k2( plasma.box )
             k2[1] = Inf  # So that the inverse yields 0.0. Ensure quasineutrality
             
             integrate = Array{Array{Complex{Float64}}}(undef, plasma.box.number_of_dims)
-            integrate[1] = -1im ./ k2
-            for d in 2:plasma.box.number_of_dims
-                integrate[d] = integrate[1]
+            for d in 1:plasma.box.number_of_dims
+                integrate[d] = -1im ./ k2
+                for i in fourier_axis
+                    integrate[d][ i ] *= k[d][ i[d] ]
+                end
             end
             
-            for d in plasma.box.dim_axis, i in fourier_axis
-                integrate[d][ i ] *= k[d][ i[d] ]
-            end
             # Make struct
             new( fourier_density,
                  integrate,
