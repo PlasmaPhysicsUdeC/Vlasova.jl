@@ -1,3 +1,0 @@
-# Structs
-
-Strucs built in order to make the program well organized and efficient...
