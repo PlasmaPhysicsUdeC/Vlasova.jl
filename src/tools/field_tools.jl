@@ -121,17 +121,15 @@ function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: che
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
     
     integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
-    integrate[1] = -1im ./ k2
-    for d in 2:box.number_of_dims
-        integrate[d] = integrate[1]
+    for d in 1:box.number_of_dims
+        integrate[d] = -1im ./ k2
+        for i in fourier_axis
+            integrate[d][ i ] *= k[d][ i[d] ]
+        end
     end
     
-    for d in box.dim_axis, i in fourier_axis
-        integrate[d][ i ] *= k[d][ i[d] ]
-    end
-
-    efield = Array{Array{Float64}}(undef, box.number_of_dims)
     fourier_density = FFTW.rfft( chargedensity )
+    efield = Array{Array{Float64}}(undef, box.number_of_dims)
     for d in 1:box.number_of_dims
         efield[d] = FFTW.irfft( integrate[d] .* fourier_density, box.Nx[1], box.space_dims )
     end
