@@ -55,6 +55,7 @@ function mean(array::Array)::Number
     return sum(array) / length( array );
 end
 
+# Change reducedims for a @squeezing macro
 """
     Performs a reduction function, f,  over an array, A, along the dimensions, dims,
     and drop the dimensions reduced.
