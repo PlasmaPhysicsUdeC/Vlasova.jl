@@ -154,7 +154,15 @@ function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
     
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
 
-    es = sum(abs2.(FFTW.rfft( chargedensity, box.space_dims )) ./ k2, dims = box.space_dims )
+    es = abs2.( FFTW.rfft( chargedensity, box.space_dims ) ) ./ k2
+
+    N = size( es )
+
+    rescale_axis = [ i == 1 ? 1 : 1:N[i] for i in 1:length(N) ]
+
+    es[rescale_axis...] *= 0.5
+    
+    es = sum(es, dims = box.space_dims )
 
     return (prod(box.dx) / prod(box.Nx) ) * dropdims( es, dims = box.space_dims)
 end
