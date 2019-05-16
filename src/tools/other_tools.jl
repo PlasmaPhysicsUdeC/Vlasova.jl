@@ -1,4 +1,4 @@
-export notify, string2file, mean, suppress_stdout, hasnan
+export notify, string2file, mean, reducedims, suppress_stdout, hasnan
 export @hasnan
 
 # TODO: make a progressbar function
@@ -53,6 +53,27 @@ end
 """
 function mean(array::Array)::Number
     return sum(array) / length( array );
+end
+
+"""
+    Performs a reduction function, f,  over an array, A, along the dimensions, dims,
+    and drop the dimensions reduced.
+    
+    In general,
+    ```
+    reducedims( f, A, dims = dims)
+    ```
+    is equivalent to
+    ```
+    dropdims( f(A, dims = dims), dims = dims )
+    ```
+"""
+function reducedims(f::Function, A::Array; dims = (0))
+    if dims == (0)
+        return f(A)
+    else
+        return dropdims(f(A, dims = dims), dims = dims)
+    end
 end
 
 """
