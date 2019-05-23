@@ -13,7 +13,7 @@ struct SpaceAdvection
         N2p1 = Int32.(size(transformed_DF))
         Nx2p1 = Tuple( N2p1[i] for i in 1:plasma.box.number_of_dims )
         fourier_space_axis = CartesianIndices( Nx2p1 )
-        specie_coefficients = [ sqrt( plasma.species[s].temperature *
+        specie_coefficients = [ sqrt( plasma.species[s].temperature /
                                       plasma.species[s].mass ) for s in plasma.specie_axis]
         k = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
         k[1] = rfft_wavevector( plasma.box.x[1] )
