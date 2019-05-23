@@ -18,7 +18,7 @@ struct Specie
 
     # Constructors
     # Take reals, but turn them into Float64
-    Specie(name::String,
+    _Specie(name::String,
            charge::Real,
            mass::Real,
            temperature::Real,
@@ -30,5 +30,19 @@ struct Specie
                     Float64(mass),
                     Float64(temperature),
                     Float64.(distribution) )
+           end
+
+    Specie(args...
+           ;name::String,
+           charge::Real,
+           mass::Real,
+           temperature::Real,
+           distribution::Array{T} where T <: Real) = begin
+               @assert args == () "Specie should not be called using non-keyword arguments."
+               _Specie(name,
+                       charge,
+                       mass,
+                       temperature,
+                       distribution)
            end
 end
