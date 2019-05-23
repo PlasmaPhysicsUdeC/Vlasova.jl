@@ -128,7 +128,7 @@ function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: che
         end
     end
     
-    fourier_density = FFTW.rfft( chargedensity )
+    fourier_density = FFTW.rfft( chargedensity, box.space_dims )
     efield = Array{Array{Float64}}(undef, box.number_of_dims)
     for d in 1:box.number_of_dims
         efield[d] = FFTW.irfft( integrate[d] .* fourier_density, box.Nx[1], box.space_dims )
