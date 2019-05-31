@@ -2,11 +2,12 @@
 function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                          Nt::Integer, dt::Float64,
                                          poisson!::Poisson,
+                                         external_potential::Function,
                                          sadv!::SpaceAdvection,
                                          vadv!::VelocityAdvection,
                                          velocity_filtering::Bool,
                                          datasaver::DataSaver;
-                                         progress_file::String = "/")
+                                         progress_file::String)
 
     # Preallocated to make operations in place
     chargedensity = get_density( plasma )
@@ -14,28 +15,20 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     
     checkpoint_percent = fld(100, length(datasaver.checkpoint_axis) - 1)
     iteration_axis = (datasaver.last_iteration_saved + 1):Nt
-    time_axis = (0:Nt-1)*dt
-    
     # TODO: Allow for merging
-    # if integrator.merge_last_advection
-    #     if integrator.sequence[1] == 'A'
-    #         sadv!(plasma, advection_number = 1)
-    #     else
-    #         vadv!(plasma,electricfield,
-    #               advection_number = 1)
-    #     end
-    # end
     notify("Entering main loop...", filename = progress_file, mode = "w")
     start_time = Dates.now()
     for t in iteration_axis     # Time loop
+        time = (t-2) * dt
         pos_adv_num = 0
         vel_adv_num = 0
         for a in integrator.sequence
             if a == 'A'
                 pos_adv_num += 1
                 sadv!(plasma, advection_number = pos_adv_num)
+                time += sadv!.coefficients[ pos_adv_num ]
                 get_density!(chargedensity, plasma)
-                poisson!(electricfield, chargedensity)
+                poisson!(electricfield, chargedensity, external_potential = external_potential( time, plasma.box ) )
            else
                 vel_adv_num += 1
                 vadv!(plasma, electricfield,

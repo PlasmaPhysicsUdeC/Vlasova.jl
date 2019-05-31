@@ -3,8 +3,9 @@ module Vlasova
 import LinearAlgebra, FFTW, HDF5, Libdl, Dates
 
 # Structs
-export Box, VlasovaIntegrator, Specie, Plasma
+export Box, VlasovaIntegrator, Specie, Plasma, get_zero
 include("structs/01_Box.jl")
+include("structs/01_Zero.jl")
 include("structs/01_VlasovaIntegrator.jl")
 include("structs/01_Specie.jl")
 include("structs/02_Plasma.jl")

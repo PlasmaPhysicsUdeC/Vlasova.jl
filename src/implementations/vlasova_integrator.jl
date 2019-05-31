@@ -6,6 +6,7 @@
 """
 function vlasova_integrator!(plasma, final_time, dt;
                              integrator::VlasovaIntegrator = verlet_velocity,
+                             external_potential::Function = get_zero,
                              continue_from_backup::Bool = false,
                              checkpoint_percent::Integer = 10,
                              velocity_filtering::Bool = true,
@@ -31,7 +32,8 @@ function vlasova_integrator!(plasma, final_time, dt;
     # Do the magic!
     notify("Everything initialized.")
     integrator(plasma, Nt, dt,
-               poisson, space_advection, velocity_advection,
+               poisson, external_potential,
+               space_advection, velocity_advection,
                velocity_filtering,
                datasaver,
                progress_file = progress_file)

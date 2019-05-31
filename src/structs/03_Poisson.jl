@@ -7,7 +7,8 @@
 """
 struct Poisson          # Todo: mutable, isnt it?
     fourier_density::Array{Complex{Float64}}
-    integrate::Array{Array{Complex{Float64}}}
+    pot2dens::Array{Complex{Float64}}
+    dens2field::Array{Array{Complex{Float64}}}
     plan::FFTW.FFTWPlan
 
     # Construct a Poisson struct from a Plasma and [optionally] FFTW flags
@@ -26,17 +27,19 @@ struct Poisson          # Todo: mutable, isnt it?
             k2 = get_k2( plasma.box )
             k2[1] = Inf  # So that the inverse yields 0.0. Ensure quasineutrality
             
-            integrate = Array{Array{Complex{Float64}}}(undef, plasma.box.number_of_dims)
+            dens2field = Array{Array{Complex{Float64}}}(undef, plasma.box.number_of_dims)
             for d in 1:plasma.box.number_of_dims
-                integrate[d] = -1im ./ k2
+                dens2field[d] = -1im ./ k2
                 for i in fourier_axis
-                    integrate[d][ i ] *= k[d][ i[d] ]
+                    dens2field[d][ i ] *= k[d][ i[d] ]
                 end
             end
+            k2[1] = 0.0im
             
             # Make struct
             new( fourier_density,
-                 integrate,
+                 k2,
+                 dens2field,
                  plan )
         end
 end

@@ -113,7 +113,7 @@ end
     Ex = get_electric_field(chargedensity, box)
     ```
 """
-function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: check!
+function get_electric_field(chargedensity::Array{Float64}, box::Box)
     
     Nx2p1, fourier_axis = get_rfft_dims( box )
     
@@ -134,6 +134,29 @@ function get_electric_field(chargedensity::Array{Float64}, box::Box) # TODO: che
         efield[d] = FFTW.irfft( integrate[d] .* fourier_density, box.Nx[1], box.space_dims )
     end
     
+    return efield
+end
+
+function get_electric_field(;
+                            potential::Array{Float64}, box::Box)
+    
+    Nx2p1, fourier_axis = get_rfft_dims( box )
+    k = rfft_wavevector( box.x )
+    
+    integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
+    for d in 1:box.number_of_dims
+        integrate[d] = ones(fourier_axis)
+        for i in fourier_axis
+            integrate[d][ i ] *= k[d][ i[d] ]
+        end
+    end
+
+    phik = FFTW.rfft( potential, box.space_dims )
+    efield = Array{Array{Float64}}(undef, box.number_of_dims)
+    for d in 1:box.number_of_dims
+        efield[d] = FFTW.irfft( integrate[d] .* phik, box.Nx[1], box.space_dims )
+    end
+
     return efield
 end
 

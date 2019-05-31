@@ -1,4 +1,5 @@
 struct SpaceAdvection
+    coefficients::Array{Float64}
     plan::FFTW.FFTWPlan
     transformed_DF::Array{Complex{Float64}}
     shift::Array{Array{Array{Complex{Float64}}}}
@@ -36,7 +37,8 @@ struct SpaceAdvection
             end
         end
         # Make struct
-        new( plan,
+        new( pos_coefficients,
+             plan,
              transformed_DF,
              shift,
              N2p1 )
