@@ -51,8 +51,12 @@ end
     Returns
     * mean: Float64
 """
-function mean(array::Array)::Number
-    return sum(array) / length( array );
+function mean(array::Array; dims = (0))
+    if dims == (0)
+        return sum(array) / prod(size( array ));
+    else
+        return sum(array, dims = dims) / prod(size( array )[ [dims...] ]);
+    end
 end
 
 # Change reducedims for a @squeezing macro
