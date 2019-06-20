@@ -37,6 +37,10 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
             end
         end
         datasaver(plasma, t)
+
+        savedf = any( isapprox.(time, datasaver.save_distribution_times, atol = 1e-10 ) )
+        savedf ? save_distribution(datasaver, plasma) : nothing
+            
         if t in datasaver.checkpoint_axis
             save_to_disk(datasaver, plasma, t)
 

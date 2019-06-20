@@ -19,7 +19,7 @@ function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     for s in 1:p.number_of_species
         fid = HDF5.h5open(d.path*p.species[s].name*".h5", "r+")
         s == 1 ? (fid["last_iteration_saved"][1] = t) : nothing
-        fid["distribution"][UnitRange.(1, p.box.N)... ] = p.species[s].distribution
+        fid["distribution"][UnitRange.(1, p.box.N)..., length(d.save_distribution_times)] = p.species[s].distribution
         HDF5.close(fid)
     end
 
@@ -35,4 +35,11 @@ function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     end
 end
 
-# TODO: function saveDF()
+function save_distribution(d::DataSaver, p::Plasma)
+    for s in 1:p.number_of_species
+        fid = HDF5.h5open(d.path*p.species[s].name*".h5", "r+")
+        fid["distribution"][UnitRange.(1, p.box.N)..., d.last_distribution_saved + 1 ] = p.species[s].distribution
+        HDF5.close(fid)
+    end
+    d.last_distribution_saved += 1
+end 
