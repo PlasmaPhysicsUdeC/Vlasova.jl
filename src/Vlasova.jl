@@ -6,6 +6,7 @@ import LinearAlgebra, FFTW, HDF5, Libdl, Dates
 export Box, VlasovaIntegrator, Specie, Plasma, get_zero
 include("structs/01_Box.jl")
 include("structs/01_Zero.jl")
+include("structs/01_TimeManager.jl")
 include("structs/01_VlasovaIntegrator.jl")
 include("structs/01_Specie.jl")
 include("structs/02_Plasma.jl")
@@ -16,12 +17,14 @@ include("structs/03_SpaceAdvection.jl")
 include("structs/03_VelocityAdvection.jl")
 
 # Function implementations
-include("implementations/VlasovaIntegrator.jl")
+
 include("implementations/Plasma.jl")
-include("implementations/DataSaver.jl")
 include("implementations/Poisson.jl")
+include("implementations/DataSaver.jl")
+include("implementations/TimeManager.jl")
 include("implementations/SpaceAdvection.jl")
 include("implementations/VelocityAdvection.jl")
+include("implementations/VlasovaIntegrator.jl")
 
 # Main integrator
 export vlasova_integrator!

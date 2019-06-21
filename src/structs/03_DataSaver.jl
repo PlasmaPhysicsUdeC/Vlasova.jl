@@ -2,20 +2,34 @@ mutable struct DataSaver
     chargedensity::Array{Float64}
     kinetic_energy::Array{Float64}
     checkpoint_axis::Array{Float64, 1}
+    save_distribution_axis::Array{Float64, 1}
     last_iteration_saved::Int64
     last_distribution_saved::Int64
     checkpoints_reached::Int64
-    save_distribution_times::Array{Float64, 1}
     path::String
     
     DataSaver(plasma::Plasma,
-              Nt::Integer,
+              tm::TimeManager,
               checkpoint_percent::Integer = 10,
               continue_from_backup::Bool = false,
-              save_distribution_times::Array{Float64, 1} = Float64[]
+              save_distribution_times::Array{N, 1} where N <: Union{Float64, Int64} = Float64[]
               ) = begin
 
-                  # checkpoints
+                  Nt = floor(Int, tm.final_time / tm.dt + 1)
+
+                  # Save distribution axis
+                  save_distribution_times = sort( Float64.( save_distribution_times ) )
+                  ## All saving times must be multiple of dt
+                  @assert all( isinteger.( round.(save_distribution_times ./ tm.dt, digits = 10) )
+                               ) "Not all times to save the distribution function are multiples of dt"
+                  @assert all(save_distribution_times[end] - tm.final_time .<= 0) "The times to save the distribution function can not be larger than final_time"
+                  ## Always save the last instant
+                  (tm.final_time in save_distribution_times) ? nothing : append!(save_distribution_times, tm.final_time)
+                  
+                  save_distribution_axis = floor.(Int, save_distribution_times ./ tm.dt .+ 1)
+                  Ndf = size( save_distribution_axis, 1 )
+                  
+                  # Checkpoint axis
                   @assert 1 <= checkpoint_percent <= 100  "checkpoint_percent must be valued between 1 and 100"
                   @assert isinteger(100/checkpoint_percent) "checkpoint_percent must be a whole divisor of 100"
                   checkpoint_axis = collect(Int, range(1, stop = Nt, length = Int(100/checkpoint_percent) + 1 ))
@@ -26,9 +40,9 @@ mutable struct DataSaver
                   last_iteration_saved = 1
                   last_distribution_saved = 0
                   checkpoints_reached = 1
-                  
+
+                  # Path
                   path = "data/"*plasma.box.simulation_name*"/"
-                  Ndf = length( save_distribution_times )
 
                   if continue_from_backup
                       # Restore data
@@ -81,10 +95,10 @@ mutable struct DataSaver
                   new( chargedensity,
                        kinetic_energy,
                        checkpoint_axis,
+                       save_distribution_axis,
                        last_iteration_saved,
                        last_distribution_saved,
                        checkpoints_reached,
-                       save_distribution_times,
                        path)
               end
 end

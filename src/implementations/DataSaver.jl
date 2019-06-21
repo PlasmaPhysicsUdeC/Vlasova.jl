@@ -1,9 +1,20 @@
 
-function (d::DataSaver)(plasma::Plasma, t::Integer)
+function (d::DataSaver)(plasma::Plasma, tm::TimeManager, t::Integer; progress_file = "/" )
 
+    # Saved every iteration
     it = t - d.last_iteration_saved
     d.chargedensity[UnitRange.(1, plasma.box.Nx)..., it] = get_density( plasma )
     d.kinetic_energy[it, :] = get_kinetic_energies( plasma )
+
+    # Save distribution ?
+    ( t in d.save_distribution_axis ) ? save_distribution(d, plasma) : nothing
+
+    # is checkpoint ?
+    if t in d.checkpoint_axis
+        save_to_disk(d, plasma, t)
+        notify_progress(tm, t, filename = progress_file)
+    end
+        
 end
 
 function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
@@ -19,7 +30,7 @@ function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     for s in 1:p.number_of_species
         fid = HDF5.h5open(d.path*p.species[s].name*".h5", "r+")
         s == 1 ? (fid["last_iteration_saved"][1] = t) : nothing
-        fid["distribution"][UnitRange.(1, p.box.N)..., length(d.save_distribution_times)] = p.species[s].distribution
+        fid["distribution"][UnitRange.(1, p.box.N)..., length(d.save_distribution_axis)] = p.species[s].distribution
         HDF5.close(fid)
     end
 
