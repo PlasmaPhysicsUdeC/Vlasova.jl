@@ -38,8 +38,8 @@ mutable struct DataSaver
                   chargedensity = Array{Float64}(undef, (plasma.box.Nx..., checkpoint_step) )
                   kinetic_energy = Array{Float64}(undef, (checkpoint_step, plasma.number_of_species))
                   last_iteration_saved = 1
-                  last_distribution_saved = 0
                   checkpoints_reached = 1
+                  last_distribution_saved = 0
 
                   # Path
                   path = "data/"*plasma.box.simulation_name*"/"
@@ -53,7 +53,7 @@ mutable struct DataSaver
                               last_distribution_saved = read( fid["last_distribution_saved"] )[1]
                           end
                           plasma.species[s].distribution .= read( fid["distribution"],
-                                                                  (UnitRange.(1, plasma.box.N)..., last_distribution_saved) )
+                                                                  (UnitRange.(1, plasma.box.N)..., Ndf) )
                           HDF5.close(fid)
                       end
                       checkpoints_reached = findfirst( last_iteration_saved .== checkpoint_axis )
@@ -74,6 +74,8 @@ mutable struct DataSaver
 
                       # Specie file(s)
                       save_df0 = ( 0.0 in save_distribution_times )
+                      save_df0 ? ( last_distribution_saved += 1 ) : nothing
+                      
                       for s in 1:plasma.number_of_species
                           fid = HDF5.h5open(path*plasma.species[s].name*".h5", "w")
                           fid["distribution"] = Array{Float64}(undef, plasma.box.N..., Ndf)
@@ -84,12 +86,11 @@ mutable struct DataSaver
                           
                           fid["times_saved"] = save_distribution_times
                           if s == 1
-                              fid["last_iteration_saved"] = [1]
-                              fid["last_distribution_saved"] = ( save_df0 ? [1] : [0] )
+                              fid["last_iteration_saved"] = [ last_iteration_saved ]
+                              fid["last_distribution_saved"] = [ last_distribution_saved ]
                           end
                           HDF5.close(fid)
                       end
-                      save_df0 ? ( last_distribution_saved += 1 ) : nothing
                   end
                   
                   new( chargedensity,
