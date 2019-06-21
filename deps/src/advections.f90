@@ -31,14 +31,19 @@ subroutine velocity_advection1d( Nx, Nvx2p1, coef, Ex, ux, F)
   complex*16, intent(in):: coef
   complex*16, intent(inout):: F(Nx, Nvx2p1)
 
-  integer:: j
-  complex*16:: tmp(Nx)
+  integer:: i, j
+  complex*16:: tmp(Nx), tmp2(Nx)
   
   tmp = exp( coef * ( ux(2) - ux(1) ) * Ex )
+  tmp2(:) = 1.0d0                  ! whole Array assignment
 
-  !$OMP PARALLEL DO PRIVATE(j)
+  !TODO: Is it convenient to parallelize inner loops? 
   do j = 1, Nvx2p1
-     F(:, j) = F(:, j) * tmp**(j-1)
+     !$OMP PARALLEL DO PRIVATE(i)
+     do i = 1, Nx
+        F(i, j) = F(i, j) * tmp2(i)
+        tmp2(i) = tmp2(i) * tmp(i)
+     end do
   end do
 
   return
