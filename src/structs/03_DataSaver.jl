@@ -22,7 +22,7 @@ mutable struct DataSaver
                   ## All saving times must be multiple of dt
                   @assert all( isinteger.( round.(save_distribution_times ./ tm.dt, digits = 10) )
                                ) "Not all times to save the distribution function are multiples of dt"
-                  @assert all(save_distribution_times[end] - tm.final_time .<= 0) "The times to save the distribution function can not be larger than final_time"
+                  @assert all(save_distribution_times .- tm.final_time .<= 0) "The times to save the distribution function can not be larger than final_time"
                   ## Always save the last instant
                   (tm.final_time in save_distribution_times) ? nothing : append!(save_distribution_times, tm.final_time)
                   
