@@ -96,6 +96,98 @@ subroutine velocity_advection2d( Nx, Ny, Nvx2p1, Nvy, coef, Ex, Ey, ux, uy, F)
   return
 end subroutine velocity_advection2d
 
+! ! TODO: EXPERIMENTAL: 1 -> test showed wrong results
+! subroutine velocity_advection2d( Nx, Ny, Nvx2p1, Nvy, coef, Ex, Ey, ux, uy, F)
+!   implicit none
+!   integer, intent(in):: Nx, Ny, Nvx2p1, Nvy
+!   real*8, intent(in)::  Ex(Nx, Ny), Ey(Nx, Ny), ux(Nvx2p1), uy(Nvy)
+!   complex*16, intent(in):: coef
+!   complex*16, intent(inout):: F(Nx, Ny, Nvx2p1, Nvy)
+
+!   integer:: i, j, k
+!   complex*16:: aux1(Nx, Ny), aux2(Nx, Ny)
+
+!   aux1 = exp( coef * Ex * ( ux(2) - ux(1) ) )
+!   aux2(:, :) = 1.0d0
+
+!   do k = 1, Nvx2p1
+!      !$OMP PARALLEL DO PRIVATE(i, j)
+!      do j = 1, Ny
+!         do i = 1, Nx
+!            F(i, j, k, :) = F(i, j, k, :) * aux2(i, j)
+!            aux2(i, j) = aux2(i, j) * aux1(i, j)
+!         end do
+!      end do
+!   end do
+
+!   aux1 = exp( coef * Ey * ( uy(2) - uy(1) ) )
+!   aux2(:, :) = 1.0d0
+  
+!   do k = 1, Nvy
+!      !$OMP PARALLEL DO PRIVATE(i, j)
+!      do j = 1, Ny
+!         do i = 1, Nx
+!            F(i, j, :, k) = F(i, j, :, k) * aux2(i, j)
+!            aux2(i, j) = aux2(i, j) * aux1(i, j)
+!         end do
+!      end do
+!   end do
+
+!   return
+! end subroutine velocity_advection2d
+
+! TODO: EXPERIMENTAL: 2 -> test showed wrong results
+! subroutine velocity_advection2d( Nx, Ny, Nvx2p1, Nvy, coef, Ex, Ey, ux, uy, F)
+!   implicit none
+!   integer, intent(in):: Nx, Ny, Nvx2p1, Nvy
+!   real*8, intent(in)::  Ex(Nx, Ny), Ey(Nx, Ny), ux(Nvx2p1), uy(Nvy)
+!   complex*16, intent(in):: coef
+!   complex*16, intent(inout):: F(Nx, Ny, Nvx2p1, Nvy)
+
+!   integer:: i, j, k, l
+!   complex*16:: aux1(Nx, Ny), aux2(Nx, Ny), cx1(Nx, Ny, Nvx2p1), cx2(Nx, Ny, Nvx2p1)
+
+!   aux1 = exp( coef * Ex * ( ux(2) - ux(1) ) )
+!   aux2(:, :) = 1.0d0
+  
+!   do k = 1, Nvx2p1
+!      !$OMP PARALLEL DO PRIVATE(i, j)
+!      do j = 1, Ny
+!         do i = 1, Nx
+!            cx1(i, j, k) = aux2(i, j)
+!            aux2(i, j) = aux2(i, j) * aux1(i, j)
+!         end do
+!      end do
+!   end do
+
+!   aux1 = exp( coef * Ey * ( uy(2) - uy(1) ) )
+!   aux2(:, :) = 1.0d0
+  
+!   do k = 1, Nvy
+!      !$OMP PARALLEL DO PRIVATE(i, j)
+!      do j = 1, Ny
+!         do i = 1, Nx
+!            cx2(i, j, k) = aux2(i, j)
+!            aux2(i, j) = aux2(i, j) * aux1(i, j)
+!         end do
+!      end do
+!   end do
+
+!   !$OMP PARALLEL DO PRIVATE(i, j, k, l)
+!   do l = 1, Nvy
+!      do k = 1, Nvx2p1
+!         do j = 1, Ny
+!            do i = 1, Nx
+!               F(i, j, k ,l) = F(i, j, k ,l) * cx1(i, j, k) * cx2(i, j, l)
+!            end do
+!         end do
+!      end do
+!   end do
+  
+ 
+!   return
+! end subroutine velocity_advection2d
+
 subroutine space_advection2d( Nx2p1, Ny, Nvx, Nvy, spaceShift, F)
   implicit none
   integer, intent(in):: Nx2p1, Ny, Nvx, Nvy
