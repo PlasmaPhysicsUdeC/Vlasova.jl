@@ -1,6 +1,8 @@
 export maxwellian1d, maxwellian2d, twostream1d, bump_on_tail1d
 
-# 1D normalized Maxwellian
+"""
+Generate a 1-d normalized Maxwellian
+"""
 function maxwellian1d(v; vt::Float64 = 1.0, vd = 0.0::Float64) # Velocity may be anything (Float64, Array{Float64}, etc...)
     #=
     Returns a normalized 1-dimensional Maxwellian.
@@ -11,13 +13,43 @@ function maxwellian1d(v; vt::Float64 = 1.0, vd = 0.0::Float64) # Velocity may be
     return @. c * exp( -0.5*( (v - vd)/vt )^2 )
 end
 
+"""
+Generate a 1-d normalized maxwellian from a Vlasova.Box element
+"""
+function maxwellian1d(box::Box; vt::Float64 = 1.0, vd = 0.0::Float64) # Velocity may be anything (Float64, Array{Float64}, etc...)
+    #=
+    Returns a normalized 1-dimensional Maxwellian.
+    If not provided: vt = 1.0, vd = 0.0
+    =#
+
+    c = 1.0/(vt*sqrt(2pi)) # Normalization constant
+    return @. c * exp( -0.5*( (box.v[1] - vd)/vt )^2 )
+end
+
+"""
+Generate a 2-d normalized Maxwellian
+"""
 function maxwellian2d(vx, vy; vtx::Float64 = 1.0, vty::Float64 = 1.0, vdx::Float64 = 0.0, vdy::Float64 = 0.0)
     #=
     Returns a normalized 2-dimensional Maxwellian.
-    If not provided: Vtx, Vty = 1.0 and v0x, v0y = 0.0
+    If not provided: vtx, vty = 1.0 and v0x, v0y = 0.0
     =#
     Mx = maxwellian1d(vx, vt = vtx, vd = vdx)
     My = maxwellian1d(vy, vt = vty, vd = vdy)
+    
+    return Mx*My'
+end
+
+"""
+Generate a 2-d normalized Maxwellian from a Vlasova.Box element
+"""
+function maxwellian2d(box::Box; vtx::Float64 = 1.0, vty::Float64 = 1.0, vdx::Float64 = 0.0, vdy::Float64 = 0.0)
+    #=
+    Returns a normalized 2-dimensional Maxwellian.
+    If not provided: vtx, vty = 1.0 and v0x, v0y = 0.0
+    =#
+    Mx = maxwellian1d(box.v[1], vt = vtx, vd = vdx)
+    My = maxwellian1d(box.v[2], vt = vty, vd = vdy)
     
     return Mx*My'
 end
