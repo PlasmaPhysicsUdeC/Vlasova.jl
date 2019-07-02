@@ -5,8 +5,6 @@
 To start a new simulation
 -------------------------
 
-
- l
 * Choose the parameters desired in the file "parameters.jl"
 * Execute "start.sh".
   To do this, and with the terminal into the program folder, type:
