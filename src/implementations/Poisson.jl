@@ -33,3 +33,23 @@ function (poisson::Poisson)(chargedensity; external_potential = Zero())
     poisson( electricfield, chargedensity, external_potential = external_potential) # Call in-place version
     return electricfield;
 end
+
+"""
+    Obtains the gradient forcing therm ` grad = \nabla |\vec E|^2 ` to use gradient integrators
+"""
+function gradient_force!(grad, p::Poisson, E)
+    Ndims = length(E)
+    @. grad[1] = abs2( E[1] )
+    for i in 2:Ndims
+        @. grad[1] += abs2( E[i] )
+    end
+    LinearAlgebra.mul!(p.fourier_density, p.plan, grad[1])
+    # Swap real and imaginary parts outside the loop
+    @. p.fourier_density *= 1im
+    for i in 1:Ndims
+        LinearAlgebra.ldiv!(grad[i], p.plan, p.k[i] .* p.fourier_density) # TODO: This will fail in 2d
+    end
+    
+    return 0;
+end
+    

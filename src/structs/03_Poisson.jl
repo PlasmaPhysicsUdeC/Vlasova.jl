@@ -7,6 +7,7 @@
 """
 struct Poisson          # Todo: mutable, isnt it?
     fourier_density::Array{Complex{Float64}}
+    k::Array{Array{Float64}}
     pot2dens::Array{Complex{Float64}}
     dens2field::Array{Array{Complex{Float64}}}
     plan::FFTW.FFTWPlan
@@ -38,8 +39,9 @@ struct Poisson          # Todo: mutable, isnt it?
             
             # Make struct
             new( fourier_density,
+                 k,
                  k2,
                  dens2field,
-                 plan )
+                 plan)
         end
 end

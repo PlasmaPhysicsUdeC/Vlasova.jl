@@ -31,7 +31,7 @@ struct VelocityAdvection
 
             # Coefficients
             ## advection
-            vel_ind = findall([ i == 'B' for i in integrator.sequence ])
+            vel_ind = findall([ i in "BC" for i in integrator.sequence ])
             advection_coefficients = integrator.coefficients[vel_ind] * dt
             ## specie
             specie_coefficients = [ plasma.species[s].charge / sqrt(
