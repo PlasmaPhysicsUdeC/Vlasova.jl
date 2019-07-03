@@ -9,7 +9,7 @@
         where the distribution function is an array of 2N dimensions,
         and N is the number of spatial dimensions
     """
-struct Specie
+struct Specie                   # TODO: Accept thermal_velocity or temperature. (rewrite integrator to use vth)
     name::String
     charge::Float64
     mass::Float64
