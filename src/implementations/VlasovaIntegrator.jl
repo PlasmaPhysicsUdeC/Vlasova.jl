@@ -39,17 +39,22 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                 
                 time += sadv!.coefficients[ pos_adv_num ] # Updtate time after advection
                 poisson!(electricfield, chargedensity, external_potential = external_potential( time, plasma.box ) )
-            else
+                
+            elseif a == 'B'
                 vel_adv_num += 1
-                if a == 'C'     # Gradient step
-                    grad_adv_num += 1
-                    gradient_force!(grad, poisson!, electricfield)
-                    # @show isapprox(grad[1], (2 * electricfield[1] .* chargedensity)) # In 1D should be true
-                    # @show integrator.gradient_coefficients
-                    for i in 1:plasma.box.number_of_dims
-                        @. electricfield[i] += time_manager.dt^2 * integrator.gradient_coefficients[ grad_adv_num ] * grad[i]
-                    end
+                vadv!(plasma, electricfield,
+                      advection_number = vel_adv_num,
+                      filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per time iteration
+                
+            else # a == 'C' -> Gradient force advection!
+                vel_adv_num += 1
+                grad_adv_num += 1
+                gradient_force!(grad, poisson!, electricfield)
+                
+                for i in 1:plasma.box.number_of_dims
+                    @. electricfield[i] += time_manager.dt^2 * integrator.gradient_coefficients[ grad_adv_num ] * grad[i] # TODO: Lacking specie coefficient?
                 end
+
                 vadv!(plasma, electricfield,
                       advection_number = vel_adv_num,
                       filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per time iteration
