@@ -17,3 +17,5 @@ BABAB = VlasovaIntegrator("BABAB", [0.19318332750378361,
                                     0.6136333449924327,
                                     0.5,
                                     0.19318332750378361 ])
+
+# TODO: Implement the **120 Eff integrator from Omelyan2003
