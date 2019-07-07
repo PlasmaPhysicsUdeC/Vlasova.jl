@@ -14,6 +14,10 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     electricfield = poisson!( chargedensity )
     if 'C' in integrator.sequence
         grad = deepcopy( electricfield )
+        etot = deepcopy( electricfield )
+    else
+        grad = nothing
+        etot = nothing
     end
 
     # Iteration axis
@@ -30,7 +34,6 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
         pos_adv_num = 0
         vel_adv_num = 0
         grad_adv_num = 0
-        # TODO: Allow for merging
         for a in integrator.sequence
             if a == 'A'
                 pos_adv_num += 1
@@ -40,23 +43,19 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                 time += sadv!.coefficients[ pos_adv_num ] # Updtate time after advection
                 poisson!(electricfield, chargedensity, external_potential = external_potential( time, plasma.box ) )
                 
-            elseif a == 'B'
+            else # Velocity advection (B or C)
                 vel_adv_num += 1
-                vadv!(plasma, electricfield,
-                      advection_number = vel_adv_num,
-                      filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per time iteration
-                
-            else # a == 'C' -> Gradient force advection!
-                vel_adv_num += 1
-                grad_adv_num += 1
-                gradient_force!(grad, poisson!, electricfield)
-                
-                for i in 1:plasma.box.number_of_dims
-                    @. electricfield[i] += time_manager.dt^2 * integrator.gradient_coefficients[ grad_adv_num ] * grad[i] # TODO: Lacking specie coefficient?
+
+                isC = ( a == 'C' )
+                if isC
+                    grad_adv_num += 1
+                    gradient_force!(grad, poisson!, electricfield) # Get grad in here, and provide grad to vadv!
                 end
 
-                vadv!(plasma, electricfield,
+                vadv!(plasma, electricfield, grad, etot,
                       advection_number = vel_adv_num,
+                      gradient_number = grad_adv_num,
+                      is_gradient_advection = isC,
                       filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per time iteration
             end
         end

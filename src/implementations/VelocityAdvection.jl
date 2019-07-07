@@ -8,26 +8,37 @@ function anisotropic_filter(u::Array{Float64})
     return @. exp( -36*( u / u_max )^36 )
 end
 
-function (obj::VelocityAdvection)(plasma::Plasma, electricfield;
-                                  filtering = false, advection_number = 1 )
+function (obj::VelocityAdvection)(plasma::Plasma, electricfield, grad, ecorrected;
+                                  advection_number::Int64,
+                                  gradient_number::Int64,
+                                  is_gradient_advection::Bool,
+                                  filtering::Bool)
     
     for s in 1:plasma.number_of_species
-        
-        # Calculate the coefficient for this specie and advection
-        coefficient = - 1im * (obj.advection_coefficients[advection_number] *
-                               obj.specie_coefficients[s] )
         
         # DF to velocity Fourier-space
         LinearAlgebra.mul!(obj.transformed_DF, obj.plan, plasma.species[s].distribution )
         
         # Apply high-freq filter
         filtering ? lowpass_velocityfilter!( obj.transformed_DF, obj.filter, obj.N2p1... ) : nothing
-        
-        # Apply advection
-        _velocity_advection!( obj.transformed_DF, electricfield, obj.wavevector,
-                              coefficient, obj.N2p1...)
 
-        # return to real space
+        # Calculate the coefficient for this specie and advection
+        coefficient = - 1im * (obj.advection_coefficients[advection_number] *
+                               obj.specie_coefficients[s] )
+
+        # Apply advection
+        if is_gradient_advection
+            for i in 1:plasma.box.number_of_dims # TODO: Get the k/k2 to poisson to obtain grad in d>1
+                @. ecorrected[i] = electricfield[i] + obj.specie_coefficients[s] * obj.gradient_coefficients[ gradient_number ] * grad[i]
+            end
+            _velocity_advection!( obj.transformed_DF, ecorrected, obj.wavevector,
+                                  coefficient, obj.N2p1...)
+        else
+            _velocity_advection!( obj.transformed_DF, electricfield, obj.wavevector,
+                                  coefficient, obj.N2p1...)
+        end 
+
+        # Return to real space
         LinearAlgebra.ldiv!( plasma.species[s].distribution, obj.plan, obj.transformed_DF )
         
     end
@@ -58,7 +69,6 @@ function _velocity_advection!(transformed_DF, electricfield, wavevector, coef, N
           Ref(Nx), Ref(Nvx), Ref(coef), electricfield[1], wavevector[1], transformed_DF)
     return 0;
 end
-
 
 # 2D
 function _velocity_advection!(transformed_DF, electricfield, wavevector, coef, Nx::Int32, Ny::Int32, Nvx::Int32, Nvy::Int32)
