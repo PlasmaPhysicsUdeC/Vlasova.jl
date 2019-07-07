@@ -47,7 +47,7 @@ function gradient_force!(grad, p::Poisson, E)
     # Swap real and imaginary parts outside the loop
     @. p.fourier_density *= -1im
     for i in 1:Ndims
-        LinearAlgebra.ldiv!(grad[i], p.plan, p.k[i] .* p.fourier_density) # TODO: This will fail in 2d
+        LinearAlgebra.ldiv!(grad[i], p.plan, p.k[i] .* p.fourier_density)
     end
     
     return 0;
