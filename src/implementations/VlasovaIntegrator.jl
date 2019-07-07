@@ -14,10 +14,10 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     electricfield = poisson!( chargedensity )
     if 'C' in integrator.sequence
         grad = deepcopy( electricfield )
-        etot = deepcopy( electricfield )
+        grad2 = deepcopy( electricfield ) # To avoid to changing electricfield or grad
     else
         grad = nothing
-        etot = nothing
+        grad2 = nothing
     end
 
     # Iteration axis
@@ -49,10 +49,10 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                 isC = ( a == 'C' )
                 if isC
                     grad_adv_num += 1
-                    gradient_force!(grad, poisson!, electricfield) # Get grad in here, and provide grad to vadv!
+                    gradient_force!(grad, poisson!, electricfield) # Get $ grad = \nabla |E|^2 $
                 end
 
-                vadv!(plasma, electricfield, grad, etot,
+                vadv!(plasma, electricfield, grad, grad2,
                       advection_number = vel_adv_num,
                       gradient_number = grad_adv_num,
                       is_gradient_advection = isC,

@@ -5,6 +5,7 @@ struct VelocityAdvection
     filter::Array{Array{Float64}}
     N2p1::NTuple{N, Int32} where N # Int32 to be passed to Fortran!
     advection_coefficients::Array{Complex{Float64}, 1}
+    gradient_coefficients::Array{Complex{Float64}, 1}
     specie_coefficients::Array{Float64, 1}
 
     # Constructor from a plasma, dt and [optionally] FFTW_flags
@@ -33,6 +34,7 @@ struct VelocityAdvection
             ## advection
             vel_ind = findall([ i in "BC" for i in integrator.sequence ])
             advection_coefficients = integrator.coefficients[vel_ind] * dt
+            gradient_coefficients = integrator.gradient_coefficients * dt^2
             ## specie
             specie_coefficients = [ plasma.species[s].charge / sqrt(
                 plasma.species[s].temperature * plasma.species[s].mass ) for s in plasma.specie_axis ]
@@ -44,6 +46,7 @@ struct VelocityAdvection
                 filter,
                 N2p1,
                 advection_coefficients,
+                gradient_coefficients,
                 specie_coefficients )
         end
 end
