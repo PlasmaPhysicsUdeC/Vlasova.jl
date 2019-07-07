@@ -22,7 +22,13 @@ begin
     lambda = 1/(2 - 2^(1/3))
     teta = lambda / 2
 
-    global ABABABA = VlasovaIntegrator("ABABABA", [teta, lambda, 0.5 - teta, 1 - 2*lambda , 0.5 - teta, lambda, teta])
+    global ABABABA = VlasovaIntegrator("ABABABA", [teta,
+                                                   lambda,
+                                                   0.5 - teta,
+                                                   1 - 2*lambda,
+                                                   0.5 - teta,
+                                                   lambda,
+                                                   teta])
 end
 
 # TODO: Implement the **120 Eff integrator from Omelyan2003
