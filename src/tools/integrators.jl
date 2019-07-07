@@ -1,4 +1,4 @@
-export verlet_position, verlet_velocity, mclachlan_velocity, BABAB, ABABABA
+export verlet_position, verlet_velocity, mclachlan_velocity, BABAB, ChinA, ChinC, ABABABA
 
 verlet_position = VlasovaIntegrator("ABA", [0.5,
                                             1.0,
@@ -17,6 +17,22 @@ BABAB = VlasovaIntegrator("BABAB", [0.19318332750378361,
                                     0.6136333449924327,
                                     0.5,
                                     0.19318332750378361 ])
+
+ChinA = VlasovaIntegrator("BACAB", [1/6,
+                                    1/2,
+                                    2/3,
+                                    1/2,
+                                    1/6],
+                          gradient_coefficients = [2 / (3*48) ])
+
+ChinC = VlasovaIntegrator("ABACABA", [1/6,
+                                      3/8,
+                                      1/3,
+                                      1/4,
+                                      1/3,
+                                      3/8,
+                                      1/6],
+                          gradient_coefficients = [1 / (4*48) ])
 
 begin
     lambda = 1/(2 - 2^(1/3))
