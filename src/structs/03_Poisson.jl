@@ -29,9 +29,12 @@ struct Poisson          # Todo: mutable, isnt it?
             k2[1] = Inf  # So that the inverse yields 0.0. Ensure quasineutrality
             
             dens2field = Array{Array{Complex{Float64}}}(undef, plasma.box.number_of_dims)
+            k_multidim = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
             for d in 1:plasma.box.number_of_dims
+                k_multidim[d] = ones( Nx2p1... )
                 dens2field[d] = -1im ./ k2
                 for i in fourier_axis
+                    k_multidim[d][ i ] *= k[d][ i[d] ]
                     dens2field[d][ i ] *= k[d][ i[d] ]
                 end
             end
@@ -39,7 +42,7 @@ struct Poisson          # Todo: mutable, isnt it?
             
             # Make struct
             new( fourier_density,
-                 k,
+                 k_multidim,
                  k2,
                  dens2field,
                  plan)
