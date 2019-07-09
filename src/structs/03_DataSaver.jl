@@ -49,11 +49,10 @@ mutable struct DataSaver
                       for s in 1:plasma.number_of_species
                           fid = HDF5.h5open(path*plasma.species[s].name*".h5", "r")
                           if s == 1
-                              last_iteration_saved = read( fid["last_iteration_saved"])[1]
-                              last_distribution_saved = read( fid["last_distribution_saved"] )[1]
+                              last_iteration_saved = fid["last_iteration_saved"][1][1]
+                              last_distribution_saved = fid["last_distribution_saved"][1][1]
                           end
-                          plasma.species[s].distribution .= read( fid["distribution"],
-                                                                  (UnitRange.(1, plasma.box.N)..., Ndf) )
+                          plasma.species[s].distribution .= dropdims( fid["distribution"][UnitRange.(1, plasma.box.N)..., Ndf], dims = 2 * plasma.box.number_of_dims + 1 )
                           HDF5.close(fid)
                       end
                       checkpoints_reached = findfirst( last_iteration_saved .== checkpoint_axis )
