@@ -122,9 +122,3 @@ end
 function hasnan(var) 
     return findfirst(isnan.(var)) != nothing
 end
-
-#TODO check this
-function halt_nan(var)
-    hasnan = @hasnan var
-    @assert !hasnan "Nan's found. Process halted."
-end
