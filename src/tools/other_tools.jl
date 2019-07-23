@@ -1,4 +1,4 @@
-export notify, string2file, mean, reducedims, suppress_stdout, hasnan
+export notify, string2file, mean, reducedims, suppress_stdout, hasnan, adiabatic_cutoff
 export @hasnan
 
 # TODO: make a progressbar function
@@ -122,3 +122,19 @@ end
 function hasnan(var) 
     return findfirst(isnan.(var)) != nothing
 end
+
+"""
+    Return 1.0 for times before cutoff_time, adiabatically go to 0.0 until cutoff_time + cutoff_delay and return 0.0 afterwards
+
+    The shape used to go from 1.0 to 0.0 is `f(x) = ( 1 + cos(x) ) / 2` with `x in [0, pi]`.
+"""
+function adiabatic_cutoff(time; cutoff_time, cutoff_delay)
+    damp_time = time - cutoff_time
+    if damp_time < 0
+        return 1.0
+    elseif damp_time < cutoff_delay
+        return ( 1.0 + cos( pi * damp_time / cutoff_delay ) ) / 2
+    else
+        return 1.0
+    end
+end 
