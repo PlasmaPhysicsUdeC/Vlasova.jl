@@ -4,8 +4,8 @@ struct VelocityAdvection
     wavevector::Array{Array{Float64}}
     filter::Array{Array{Float64}}
     N2p1::NTuple{N, Int32} where N # Int32 to be passed to Fortran!
-    advection_coefficients::Array{Complex{Float64}, 1}
-    gradient_coefficients::Array{Complex{Float64}, 1}
+    advection_coefficients::Array{Float64, 1}
+    gradient_coefficients::Array{Float64, 1}
     specie_coefficients::Array{Float64, 1}
 
     # Constructor from a plasma, dt and [optionally] FFTW_flags
