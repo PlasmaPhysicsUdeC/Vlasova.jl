@@ -122,13 +122,3 @@ end
 function hasnan(var) 
     return findfirst(isnan.(var)) != nothing
 end
-
-"""
-    Change the name of the current process
-"""
-function set_proc_title(s::String)
-    title = Base.Printf.@sprintf("%s", s)  # Make string safe
-    e = ccall(:uv_set_process_title, Cint, (Cstring,), title)
-    e < 0 ? println("Vlasova: Could not change process name") : nothing
-    return e                    # return error code
-end
