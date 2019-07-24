@@ -128,7 +128,7 @@ end
 
     The shape used to go from 1.0 to 0.0 is `f(x) = ( 1 + cos(x) ) / 2` with `x in [0, pi]`.
 """
-function adiabatic_cutoff(time; cutoff_time, cutoff_delay)
+function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
     damp_time = time - cutoff_time
     if damp_time < 0
         return 1.0
