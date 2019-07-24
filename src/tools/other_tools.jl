@@ -135,6 +135,6 @@ function adiabatic_cutoff(time; cutoff_time, cutoff_delay)
     elseif damp_time < cutoff_delay
         return ( 1.0 + cos( pi * damp_time / cutoff_delay ) ) / 2
     else
-        return 1.0
+        return 0.0
     end
 end 
