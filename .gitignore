@@ -2,8 +2,8 @@
 **~
 **#
 
-# Ignore documentation files
-docs/
+# Ignore built documentation files
+docs/build
 
 # Ignore compiled binaries
 deps/usr/lib/

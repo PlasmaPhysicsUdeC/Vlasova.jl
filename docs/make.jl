@@ -1,12 +1,13 @@
 using Documenter, Vlasova
 
+# If format not defined, make HTML pages
 (@isdefined format) ? nothing : (format = Documenter.HTML() )
 
 makedocs(format = format,
-         sitename="Vlasova.jl",
-         authors = "Jorge Gidi",
-         repo = "https://gitlab.com/jgidi/Vlasova.jl/{commit}{path}#L{line}",
          modules = [Vlasova],
+         sitename = "Vlasova.jl",
+         authors = "Jorge Gidi",
+         repo = "https://gitlab.com/jgidi/Vlasova.jl/blob/{commit}{path}#{line}",
          pages = [
              "Home" => "home.md",
              "Basic concepts" => "basic_concepts.md",
@@ -15,6 +16,5 @@ makedocs(format = format,
                  "Exported" => "API/exported.md",
                  "Not exported" => "API/not_exported.md"
              ]
-             
          ]
          )
