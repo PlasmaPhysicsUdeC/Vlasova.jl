@@ -2,6 +2,13 @@
 
 image: julia:1.1                # image comes from Docker hub
 
+
+before_script:
+  # workaround for https://github.com/JuliaDocs/Documenter.jl/issues/686
+  - apt-get -qq update; apt-get -y install git
+  - julia --project=@. -e "import Pkg; Pkg.build()"
+
+
 pages:
   stage: deploy
   script:
