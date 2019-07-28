@@ -1,6 +1,6 @@
 using Documenter, Vlasova
 
-# If format not defined, make HTML pages
+# If format is not defined, make HTML pages
 (@isdefined format) ? nothing : (format = Documenter.HTML() )
 
 makedocs(format = format,
@@ -9,7 +9,7 @@ makedocs(format = format,
          authors = "Jorge Gidi",
          repo = "https://gitlab.com/jgidi/Vlasova.jl/blob/{commit}{path}#{line}",
          pages = [
-             "Home" => "home.md",
+             "Home" => "index.md", # The name index.md is required by Documenter
              "Basic concepts" => "basic_concepts.md",
              " A simple example" => "simple_example.md",
              "API" => [
