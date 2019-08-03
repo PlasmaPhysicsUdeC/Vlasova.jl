@@ -1,6 +1,6 @@
 module Vlasova
 
-import LinearAlgebra, FFTW, HDF5, Libdl, Dates
+import LinearAlgebra, FFTW, HDF5, Dates
 
 # Structs
 export Box, VlasovaIntegrator, Specie, Plasma, get_zero
@@ -34,6 +34,7 @@ export vlasova_multithread
 include("extras/multithreading.jl")
 
 # Misc tools
+# Multiple exports here. They are specified in each file.
 include("tools/integrators.jl")
 include("tools/field_tools.jl")
 include("tools/fourier_tools.jl")
