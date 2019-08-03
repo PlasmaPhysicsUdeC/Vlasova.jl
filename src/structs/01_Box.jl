@@ -7,7 +7,7 @@
 """
 struct Box
     # Fundamental quantities
-    simulation_name::String
+    name::String     # TODO: Change to name (in all the project)
     Nx::NTuple{N, Int64} where N
     Nv::NTuple{N, Int64} where N
     Lx::NTuple{N, Float64} where N
@@ -83,6 +83,7 @@ struct Box
                  dv,
                  x,
                  v )
+
          end
     
     # Convert (elements, Arrays or Tuples of) Integers/Reals into Tuples of Int64/Float64
@@ -103,4 +104,20 @@ struct Box
                  Float64.(Tuple(vmax))
                  )
         end
+end
+
+# Display box in the REPL
+function Base.display(b::Box)
+    d = "
+    ---
+    $(b.number_of_dims)-dimensional Vlasova Box.
+    ---
+    
+    name = $(b.name)
+    Nx = $(b.Nx)
+    Nv = $(b.Nv)
+    Lx = $(b.Lx)
+    vmin = $(b.vmin)
+    vmax = $(b.vmax)"
+    println(d)
 end

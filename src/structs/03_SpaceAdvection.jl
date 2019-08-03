@@ -3,7 +3,6 @@ struct SpaceAdvection
     plan::FFTW.FFTWPlan
     transformed_DF::Array{Complex{Float64}}
     shift::Array{Array{Array{Complex{Float64}}}}
-    N2p1::NTuple{N, Int32} where N # Int32 to be passed to Fortran!
 
     # Constructor from a plasma, dt and [optionally] FFT_flags
     SpaceAdvection(plasma::Plasma, integrator::VlasovaIntegrator, dt::Float64; FFTW_flags = FFTW.ESTIMATE ) = begin
@@ -40,7 +39,6 @@ struct SpaceAdvection
         new( pos_coefficients,
              plan,
              transformed_DF,
-             shift,
-             N2p1 )
+             shift )
     end
 end

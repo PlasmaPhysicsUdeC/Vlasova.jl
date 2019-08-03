@@ -3,8 +3,8 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                          time_manager::TimeManager,
                                          poisson!::Poisson,
                                          external_potential::Function,
-                                         sadv!::SpaceAdvection,
-                                         vadv!::VelocityAdvection,
+                                         space_advection::SpaceAdvection,
+                                         velocity_advection::VelocityAdvection,
                                          velocity_filtering::Bool,
                                          datasaver::DataSaver;
                                          progress_file::String)
@@ -12,12 +12,12 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     # Preallocate to make operations in place
     chargedensity = get_density( plasma )
     electricfield = poisson!( chargedensity )
+    prop = [ similar(electricfield[d], Complex{Float64})
+             for d in axes(electricfield, 1) ]
     if 'C' in integrator.sequence
         grad = deepcopy( electricfield )
-        grad2 = deepcopy( electricfield ) # To avoid to changing electricfield or grad
     else
         grad = nothing
-        grad2 = nothing
     end
 
     # Iteration axis
@@ -37,10 +37,10 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
         for a in integrator.sequence
             if a == 'A'
                 pos_adv_num += 1
-                sadv!(plasma, advection_number = pos_adv_num)
+                space_advection(plasma, advection_number = pos_adv_num)
                 get_density!(chargedensity, plasma)
                 
-                time += sadv!.coefficients[ pos_adv_num ] # Updtate time after advection
+                time += space_advection.coefficients[ pos_adv_num ] # Updtate time after advection
                 poisson!(electricfield, chargedensity, external_potential = external_potential( time, plasma.box ) )
                 
             else # Velocity advection (B or C)
@@ -49,14 +49,14 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                 isC = ( a == 'C' )
                 if isC
                     grad_adv_num += 1
-                    gradient_force!(grad, poisson!, electricfield) # Get $ grad = \nabla |E|^2 $
+                    get_gradient_correction!(grad, poisson!, electricfield) # Get $ grad = \nabla |E|^2 $
                 end
 
-                vadv!(plasma, electricfield, grad, grad2,
-                      advection_number = vel_adv_num,
-                      gradient_number = grad_adv_num,
-                      is_gradient_advection = isC,
-                      filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per time iteration
+                velocity_advection(plasma, electricfield, grad, prop,
+                                   advection_number = vel_adv_num,
+                                   gradient_number = grad_adv_num,
+                                   is_gradient_advection = isC,
+                                   filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per time iteration
             end
         end
 

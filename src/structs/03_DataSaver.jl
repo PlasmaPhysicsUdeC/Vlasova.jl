@@ -42,7 +42,7 @@ mutable struct DataSaver
                   last_distribution_saved = 0
 
                   # Path
-                  path = "data/"*plasma.box.simulation_name*"/"
+                  path = "data/"*plasma.box.name*"/"
 
                   if continue_from_backup
                       # Restore data

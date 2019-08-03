@@ -19,18 +19,20 @@ struct Specie                   # TODO: Accept thermal_velocity or temperature. 
     # Constructors
     # Take reals, but turn them into Float64
     _Specie(name::String,
-           charge::Real,
-           mass::Real,
-           temperature::Real,
-           distribution::Array{T} where T <: Real
-           ) = begin
-               @assert length( size(distribution) ) > 1 "The distribution provided is 1-dimensional. It should have 2n dimensions where n >= 1"
-               new( name,
-                    Float64(charge),
-                    Float64(mass),
-                    Float64(temperature),
-                    Float64.(distribution) )
-           end
+            charge::Real,
+            mass::Real,
+            temperature::Real,
+            distribution::Array{T} where T <: Real
+            ) = begin
+                dist_dim = length( size(distribution) )
+                @assert dist_dim > 1 "The distribution provided is 1-dimensional. It should have 2n dimensions where n >= 1"
+                @assert mod(dist_dim, 2) == 0 "The distribution provided should be 2n dimensional (n dimensions in space and n dimensions in velocity)"
+                new( name,
+                     Float64(charge),
+                     Float64(mass),
+                     Float64(temperature),
+                     Float64.(distribution) )
+            end
 
     Specie(args...
            ;name::String,
@@ -45,4 +47,20 @@ struct Specie                   # TODO: Accept thermal_velocity or temperature. 
                        temperature,
                        distribution)
            end
+end
+
+
+function Base.display(s::Specie)
+    dim = Int( length(size(s.distribution)) / 2 )
+    d = "
+    ---
+    $dim-dimensional Vlasova Specie.
+    ---
+    
+    name = $(s.name)
+    charge = $(s.charge)
+    mass = $(s.mass)
+    temperature = $(s.temperature)
+    distribution size = $(size(s.distribution))"
+    println(d)
 end

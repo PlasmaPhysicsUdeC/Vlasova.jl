@@ -14,9 +14,6 @@ function vlasova_integrator!(plasma, final_time, dt;
                              progress_file::String = "/",
                              FFTW_flags = FFTW.ESTIMATE )         # TODO: Test the [nosave] case: checkpoint_percent = 100)
     
-    # Make fortran libraries available to Julia
-    push!(Libdl.DL_LOAD_PATH, joinpath(dirname(@__FILE__), "../../deps/usr/lib"))     # TODO: This is not the best way to accomplish that
-    
     # Initialize objects
     notify("Preparing integrator data. This may take a while...")
     ##  To solve poisson equation

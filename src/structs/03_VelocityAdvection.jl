@@ -2,8 +2,7 @@ struct VelocityAdvection
     plan::FFTW.FFTWPlan
     transformed_DF::Array{Complex{Float64}}
     wavevector::Array{Array{Float64}}
-    filter::Array{Array{Float64}}
-    N2p1::NTuple{N, Int32} where N # Int32 to be passed to Fortran!
+    filter::Array{Float64}
     advection_coefficients::Array{Float64, 1}
     gradient_coefficients::Array{Float64, 1}
     specie_coefficients::Array{Float64, 1}
@@ -15,19 +14,26 @@ struct VelocityAdvection
                                    plasma.box.velocity_dims, flags = FFTW_flags )
             
             transformed_DF = plan * plasma.species[1].distribution
-            N2p1 = Int32.( size(transformed_DF) )
-            
+                        
             v_wavevector = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
 
             v_wavevector[1] = rfft_wavevector( plasma.box.v[1] )            
             for d in 2:plasma.box.number_of_dims
                 v_wavevector[d] = wavevector( plasma.box.v[d] )
             end
+
+            N2p1 = size( transformed_DF )
+            Nv2p1 = Tuple( i for i in N2p1[(div(end, 2) + 1): end] )
             
             # Filter
-            filter = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
+            filter = ones( Nv2p1 )
+            filter_1d = [ anisotropic_filter( v_wavevector[d] )
+                          for d in plasma.box.dim_axis           ]
+            # As many dimensions as velocity dimensions
             for d in 1:plasma.box.number_of_dims
-                filter[d] = anisotropic_filter( v_wavevector[d] )
+                for i in CartesianIndices( filter )
+                    filter[i] *= filter_1d[d][ i[d] ]
+                end
             end
 
             # Coefficients
@@ -44,7 +50,6 @@ struct VelocityAdvection
                 transformed_DF,
                 v_wavevector,
                 filter,
-                N2p1,
                 advection_coefficients,
                 gradient_coefficients,
                 specie_coefficients )
