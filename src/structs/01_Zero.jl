@@ -49,12 +49,8 @@ end
 +(z::Zero, a) = +(a, z)
 *(z::Zero, a) = *(a, z)
 
-
-# Overload broadcasting to avoid iterating with Zero elements
-import Base.broadcasted
-
 # Any broadcasted operation other than sum will return a Zero
-@inline function broadcasted(f, A::Array{T} where T<:Number, z::Zero)
+@inline function Base.broadcasted(f, A::Array{T} where T<:Number, z::Zero)
     if f == +
         return A
     else

@@ -1,7 +1,7 @@
 using Vlasova
 
 # Name to save the data
-simulation_name = "tst_ABABABA"
+simulation_name = "tst_ABACABA"
 
 # Space nodes
 Nx = 256
@@ -30,7 +30,13 @@ temperature = [1.0, 1.0]
 perturbed = [true, false]
 
 # Choose a Vlasova integrator
-integrator = ABABABA
+
+xi = 0.006938106540706989
+lambda = 0.2470939580390842
+teta = 0.08935804763220157
+
+integrator = VlasovaIntegrator("ABACABA", [teta, lambda, 0.5 - teta, 1 - 2*lambda , 0.5 - teta, lambda, teta],
+                               gradient_coefficients = [xi])
 
 # You can comment this function if you are not going to use it
 function external_potential(time, box)
@@ -46,7 +52,7 @@ function perturbate!(distribution::Array{Float64}, box::Box)
     # Perturbation of the form ( Ax*cos(kx*x) + Ay*cos(ky*y) ... )
     k_mode = @. 2pi * (mode / box.Lx) * box.x
     perturbation = zeros( box.Nx )
-    for d in box.dim_axis, i in box.space_axis
+    for d in box.dim_axis, i in box.space_indices
         perturbation[i] += amplitude[d] * cos( k_mode[d][ i[d] ] )
     end
     
@@ -54,7 +60,7 @@ function perturbate!(distribution::Array{Float64}, box::Box)
     perturbation = perturbation .-  mean(perturbation) 
 
     # Apply perturbation
-    for i in box.space_axis, j in box.velocity_axis
+    for i in box.space_indices, j in box.velocity_indices
         distribution[i, j] = ( 1 + perturbation[i] ) * distribution[i, j]
     end
     return 0;
@@ -64,7 +70,7 @@ function initial_distribution(box::Box; perturbate::Bool = false)
 
     distribution = ones( box.N )
 
-    for d in box.dim_axis, j in box.velocity_axis, i in box.space_axis
+    for d in box.dim_axis, j in box.velocity_indices, i in box.space_indices
         distribution[i, j] *= Vlasova.maxwellian1d( box.v[d][ j[d] ] )
     end
 

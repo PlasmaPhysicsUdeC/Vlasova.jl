@@ -1,7 +1,6 @@
 export get_kinetic_energy,
     get_density,
     get_density!,
-    get_k2,
     get_electric_field,
     get_electrostatic_energy,
     get_power_per_mode,
@@ -79,26 +78,6 @@ function get_density!(chargedensity::Array{Float64}, distribution::Array{Float64
 end
 
 """
-    Obtain the squared wavevector,
-
-    `k^2 = k_1^2 + k_2^2 + ... k_n^2`
-
-    where k_1 is a half of the first wavevector as it would be used on a real DFT.
-"""
-function get_k2( box::Box )
-    Nx2p1, fourier_axis = get_rfft_dims( box )
-
-    k = rfft_wavevector( box.x )
-
-    k2 = zeros( Nx2p1 )
-    for d in 1:box.number_of_dims, i in fourier_axis
-        k2[i] += ( k[d][ i[d] ] )^2
-    end
-
-    return k2
-end
-
-"""
     Obtain the electric field from a charge distribution.
     
     In general, the electric field will be an array where the n-th component is the electric field
@@ -115,7 +94,7 @@ end
 """
 function get_electric_field(chargedensity::Array{Float64}, box::Box)
     
-    Nx2p1, fourier_axis = get_rfft_dims( box )
+    Nx2p1, fourier_axis = get_rfft_dims( box.x )
     
     k = rfft_wavevector( box.x )
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
@@ -140,7 +119,7 @@ end
 function get_electric_field(;
                             potential::Array{Float64}, box::Box)
     
-    Nx2p1, fourier_axis = get_rfft_dims( box )
+    Nx2p1, fourier_axis = get_rfft_dims( box.x )
     k = rfft_wavevector( box.x )
     
     integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)

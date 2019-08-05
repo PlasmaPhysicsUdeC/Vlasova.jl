@@ -15,30 +15,25 @@ struct Poisson          # Todo: mutable, isnt it?
     # Construct a Poisson struct from a Plasma and [optionally] FFTW flags
     Poisson(plasma::Plasma; FFTW_flags = FFTW.ESTIMATE) =
         begin
-            Nx2p1 = Tuple( i == 1 ? fld(plasma.box.Nx[i], 2)+1 : plasma.box.Nx[i]
-                           for i in 1:length(plasma.box.Nx) )
-            fourier_axis = CartesianIndices( Nx2p1 )
-            
             plan = FFTW.plan_rfft( Array{Float64}(undef, plasma.box.Nx),
                                    plasma.box.space_dims, flags = FFTW_flags )
             
             fourier_density = zeros(Complex{Float64}, Nx2p1 )
-            
+
             k = rfft_wavevector( plasma.box.x )
+            Nx2p1, fourier_axis = get_rfft_dims( plasma.box.x )
+
+            # Wavevector squared
             k2 = get_k2( plasma.box )
-            k2[1] = Inf  # So that the inverse yields 0.0. Ensure quasineutrality
-            
-            dens2field = Array{Array{Complex{Float64}}}(undef, plasma.box.number_of_dims)
-            k_multidim = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
-            for d in 1:plasma.box.number_of_dims
-                k_multidim[d] = ones( Nx2p1... )
-                dens2field[d] = -1im ./ k2
-                for i in fourier_axis
-                    k_multidim[d][ i ] *= k[d][ i[d] ]
-                    dens2field[d][ i ] *= k[d][ i[d] ]
-                end
-            end
-            k2[1] = 0.0im
+            minus_im_over_k2 = -1im ./ k2; minus_im_over_k2[1] = 0.0
+
+            # Wavevector repeated to match density size
+            k_multidim = [[ k[d][i[d]] for i in CartesianIndices( Nx2p1 ) ]
+                          for d in plasma.box.dim_axis ]
+
+            # Transform fourier density to fourier field
+            dens2field = [ k_multidim .* minus_im_over_k2
+                           for d in plasma.box.dim_axis]
             
             # Make struct
             new( fourier_density,

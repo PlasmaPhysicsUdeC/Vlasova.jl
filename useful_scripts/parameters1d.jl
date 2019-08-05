@@ -57,7 +57,7 @@ function perturbate!(distribution::Array{Float64}, box::Box)
     # Perturbation of the form ( Ax*cos(kx*x) + Ay*cos(ky*y) ... )
     k_mode = @. 2pi * (mode / box.Lx) * box.x
     perturbation = zeros( box.Nx )
-    for d in box.dim_axis, i in box.space_axis
+    for d in box.dim_axis, i in box.space_indices
         perturbation[i] += amplitude[d] * cos( k_mode[d][ i[d] ] )
     end
     
@@ -65,8 +65,8 @@ function perturbate!(distribution::Array{Float64}, box::Box)
     perturbation .= perturbation .-  mean(perturbation) .+ 1
 
     # Apply perturbation
-    for j in box.velocity_axis
-        for i in box.space_axis
+    for j in box.velocity_indices
+        for i in box.space_indices
             distribution[i, j] .*= perturbation[i]
         end
     end
@@ -79,10 +79,8 @@ function initial_distribution(box::Box; perturbate::Bool = false)
     
     M = Vlasova.maxwellian1d( box.v... )
 
-    for j in box.velocity_axis
-        for i in box.space_axis
-            distribution[i, j] .= M[j]
-        end
+    for j in CartesianIndices(box.Nv)
+        distribution[box.space_axes..., j] .= M[j]
     end
 
     # Apply perturbation ?

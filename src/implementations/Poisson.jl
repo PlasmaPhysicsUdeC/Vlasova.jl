@@ -12,13 +12,14 @@
 """
 function (poisson::Poisson)(electricfield, chargedensity; external_potential = Zero() )
     LinearAlgebra.mul!( poisson.fourier_density, poisson.plan, chargedensity)
-    
+
+    # Include external potential (this is wrong)
     if typeof(external_potential) != Zero
        poisson.fourier_density .+= (poisson.plan * external_potential) .* poisson.pot2dens
     end
     
     for d in axes(electricfield, 1)
-        LinearAlgebra.ldiv!( electricfield[d], poisson.plan, poisson.dens2field[d] .* poisson.fourier_density )
+        @views LinearAlgebra.ldiv!( electricfield[d], poisson.plan, poisson.dens2field[d] .* poisson.fourier_density )
     end
 
     return 0;
@@ -49,12 +50,12 @@ function get_gradient_correction!(grad, p::Poisson, E)
         @views @. grad[1] += abs2( E[i] )
     end
 
-    LinearAlgebra.mul!(p.fourier_density, p.plan, grad[1])
+    @views LinearAlgebra.mul!(p.fourier_density, p.plan, grad[1])
 
     # Swap real and imaginary parts outside the loop
     @. p.fourier_density *= -1im
     for i in 1:Ndims
-        LinearAlgebra.ldiv!(grad[i], p.plan, p.k[i] .* p.fourier_density)
+        @views LinearAlgebra.ldiv!(grad[i], p.plan, p.k[i] .* p.fourier_density)
     end
     
     return 0;

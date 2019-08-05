@@ -21,9 +21,12 @@ struct Box
     velocity_dims::NTuple{N, Int64} where N
     ## Axes
     dim_axis::Base.OneTo{Int64}
-    space_axis::CartesianIndices{M, NTuple{M, Base.OneTo{Int64}}} where M
-    velocity_axis::CartesianIndices{M, NTuple{M, Base.OneTo{Int64}}} where M
-    distribution_axis::CartesianIndices{M, NTuple{M, Base.OneTo{Int64}}} where M
+    space_axes::NTuple{N, Base.OneTo{Int64}} where N
+    velocity_axes::NTuple{N, Base.OneTo{Int64}} where N
+    distribution_axes::NTuple{N, Base.OneTo{Int64}} where N
+    ## Indices
+    space_indices::CartesianIndices{N, NTuple{N, Base.OneTo{Int64}}} where N
+    velocity_indices::CartesianIndices{N, NTuple{N, Base.OneTo{Int64}}} where N
     ## Position and velocity
     dx::NTuple{N, Float64} where N
     dv::NTuple{N, Float64} where N
@@ -51,9 +54,12 @@ struct Box
              velocity_dims = space_dims .+ number_of_dims
              ## Axes
              dim_axis = Base.OneTo(number_of_dims)
-             space_axis = CartesianIndices( Nx )
-             velocity_axis = CartesianIndices( Nv )
-             distribution_axis = CartesianIndices( Tuple((Nx..., Nv...)) )
+             space_axes = Base.OneTo.( Nx )
+             velocity_axes = Base.OneTo.( Nv )
+             distribution_axes = Base.OneTo.( N )
+             ## Indices
+             space_indices = CartesianIndices( space_axes )
+             velocity_indices = CartesianIndices( velocity_axes )
              ## Position and velocity
              Lv = @. vmax .- vmin
              dx = @. Lx / Nx
@@ -76,9 +82,11 @@ struct Box
                  space_dims,
                  velocity_dims,
                  dim_axis,
-                 space_axis,
-                 velocity_axis,
-                 distribution_axis,
+                 space_axes,
+                 velocity_axes,
+                 distribution_axes,
+                 space_indices,
+                 velocity_indices,
                  dx,
                  dv,
                  x,

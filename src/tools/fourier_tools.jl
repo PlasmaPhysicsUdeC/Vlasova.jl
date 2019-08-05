@@ -1,11 +1,61 @@
-export wavevector, rfft_wavevector, anisotropic_filter
+export wavevector,
+    get_rfft_dims,
+    rfft_wavevector,
+    anisotropic_filter
 
-function get_rfft_dims(box::Box)
-    Nx2p1 = Tuple( (i == 1) ? div( box.Nx[1], 2 ) + 1 : box.Nx[i] for i in 1:box.number_of_dims )
+"""
+    Obtain the size of an array after it is rfft-transformed
+    The function also outputs the CartesianIndices of the transformed object
+"""
+function get_rfft_dims(A::Array{Float64}; transformed_dims)
+    N = size( A )
+    @assert maximum( transformed_dims ) < length( N) "all transformed_dims must exist in the array"
+
+    rdim = transformed_dims[1]
+    N2p1 = Tuple( (i == rdim ) ? div( N[rdim], 2 ) + 1 : N[i] for i in 1:size(N, 1) )
+    fourier_axis = CartesianIndices( N2p1 )
+    
+    return N2p1, fourier_axis
+end
+
+function get_rfft_dims(x::Array{Array{Float64, 1}})
+    sz = Tuple( size(a, 1) for a in x )
+    Nx2p1 = Tuple( (i == 1) ? div( sz[i], 2 ) + 1 : sz[i] for i in 1:size(sz, 1) )
+
     fourier_axis = CartesianIndices( Nx2p1 )
     
     return Nx2p1, fourier_axis
 end
+
+function get_rfft_dims(box::Box)
+    
+    N2p1 = Tuple( (i == 1) ? div( box.N[1], 2 ) + 1 : box.N[i] for i in 1:box.number_of_dims )
+    fourier_axis = CartesianIndices( N2p1 )
+    
+    return N2p1, fourier_axis
+end
+
+"""
+    Obtain the squared wavevector,
+
+    `k^2 = k_1^2 + k_2^2 + ... k_n^2`
+
+    where k_1 is a half of the first wavevector as it would be used on a real DFT.
+"""
+function get_k2( box::Box )
+    Nx2p1, fourier_axis = get_rfft_dims( box )
+
+    k = rfft_wavevector( box.x )
+
+    k2 = zeros( Nx2p1 )
+    for d in 1:box.number_of_dims, i in fourier_axis
+        k2[i] += ( k[d][ i[d] ] )^2
+    end
+
+    return k2
+end
+
+# Exported functions start here
 
 function wavevector(vector::Array{Float64, 1})
     N = size(vector, 1)
@@ -28,6 +78,7 @@ end
 """
 function rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
     number_of_dims = length(vector)
+    
     k = Array{Array{Float64, 1}}( undef, number_of_dims )
     k[1] = rfft_wavevector( vector[1] )
     for d in 2:number_of_dims

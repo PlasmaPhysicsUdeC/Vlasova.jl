@@ -14,24 +14,19 @@ struct VelocityAdvection
                                    plasma.box.velocity_dims, flags = FFTW_flags )
             
             transformed_DF = plan * plasma.species[1].distribution
-                        
-            v_wavevector = Array{Array{Float64}}(undef, plasma.box.number_of_dims)
-
-            v_wavevector[1] = rfft_wavevector( plasma.box.v[1] )            
-            for d in 2:plasma.box.number_of_dims
-                v_wavevector[d] = wavevector( plasma.box.v[d] )
-            end
-
-            N2p1 = size( transformed_DF )
-            Nv2p1 = Tuple( i for i in N2p1[(div(end, 2) + 1): end] )
+            
+            v_wavevector = rfft_wavevector( plasma.box.v )
+            Nv2p1, fourier_velocity_indices = get_rfft_dims( plasma.box.v )
             
             # Filter
-            filter = ones( Nv2p1 )
             filter_1d = [ anisotropic_filter( v_wavevector[d] )
                           for d in plasma.box.dim_axis           ]
+
+            # Multidimensional filter
             # As many dimensions as velocity dimensions
+            filter = ones( Nv2p1 )
             for d in 1:plasma.box.number_of_dims
-                for i in CartesianIndices( filter )
+                for i in fourier_velocity_indices
                     filter[i] *= filter_1d[d][ i[d] ]
                 end
             end
@@ -39,8 +34,12 @@ struct VelocityAdvection
             # Coefficients
             ## advection
             vel_ind = findall([ i in "BC" for i in integrator.sequence ])
+            grad_ind = findall([ i in "C" for i in integrator.sequence ])
+
             advection_coefficients = integrator.coefficients[vel_ind] * dt
-            gradient_coefficients = integrator.gradient_coefficients * dt^2
+            # TODO: This is not working but idk why. Its better when amplified by ~dt^3
+            gradient_coefficients = ( integrator.gradient_coefficients ./
+                                      integrator.coefficients[ grad_ind ] ) * dt^2
             ## specie
             specie_coefficients = [ plasma.species[s].charge / sqrt(
                 plasma.species[s].temperature * plasma.species[s].mass ) for s in plasma.specie_axis ]

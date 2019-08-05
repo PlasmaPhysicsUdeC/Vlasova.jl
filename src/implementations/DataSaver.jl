@@ -19,18 +19,17 @@ end
 
 function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     last_it = d.last_iteration_saved
-    space_axis = UnitRange.(1, p.box.Nx)
        
     # For the common files
     fid = HDF5.h5open(d.path*"shared_data.h5", "r+")
-    fid["chargedensity"][space_axis..., (last_it+1):t] = d.chargedensity[space_axis..., 1:(t-last_it)]
+    fid["chargedensity"][p.box.space_axes..., (last_it+1):t] = d.chargedensity[p.box.space_axes..., 1:(t-last_it)]
     fid["total_kinetic_energy"][(last_it + 1):t] = dropdims( sum(d.kinetic_energy[1:(t-last_it), :], dims = 2 ), dims = 2 )
     HDF5.close(fid)
 
     for s in 1:p.number_of_species
         fid = HDF5.h5open(d.path*p.species[s].name*".h5", "r+")
         s == 1 ? (fid["last_iteration_saved"][1] = t) : nothing
-        fid["distribution"][UnitRange.(1, p.box.N)..., length(d.save_distribution_axis)] = p.species[s].distribution
+        fid["distribution"][p.box.distribution_axes..., length(d.save_distribution_axis)] = p.species[s].distribution
         HDF5.close(fid)
     end
 
