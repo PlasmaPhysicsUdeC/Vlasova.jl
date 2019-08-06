@@ -18,10 +18,10 @@ struct Poisson          # Todo: mutable, isnt it?
             plan = FFTW.plan_rfft( Array{Float64}(undef, plasma.box.Nx),
                                    plasma.box.space_dims, flags = FFTW_flags )
             
-            fourier_density = zeros(Complex{Float64}, Nx2p1 )
-
             k = rfft_wavevector( plasma.box.x )
             Nx2p1, fourier_axis = get_rfft_dims( plasma.box.x )
+
+            fourier_density = zeros(Complex{Float64}, Nx2p1 )
 
             # Wavevector squared
             k2 = get_k2( plasma.box )
@@ -32,7 +32,7 @@ struct Poisson          # Todo: mutable, isnt it?
                           for d in plasma.box.dim_axis ]
 
             # Transform fourier density to fourier field
-            dens2field = [ k_multidim .* minus_im_over_k2
+            dens2field = [ k_multidim[d] .* minus_im_over_k2
                            for d in plasma.box.dim_axis]
             
             # Make struct

@@ -27,7 +27,7 @@ struct SpaceAdvection
             ktimesv[i, j] += k[d][i[d]] * plasma.box.v[d][j[d]]
         end
         # shift: Array (advections) of array (species) of space propagators
-        shift = [ [ exp.( - 1im * pos_coeff * sp_coeff * ktimesv ) for sp_coeff in specie_coefficients ]
+        shift = [ [ exp.( 1im * pos_coeff * sp_coeff * ktimesv ) for sp_coeff in specie_coefficients ]
                   for pos_coeff in pos_coefficients ]
         # Make struct
         new( pos_coefficients,

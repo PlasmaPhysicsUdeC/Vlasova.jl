@@ -207,3 +207,31 @@ function get_dispersion_relation2(chargedensity::Array{Float64}, box::Box)
     end
     return disprel              # TODO: scaling?
 end
+
+"""
+    Generate an electrostatic potential with the size of the Box `box` at
+    an instant `time`.
+
+    The potential is the superposition of 1d potentials of the form
+     `\\Phi = \\sum_i \\Phi_i \\cos ( k_i x_i - \\omega_i t)`
+    where i = x, y, z...
+"""
+function get_potential(box::Box, time::Real; amplitude, wavevector, frequency, time_integrated = false)
+    # TODO: This is slow
+    same_length = box.number_of_dims == length(amplitude) == length(wavevector) == length(frequency)
+    @assert same_length "The amplitude, wavevector and frequency must be of the size of the box provided"
+
+    if time_integrated
+        pot =  [ sum( -amplitude[d] * sin.( wavevector[d] * box.x[d][i[d]]
+                                            - frequency[d] * time  ) / frequency[d]
+                      for d in box.dim_axis )
+                 for i in CartesianIndices( box.Nx ) ]
+    else
+        pot =  [ sum( amplitude[d] * cos.( wavevector[d] * box.x[d][i[d]]
+                                           - frequency[d] * time  )
+                      for d in box.dim_axis )
+                 for i in CartesianIndices( box.Nx ) ]
+    end
+
+    return pot
+end

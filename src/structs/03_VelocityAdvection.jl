@@ -3,9 +3,8 @@ struct VelocityAdvection
     transformed_DF::Array{Complex{Float64}}
     wavevector::Array{Array{Float64}}
     filter::Array{Float64}
-    advection_coefficients::Array{Float64, 1}
-    gradient_coefficients::Array{Float64, 1}
-    specie_coefficients::Array{Float64, 1}
+    advection_coefficients::Array{Array{Float64, 1}, 1}
+    gradient_coefficients::Array{Array{Float64, 1}, 1}
 
     # Constructor from a plasma, dt and [optionally] FFTW_flags
     VelocityAdvection(plasma::Plasma, integrator::VlasovaIntegrator, dt; FFTW_flags = FFTW.ESTIMATE ) =
@@ -32,14 +31,22 @@ struct VelocityAdvection
             end
 
             # Coefficients
-            ## advection
             vel_ind = findall([ i in "BC" for i in integrator.sequence ])
             grad_ind = findall([ i in "C" for i in integrator.sequence ])
 
             advection_coefficients = integrator.coefficients[vel_ind] * dt
-            # TODO: This is not working but idk why. Its better when amplified by ~dt^3
+
+            # TODO: This is not working but idk why. Its better when amplified by 1/dt^3
             gradient_coefficients = ( integrator.gradient_coefficients ./
                                       integrator.coefficients[ grad_ind ] ) * dt^2
+
+            # Coefficients depend upon specie and advection: Array{Array{Float64}
+            advection_coefficients = [ advection_coefficients * plasma.species[s].charge / sqrt(
+                plasma.species[s].temperature * plasma.species[s].mass ) for s in plasma.specie_axis ]
+            
+            gradient_coefficients = [gradient_coefficients .*  plasma.species[s].charge /
+                                     plasma.species[s].mass for s in plasma.specie_axis]
+                
             ## specie
             specie_coefficients = [ plasma.species[s].charge / sqrt(
                 plasma.species[s].temperature * plasma.species[s].mass ) for s in plasma.specie_axis ]
@@ -50,7 +57,6 @@ struct VelocityAdvection
                 v_wavevector,
                 filter,
                 advection_coefficients,
-                gradient_coefficients,
-                specie_coefficients )
+                gradient_coefficients )
         end
 end
