@@ -78,16 +78,14 @@ function _velocity_advection!(transformed_DF, prop, Nx, Ny, Nvx, Nvy)
     ex = Array{Complex{Float64}}(undef, Nx, Ny, Nvx)
     e0 = ones(Complex{Float64}, Nx, Ny)
     for j in 1:Nvx
-        @views @. ex[:, :, j] *= ex0
-        @views @. ex0 *= prop[1]
+        @views @. ex[:, :, j] = e0
+        @views @. e0 *= prop[1]
     end
     
-    fill!(e0, ones(Complex{Float64}))
+    fill!(e0, one(Complex{Float64}))
     for i in 1:Nvy
         for j in 1:Nvx
-            for k in 1:Ny       # TODO: Take the k loop out?
-                @views @. transformed_DF[:, k, j, i] *= ex[:, k, j] * e0[k, i]
-            end
+            @views @. transformed_DF[:, :, j, i] *= ex[:, :, j] * e0
         end
         @views @. e0 *= prop[2]
     end
