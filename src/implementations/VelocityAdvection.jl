@@ -23,19 +23,19 @@ function (vadv::VelocityAdvection)(plasma::Plasma, electricfield, grad, prop;
         if is_gradient_advection
             grad_coef = vadv.gradient_coefficients[ gradient_number ][ s ]
             
-            # Electricfield correction with gradient term # TODO: Not working yet
+            # Propagator dependency on E with gradient correction # TODO: Not working yet
             for d in 1:plasma.box.number_of_dims
                 @. prop[d] = cis( coef * ( electricfield[d] + grad_coef * grad[d] ) * dp[d] )
             end
         else
-            # Electricfield correction with gradient term
+            # Propagator dependency on E
             for d in 1:plasma.box.number_of_dims
                 @. prop[d] = cis( coef * electricfield[d] * dp[d] )
-            end
-            
+            end            
         end
+
         # Advect with corrected forcing
-        _velocity_advection!( vadv.transformed_DF, prop, size(vadv.transformed_DF)... )
+        _velocity_advection!( vadv.transformed_DF, prop, size(vadv.transformed_DF)...)
 
         # Return to real space
         LinearAlgebra.ldiv!( plasma.species[s].distribution, vadv.plan, vadv.transformed_DF )
@@ -74,18 +74,28 @@ end
 
 # 2D
 function _velocity_advection!(transformed_DF, prop, Nx, Ny, Nvx, Nvy)
-
+    
     ex = Array{Complex{Float64}}(undef, Nx, Ny, Nvx)
     e0 = ones(Complex{Float64}, Nx, Ny)
     for j in 1:Nvx
         @views @. ex[:, :, j] = e0
         @views @. e0 *= prop[1]
     end
-    
+
+    Nvy2 = div(Nvy, 2)    
     fill!(e0, one(Complex{Float64}))
-    for i in 1:Nvy
+    for i in 1:Nvy2 # p_y Index growing
         for j in 1:Nvx
-            @views @. transformed_DF[:, :, j, i] *= ex[:, :, j] * e0
+            @views @. transformed_DF[:, :, j, i] *= e0 * ex[:, :, j]
+        end
+        @views @. e0 *= prop[2]
+    end
+
+    @. prop[2] = 1 / prop[2]    # momentum indices are now negative
+    @. e0 =  prop[2]
+    for i in Nvy:-1:(Nvy2+1) # p_y Index decreasing
+        for j in 1:Nvx
+            @views @. transformed_DF[:, :, j, i] *= e0 * ex[:, :, j]
         end
         @views @. e0 *= prop[2]
     end
