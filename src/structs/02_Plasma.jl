@@ -40,3 +40,17 @@ struct Plasma
                    )
            end
 end
+
+function Base.display(p::Plasma)
+    d = "
+    ---
+    $(p.box.number_of_dims)-dimensional Vlasova Plasma.
+    ---
+    
+    # TODO: Do display( Specie  ) first
+    "
+    println(d)
+end
+    
+    
+    

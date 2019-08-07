@@ -15,13 +15,13 @@ function (vadv::VelocityAdvection)(plasma::Plasma, electricfield, grad, prop;
 
         # Prepare reduced propagator
         # Electricfield coefficient
-        coef = vadv.advection_coefficients[ s ][ advection_number ]
+        coef = vadv.advection_coefficients[ advection_number ][ s ]
         
         dp = [vadv.wavevector[d][2] - vadv.wavevector[d][1] # delta v_wavevector
               for d in 1:plasma.box.number_of_dims ]
         
         if is_gradient_advection
-            grad_coef = vadv.gradient_coefficients[ s ][ gradient_number ]
+            grad_coef = vadv.gradient_coefficients[ gradient_number ][ s ]
             
             # Electricfield correction with gradient term # TODO: Not working yet
             for d in 1:plasma.box.number_of_dims

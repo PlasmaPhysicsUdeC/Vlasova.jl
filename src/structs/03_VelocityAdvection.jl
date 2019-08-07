@@ -14,19 +14,15 @@ struct VelocityAdvection
             
             transformed_DF = plan * plasma.species[1].distribution
             
-            v_wavevector = rfft_wavevector( plasma.box.v )
-            Nv2p1, fourier_velocity_indices = get_rfft_dims( plasma.box.v )
+            wavevector = rfft_wavevector( plasma.box.v )
+            Nv2p1, fourier_indices = get_rfft_dims( plasma.box.v )
             
             # Filter
-            filter_1d = [ anisotropic_filter( v_wavevector[d] )
-                          for d in plasma.box.dim_axis           ]
-
-            # Multidimensional filter
-            # As many dimensions as velocity dimensions
             filter = ones( Nv2p1 )
             for d in 1:plasma.box.number_of_dims
-                for i in fourier_velocity_indices
-                    filter[i] *= filter_1d[d][ i[d] ]
+                filter1d = anisotropic_filter( wavevector[d] )
+                for i in fourier_indices
+                    filter[i] *= filter1d[ i[d] ]
                 end
             end
 
@@ -34,27 +30,34 @@ struct VelocityAdvection
             vel_ind = findall([ i in "BC" for i in integrator.sequence ])
             grad_ind = findall([ i in "C" for i in integrator.sequence ])
 
-            advection_coefficients = integrator.coefficients[vel_ind] * dt
+            adv_coeffs = integrator.coefficients[vel_ind] * dt
 
             # TODO: This is not working but idk why. Its better when amplified by 1/dt^3
-            gradient_coefficients = ( integrator.gradient_coefficients ./
-                                      integrator.coefficients[ grad_ind ] ) * dt^2
+            grad_coeffs = ( integrator.gradient_coefficients ./
+                            integrator.coefficients[ grad_ind ] ) * dt^2
 
             # Coefficients depend upon specie and advection: Array{Array{Float64}
-            advection_coefficients = [ advection_coefficients * plasma.species[s].charge / sqrt(
-                plasma.species[s].temperature * plasma.species[s].mass ) for s in plasma.specie_axis ]
+            # Specie coefficients
+            adv_spc_coefficients = [ plasma.species[s].charge / sqrt(
+                plasma.species[s].temperature * plasma.species[s].mass )
+                                     for s in plasma.specie_axis ]
             
-            gradient_coefficients = [gradient_coefficients .*  plasma.species[s].charge /
-                                     plasma.species[s].mass for s in plasma.specie_axis]
-                
-            ## specie
-            specie_coefficients = [ plasma.species[s].charge / sqrt(
-                plasma.species[s].temperature * plasma.species[s].mass ) for s in plasma.specie_axis ]
+            grad_spc_coefficients = [ plasma.species[s].charge / plasma.species[s].mass
+                                      for s in plasma.specie_axis ]
+            
+            # Total coefficients
+            advection_coefficients = [[ adv_coeff * spc_coeff
+                                        for spc_coeff in adv_spc_coefficients ]
+                                      for adv_coeff in adv_coeffs ]
+            
+            gradient_coefficients = [[ grad_coeff * spc_coeff
+                                       for spc_coeff in grad_spc_coefficients ]
+                                     for grad_coeff in grad_coeffs ]
             
             # Make struct
             new(plan,
                 transformed_DF,
-                v_wavevector,
+                wavevector,
                 filter,
                 advection_coefficients,
                 gradient_coefficients )
