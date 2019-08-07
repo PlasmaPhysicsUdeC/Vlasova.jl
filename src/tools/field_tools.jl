@@ -32,51 +32,6 @@ function get_kinetic_energy(distribution::Array{Float64}, box::Box;
     return temperature * 0.5 * prod(box.dx) * prod(box.dv) * kinen;
 end
 
-
-"""
-    Integrates a distribution function in the velocity space to obtain the charge density
-
-    Requires:
-    * distribution: Array of Float64
-    * box: Element of type Box
-    
-    Optional, keyword:
-    * set_zero_mean: [false] Substract the mean of the resulting chargedensity to ensure quasineutrality
-    
-    Returns:
-    * chargedensity: Array of Float64
-"""
-function get_density(distribution::Array{Float64}, box::Box;
-                     set_zero_mean::Bool = false)
-    # Integrate
-    chargedensity = -prod(box.dv) * dropdims( sum(distribution, dims = box.velocity_dims ), dims = box.velocity_dims )
-    # Quasineutrality
-    set_zero_mean ? (chargedensity .= chargedensity .- mean(chargedensity )) : nothing
-    return chargedensity
-end
-
-"""
-    Integrates a distribution function in the velocity space to obtain the charge density in place!
-    ** This version in no more efficient than it's not-in-place counterpart! **
-
-    Requires:
-    * chargedensity: Array of Float64
-    * distribution: Array of Float64
-    * box: Element of type Box
-    
-    Optional, keyword:
-    * set_zero_mean: [false] Substract the mean of the resulting chargedensity to ensure quasineutrality
-    
-    Returns:
-    * Error code 0
-"""
-function get_density!(chargedensity::Array{Float64}, distribution::Array{Float64}, box::Box;
-                      set_zero_mean::Bool = false)
-    
-    chargedensity .= get_density( distribution, box, set_zero_mean = set_zero_mean)
-    return 0;
-end
-
 """
     Obtain the electric field from a charge distribution.
     

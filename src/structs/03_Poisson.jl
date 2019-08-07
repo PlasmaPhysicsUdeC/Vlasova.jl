@@ -5,7 +5,7 @@
             julia> poisson!(electricfield, chargedensity)
     where chargedensity is the charge density of the plasma and electricfield is preallocated 
 """
-struct Poisson          # Todo: mutable, isnt it?
+struct Poisson
     fourier_density::Array{Complex{Float64}}
     k::Array{Array{Float64}}
     pot2dens::Array{Complex{Float64}}

@@ -43,7 +43,7 @@ end
     where k_1 is a half of the first wavevector as it would be used on a real DFT.
 """
 function get_k2( box::Box )
-    Nx2p1, fourier_axis = get_rfft_dims( box )
+    Nx2p1, fourier_axis = get_rfft_dims( box.x )
 
     k = rfft_wavevector( box.x )
 

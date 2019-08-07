@@ -11,7 +11,7 @@ struct SpaceAdvection
         transformed_DF = plan * plasma.species[1].distribution
 
         # Prepare space shift
-        Nx2p1, fourier_space_indices = get_rfft_dims( plasma.box.x )
+        Nx2p1, fourier_indices = get_rfft_dims( plasma.box.x )
         k = rfft_wavevector( plasma.box.x )
 
         # advection coefficients from integrator
@@ -23,12 +23,14 @@ struct SpaceAdvection
                                       plasma.species[s].mass ) for s in plasma.specie_axis]
         
         ktimesv = zeros(Float64, size(transformed_DF) )
-        for d in plasma.box.dim_axis, i in fourier_space_indices, j in CartesianIndices(plasma.box.Nv)
+        for d in plasma.box.dim_axis, i in fourier_indices, j in plasma.box.velocity_indices
             ktimesv[i, j] += k[d][i[d]] * plasma.box.v[d][j[d]]
         end
+        
         # shift: Array (advections) of array (species) of space propagators
         shift = [ [ exp.( 1im * pos_coeff * sp_coeff * ktimesv ) for sp_coeff in specie_coefficients ]
                   for pos_coeff in pos_coefficients ]
+            
         # Make struct
         new( pos_coefficients,
              plan,
