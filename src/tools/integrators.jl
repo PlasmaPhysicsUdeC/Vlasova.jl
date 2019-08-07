@@ -1,4 +1,4 @@
-export verlet_position, verlet_velocity, mclachlan_velocity, BABAB, ChinA, ChinC, ABABABA
+export verlet_position, verlet_velocity, mclachlan_velocity, BABAB, ChinA, ChinC, ABABABA, ABACABA
 
 verlet_position = VlasovaIntegrator("ABA", [0.5,
                                             1.0,
@@ -46,5 +46,23 @@ begin
                                                    lambda,
                                                    teta])
 end
+
+
+begin
+    xi = 0.006938106540706989
+    lambda = 0.2470939580390842
+    teta = 0.08935804763220157
+    
+    global ABACABA = VlasovaIntegrator("ABACABA", [teta,
+                                                   lambda,
+                                                   0.5 - teta,
+                                                   1 - 2*lambda,
+                                                   0.5 - teta,
+                                                   lambda,
+                                                   teta],
+                                       gradient_coefficients = [xi])
+end
+
+
 
 # TODO: Implement the **120 Eff integrator from Omelyan2003
