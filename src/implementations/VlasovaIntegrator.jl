@@ -54,7 +54,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                    advection_number = vel_adv_num,
                                    gradient_number = grad_adv_num,
                                    is_gradient_advection = isC,
-                                   filtering = velocity_filtering && (vel_adv_num == 1 )) # Apply filter just once per time iteration
+                                   filtering = velocity_filtering ) # Apply filter at all velocity advections
             end
         end
 
