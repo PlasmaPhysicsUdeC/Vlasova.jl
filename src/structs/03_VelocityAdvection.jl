@@ -18,13 +18,7 @@ struct VelocityAdvection
             Nv2p1, fourier_indices = get_rfft_dims( plasma.box.v )
             
             # Filter
-            filter = ones( Nv2p1 )
-            for d in 1:plasma.box.number_of_dims
-                filter1d = anisotropic_filter( wavevector[d] )
-                for i in fourier_indices
-                    filter[i] *= filter1d[ i[d] ]
-                end
-            end
+            filter = anisotropic_filter( plasma.box )
 
             # Coefficients
             vel_ind = findall([ i in "BC" for i in integrator.sequence ])

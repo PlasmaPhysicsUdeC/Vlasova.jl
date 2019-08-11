@@ -92,8 +92,30 @@ end
         Filter to get rid of numerical problems by artificially damping very high (non-physical) frequencies
         This function requires the vector of frequencies and returns the shape of the filter 
         in the frequency space.
-    """
-function anisotropic_filter(u::Array{Float64})
+"""
+function anisotropic_filter(box::Box)
+    wavevector = rfft_wavevector( box.v )
+    Nv2p1, fourier_indices = get_rfft_dims( box.v )
+
+    filter = ones( Nv2p1 )
+    for d in box.number_of_dims
+        filter1d = _anisotropic_filter( wavevector[d] )
+        for i in fourier_indices
+            filter[i] *= filter1d[ i[d] ]
+        end
+    end
+
+    return filter
+end
+
+"""
+    Define the shape of the anisotropic filter along each dimension.
+
+    It is unexported and any extension to the anisotropic filter is recommended to be performed on
+    the function anisotropic_filter(::Box) rather than this one, since that is the one called when 
+    a VelocityAdvection is built.
+"""
+function _anisotropic_filter(u::Array{Float64}) # 1-dimensional
     u_max = maximum(u)
 
     return @. exp( -36*( u / u_max )^36 )
