@@ -1,4 +1,12 @@
-export notify, string2file, mean, reducedims, suppress_stdout, hasnan, adiabatic_cutoff
+export notify,
+    string2file,
+    mean,
+    reducedims,
+    suppress_stdout,
+    hasnan,
+    adiabatic_cutoff,
+    outer
+
 export @hasnan
 
 # TODO: make a progressbar function
@@ -126,7 +134,11 @@ end
 """
     Return 1.0 for times before cutoff_time, adiabatically go to 0.0 until cutoff_time + cutoff_delay and return 0.0 afterwards
 
-    The shape used to go from 1.0 to 0.0 is `f(x) = ( 1 + cos(x) ) / 2` with `x in [0, pi]`.
+    The shape used to go from 1.0 to 0.0 is 
+    ```math
+    f(x) =  \\frac{( 1 + cos(x) )}{2}
+    ```
+    with ```x \\in [0, pi]```.
 """
 function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
     damp_time = time - cutoff_time
@@ -138,3 +150,33 @@ function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
         return 0.0
     end
 end 
+
+"""
+    Generalized external product between two arrays, A and B.
+
+    ```math
+    R_{ij} = A_i \otimes B_j
+    ```
+    where ```\\otimes``` is, by default the usual multiplication.
+
+    ```@example
+    A = [1.0, 2.0, 3.0, 4.0];
+    B = [0.0, 1.0];
+    outer(A, B, *)
+    outer(A, B, -)
+    ```
+"""
+function outer(A::Array, B::Array, f::Function = *)
+    # Sizes
+    sA = size(A); sB = size(B)
+    # Type of the resulting element
+    T = typeof( f( A[1], B[1] ) )
+    # Result
+    R = Array{T}(undef, sA..., sB...)
+    @inbounds for j in CartesianIndices(B)
+        @inbounds for i in CartesianIndices(A)
+            R[i, j] = f( A[i], B[j] )
+        end
+    end
+    return R
+end
