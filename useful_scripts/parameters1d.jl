@@ -4,8 +4,8 @@ using Vlasova
 simulation_name = "tst_BGK_permanent_pump"
 
 # Space nodes
-Nx = 1024
-Nv = 2048
+Nx = 256
+Nv = 512
 
 # Space lengths
 Lx = 2pi/0.35
