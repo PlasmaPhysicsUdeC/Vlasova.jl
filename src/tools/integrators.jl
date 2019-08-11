@@ -23,7 +23,7 @@ ChinA = VlasovaIntegrator("BACAB", [1/6,
                                     2/3,
                                     1/2,
                                     1/6],
-                          gradient_coefficients = [2 / (3*48) ])
+                          gradient_coefficients = [ 1/48 ] )
 
 ChinC = VlasovaIntegrator("ABACABA", [1/6,
                                       3/8,
@@ -32,7 +32,7 @@ ChinC = VlasovaIntegrator("ABACABA", [1/6,
                                       1/3,
                                       3/8,
                                       1/6],
-                          gradient_coefficients = [1 / (4*48) ])
+                          gradient_coefficients = [ 1 / 48 ])
 
 begin
     lambda = 1/(2 - 2^(1/3))
@@ -61,6 +61,7 @@ begin
                                                    lambda,
                                                    teta],
                                        gradient_coefficients = [xi])
+    # TODO: Check gradient coef
 end
 
 

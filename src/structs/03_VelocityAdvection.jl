@@ -28,13 +28,11 @@ struct VelocityAdvection
 
             # Coefficients
             vel_ind = findall([ i in "BC" for i in integrator.sequence ])
-            grad_ind = findall([ i in "C" for i in integrator.sequence ])
 
             adv_coeffs = integrator.coefficients[vel_ind] * dt
 
             # TODO: This is not working but idk why. Its better when amplified by 1/dt^3
-            grad_coeffs = ( integrator.gradient_coefficients ./
-                            integrator.coefficients[ grad_ind ] ) * dt^2
+            grad_coeffs = ( integrator.gradient_coefficients  ) * dt^2
 
             # Coefficients depend upon specie and advection: Array{Array{Float64}
             # Specie coefficients

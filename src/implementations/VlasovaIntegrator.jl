@@ -1,4 +1,3 @@
-
 function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                          time_manager::TimeManager,
                                          poisson!::Poisson,
@@ -21,8 +20,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     end
 
     # Iteration axis
-    iteration_axis = (datasaver.last_iteration_saved + 1):time_manager.final_iteration
-    
+    iteration_axis = (datasaver.last_iteration_saved + 1):time_manager.final_iteration    
     notify("Entering main loop... $(Dates.now())", filename = progress_file, mode = "w")
 
     # Start counting time

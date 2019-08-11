@@ -16,9 +16,7 @@ struct VlasovaIntegrator
                            
                            C_locations = [i == 'C' for i in sequence ]
                            @assert sum(C_locations) == length(gradient_coefficients) "The number of gradient steps (C's) and the number of gradient coefficients do not match"
-                           # From extended to factorized gradient form
-                           @. gradient_coefficients = gradient_coefficients / coefficients[ C_locations ]
-
+                           
                            pos_locations = [i == 'A' for i in sequence ]
                            pos_ind = findall( pos_locations )
                            vel_ind = findall( .!pos_locations )
