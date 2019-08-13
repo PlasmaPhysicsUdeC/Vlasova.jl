@@ -11,6 +11,4 @@ mutable struct TimeManager
                            floor(Int, final_time / dt + 1),
                            dt,
                            Dates.now() )
-    
-    
 end

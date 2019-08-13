@@ -3,7 +3,7 @@
         Usage:
             julia> poisson! = Poisson(plasma::Plasma)
             julia> poisson!(electricfield, chargedensity)
-    where chargedensity is the charge density of the plasma and electricfield is preallocated 
+    where chargedensity is the charge density of the plasma and electricfield is preallocated
 """
 struct Poisson
     fourier_density::Array{Complex{Float64}}
@@ -17,7 +17,7 @@ struct Poisson
         begin
             plan = FFTW.plan_rfft( Array{Float64}(undef, plasma.box.Nx),
                                    plasma.box.space_dims, flags = FFTW_flags )
-            
+
             k = rfft_wavevector( plasma.box.x )
             Nx2p1, fourier_axis = get_rfft_dims( plasma.box.x )
 
@@ -34,7 +34,7 @@ struct Poisson
             # Transform fourier density to fourier field
             dens2field = [ k_multidim[d] .* minus_im_over_k2
                            for d in plasma.box.dim_axis]
-            
+
             # Make struct
             new( fourier_density,
                  k_multidim,

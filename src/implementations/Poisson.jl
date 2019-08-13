@@ -1,11 +1,12 @@
-"""
+@doc raw"""
     Solve the Poisson equation to find the electric field generated
     by a charge distribution:
-        
+
+    ```math
+       \vec E = - \nabla \Phi
+       \nabla^2 \Phi = \rho
     ```
-       \\nabla \\cdot \\vec E = -4\\pi \\rho
-    ```
-    where `\\vec E` is the electric field and `\\rho` is the charge density.
+    where ``\vec E`` is the electric field and ``\rho`` is the charge density.
 
     When called with the electricfield and the chargedensity it works in place, but
     if its called with just the chargedensity, it returns the electricfield.
@@ -13,11 +14,11 @@
 function (poisson::Poisson)(electricfield, chargedensity; external_potential = Zero() )
     LinearAlgebra.mul!( poisson.fourier_density, poisson.plan, chargedensity)
 
-    # Include external potential (this is wrong)
+    # Include external potential #TODO: fix this
     if typeof(external_potential) != Zero
        poisson.fourier_density .+= (poisson.plan * external_potential) .* poisson.pot2dens
     end
-    
+
     for d in axes(electricfield, 1)
         @views LinearAlgebra.ldiv!( electricfield[d], poisson.plan, poisson.dens2field[d] .* poisson.fourier_density )
     end
@@ -41,7 +42,7 @@ function (poisson::Poisson)(chargedensity; external_potential = Zero())
 end
 
 """
-    Obtain the gradient forcing therm ` grad = \nabla |\vec E|^2 ` to use gradient integrators
+    Obtain the gradient forcing therm `` \vec g = \nabla |\vec E|^2 `` to use gradient integrators
 """
 function get_gradient_correction!(grad, p::Poisson, E)
     Ndims = length(E)
@@ -52,12 +53,9 @@ function get_gradient_correction!(grad, p::Poisson, E)
 
     @views LinearAlgebra.mul!(p.fourier_density, p.plan, grad[1])
 
-    # Swap real and imaginary parts outside the loop
-    @. p.fourier_density *= -1im
     for i in 1:Ndims
-        @views LinearAlgebra.ldiv!(grad[i], p.plan, p.k[i] .* p.fourier_density)
+        @views LinearAlgebra.ldiv!(grad[i], p.plan, -1im .* p.k[i] .* p.fourier_density)
     end
-    
+
     return 0;
 end
-    

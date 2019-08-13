@@ -11,14 +11,14 @@ export @hasnan
 
 # TODO: make a progressbar function
 """
-    Prints a string both to the screen and to a file.
+    Print a string both to the screen and to a file.
     ** If a global variable disable_notify = true is defined, notify will do nothing **
 
     Required:
     * string:: String to print
 
     Optional, keyword:
-    * filename: String with the name of a file. 
+    * filename: String with the name of a file.
                 If not specified, notify is equivalent to println()
 
     * mode: String specifying the mode under which filename will be open.
@@ -33,9 +33,9 @@ function notify(string::String; filename::String = "/", mode::String = "a")
 end
 
 """
-    Writes a string to a file
+    Write a string to a file
 
-    Requires:
+    Required:
     * filename: String. The name of the target file
     * string: String to write to filename
 
@@ -55,7 +55,7 @@ end
 
     Requires:
     * array: Array
-    
+
     Returns
     * mean: Float64
 """
@@ -71,7 +71,7 @@ end
 """
     Performs a reduction function, f,  over an array, A, along the dimensions, dims,
     and drop the dimensions reduced.
-    
+
     In general,
     ```
     reducedims( f, A, dims = dims)
@@ -90,10 +90,7 @@ function reducedims(f::Function, A::Array; dims = (0))
 end
 
 """
-    Executes a block of code without printing anything to screen
-
-    Requires:
-    * codeblock
+    Execute a block of code without printing anything to screen
 """
 macro suppress_stdout(codeblock)
     quote
@@ -118,7 +115,7 @@ end
     Test whether some element of var (or var itself) is a NaN
 """
 macro hasnan(var)
-    quote 
+    quote
         findfirst(isnan.($var)) != nothing
     end
 end
@@ -127,14 +124,14 @@ end
 """
     Test whether some element of var (or var itself) is a NaN
 """
-function hasnan(var) 
+function hasnan(var)
     return findfirst(isnan.(var)) != nothing
 end
 
 """
     Return 1.0 for times before cutoff_time, adiabatically go to 0.0 until cutoff_time + cutoff_delay and return 0.0 afterwards
 
-    The shape used to go from 1.0 to 0.0 is 
+    The shape used to go from 1.0 to 0.0 is
     ```math
     f(x) =  \\frac{( 1 + cos(x) )}{2}
     ```
@@ -149,15 +146,15 @@ function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
     else
         return 0.0
     end
-end 
+end
 
-"""
+@docs raw"""
     Generalized external product between two arrays, A and B.
 
     ```math
     R_{ij} = A_i \otimes B_j
     ```
-    where ```\\otimes``` is, by default the usual multiplication.
+    where ``\otimes`` is, by default the usual multiplication.
 
     ```@example
     A = [1.0, 2.0, 3.0, 4.0];
@@ -165,16 +162,19 @@ end
     outer(A, B, *)
     outer(A, B, -)
     ```
-"""
-function outer(A::Array, B::Array, f::Function = *)
+
+    # Note
+    This function is not optimized to be fast, but only to offer a comfortable syntax.
+    """
+function outer(A::Array{TA},
+               B::Array{TB},
+               f::Function = *) where TA where TB
     # Sizes
     sA = size(A); sB = size(B)
-    # Type of the resulting element
-    T = typeof( f( A[1], B[1] ) )
     # Result
-    R = Array{T}(undef, sA..., sB...)
-    @inbounds for j in CartesianIndices(B)
-        @inbounds for i in CartesianIndices(A)
+    R = Array{ promote_type(TA, TB) }(undef, sA..., sB...)
+    @inbounds for j in CartesianIndices(sB)
+        @inbounds for i in CartesianIndices(sA)
             R[i, j] = f( A[i], B[j] )
         end
     end

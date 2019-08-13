@@ -14,13 +14,14 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     prop = [ similar(electricfield[d], Complex{Float64})
              for d in axes(electricfield, 1) ]
     if 'C' in integrator.sequence
-        grad = deepcopy( electricfield )
+        grad = [ similar( electricfield[d] )
+                 for d in axes(electricfield, 1) ]
     else
         grad = nothing
     end
 
     # Iteration axis
-    iteration_axis = (datasaver.last_iteration_saved + 1):time_manager.final_iteration    
+    iteration_axis = (datasaver.last_iteration_saved + 1):time_manager.final_iteration
     notify("Entering main loop... $(Dates.now())", filename = progress_file, mode = "w")
 
     # Start counting time
@@ -37,10 +38,10 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                 pos_adv_num += 1
                 space_advection(plasma, advection_number = pos_adv_num)
                 get_density!(chargedensity, plasma)
-                
+
                 time += space_advection.coefficients[ pos_adv_num ] # Updtate time after advection
                 poisson!(electricfield, chargedensity, external_potential = external_potential( time, plasma.box ) )
-                
+
             else # Velocity advection (B or C)
                 vel_adv_num += 1
 

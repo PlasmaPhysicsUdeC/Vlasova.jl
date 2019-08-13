@@ -1,5 +1,5 @@
 """
-    Defines a charged specie in a Vlasovian plasma.
+    Define a charged species in a Vlasova plasma.
     Contains and requires the following properties of a charged specie:
         * name :: String
         * charge :: Real
@@ -8,7 +8,7 @@
         * distribution function :: Array{Real}
         where the distribution function is an array of 2N dimensions,
         and N is the number of spatial dimensions
-    """
+"""
 struct Specie                   # TODO: Accept thermal_velocity or temperature. (rewrite integrator to use vth)
     name::String
     charge::Float64

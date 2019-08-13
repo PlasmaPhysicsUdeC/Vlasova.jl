@@ -1,5 +1,4 @@
 ## Box
-
 ```@autodocs
 Modules = [Vlasova]
 Pages = ["Box.jl"]
@@ -7,7 +6,6 @@ Private = false
 ```
 
 ## Specie
-
 ```@autodocs
 Modules = [Vlasova]
 Pages = ["Specie.jl"]
@@ -15,7 +13,6 @@ Private = false
 ```
 
 ## Plasma
-
 ```@autodocs
 Modules = [Vlasova]
 Pages = ["Plasma.jl"]
@@ -32,6 +29,6 @@ Private = false
 ## tools
 ```@autodocs
 Modules = [Vlasova]
-Pages = ["tools.jl"]
+Pages = [".jl"]
 Private = false
 ```

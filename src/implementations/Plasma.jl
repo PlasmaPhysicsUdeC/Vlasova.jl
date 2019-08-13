@@ -30,7 +30,7 @@ function get_density!(chargedensity, plasma::Plasma)
                                                                  dims = plasma.box.velocity_dims ) )
     end
 
-    # Ensure quasineutrality
+    # Ensure quasi-neutrality
     chargedensity .= chargedensity .- mean(chargedensity)
     return 0;
 end
@@ -40,7 +40,7 @@ end
 Return an array of kinetic energies, where the i-th component corresponds to the i-th charged specie of the plasma.
 """
 function get_kinetic_energies(plasma::Plasma)
-    
+
     return  [ get_kinetic_energy( plasma.species[i].distribution,
                                   plasma.box,
                                   temperature = plasma.species[i].temperature ) for i in plasma.specie_axis ]

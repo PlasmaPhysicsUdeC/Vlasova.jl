@@ -1,5 +1,5 @@
 """
-    Advect a plasma in space efficiently using the information stored in an
+    Perform a space advection efficiently by using the information stored in an
     object of type SpaceAdvection.
 """
 function (space_advection::SpaceAdvection)(plasma::Plasma; advection_number::Integer = 1)
@@ -12,7 +12,7 @@ function (space_advection::SpaceAdvection)(plasma::Plasma; advection_number::Int
         # Here happens the magic!
         _space_advection!( space_advection.transformed_DF,
                            space_advection.shift[advection_number][s] )
-        
+
         LinearAlgebra.ldiv!(plasma.species[s].distribution,
                             space_advection.plan, space_advection.transformed_DF)
     end

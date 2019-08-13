@@ -48,3 +48,9 @@ And finally, the plasma may be built as
 ```
 plasma = Plasma(species, box)
 ```
+
+Test:
+This is ``\LaTeX`` code: `` f(x) = \frac{3}{2} x^2 ``
+```math
+\LaTeX
+```

@@ -14,7 +14,7 @@ function get_rfft_dims(A::Array{Float64}; transformed_dims)
     rdim = transformed_dims[1]
     N2p1 = Tuple( (i == rdim ) ? div( N[rdim], 2 ) + 1 : N[i] for i in 1:size(N, 1) )
     fourier_axis = CartesianIndices( N2p1 )
-    
+
     return N2p1, fourier_axis
 end
 
@@ -23,15 +23,15 @@ function get_rfft_dims(x::Array{Array{Float64, 1}})
     Nx2p1 = Tuple( (i == 1) ? div( sz[i], 2 ) + 1 : sz[i] for i in 1:size(sz, 1) )
 
     fourier_axis = CartesianIndices( Nx2p1 )
-    
+
     return Nx2p1, fourier_axis
 end
 
 function get_rfft_dims(box::Box)
-    
+
     N2p1 = Tuple( (i == 1) ? div( box.N[1], 2 ) + 1 : box.N[i] for i in 1:box.number_of_dims )
     fourier_axis = CartesianIndices( N2p1 )
-    
+
     return N2p1, fourier_axis
 end
 
@@ -61,14 +61,14 @@ function wavevector(vector::Array{Float64, 1})
     N = size(vector, 1)
     length = (vector[2] - vector[1] )*N;
     wavevector = Array(1:N) .- (N/2 +1);
-    
+
     return FFTW.fftshift( wavevector ) * 2pi/length;
 end
 
 function rfft_wavevector(vector::Array{Float64, 1})
     N = size(vector, 1)
     length = (vector[2] - vector[1] )*N
-    
+
     return Array( 0:div(N,2) ) * 2pi/length;
 end
 
@@ -78,19 +78,19 @@ end
 """
 function rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
     number_of_dims = length(vector)
-    
+
     k = Array{Array{Float64, 1}}( undef, number_of_dims )
     k[1] = rfft_wavevector( vector[1] )
     for d in 2:number_of_dims
         k[d] = wavevector( vector[d] )
     end
-    
+
     return k
 end
 
 """
         Filter to get rid of numerical problems by artificially damping very high (non-physical) frequencies
-        This function requires the vector of frequencies and returns the shape of the filter 
+        This function requires the vector of frequencies and returns the shape of the filter
         in the frequency space.
 """
 function anisotropic_filter(box::Box)
@@ -112,7 +112,7 @@ end
     Define the shape of the anisotropic filter along each dimension.
 
     It is unexported and any extension to the anisotropic filter is recommended to be performed on
-    the function anisotropic_filter(::Box) rather than this one, since that is the one called when 
+    the function anisotropic_filter(::Box) rather than this one, since that is the one called when
     a VelocityAdvection is built.
 """
 function _anisotropic_filter(u::Array{Float64}) # 1-dimensional

@@ -51,6 +51,3 @@ function Base.display(p::Plasma)
     "
     println(d)
 end
-    
-    
-    

@@ -96,9 +96,7 @@ function initial_distribution(box::Box; perturbate::Bool = false)
     M2d = Vlasova.maxwellian2d( box.v... )
 
     for j in box.velocity_indices
-        for i in box.space_indices
-            distribution[i, j] .= M2d[j]
-        end
+        distribution[box.space_axes..., j] .= M2d[j]
     end
 
     # Apply perturbation ?
