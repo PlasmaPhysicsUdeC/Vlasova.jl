@@ -148,7 +148,7 @@ function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
     end
 end
 
-@docs raw"""
+raw"""
     Generalized external product between two arrays, A and B.
 
     ```math
