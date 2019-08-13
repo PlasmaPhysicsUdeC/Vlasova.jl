@@ -18,8 +18,9 @@ struct VelocityAdvection
             # Filter
             filter = anisotropic_filter( plasma.box )
 
-            # Coefficients ( expanded form )
+            # Coefficients
             vel_ind = findall([ i in "BC" for i in integrator.sequence ])
+            grad_ind = findall([ i in "C" for i in integrator.sequence ])
 
             # Coefficients depend upon specie and advection number
 
@@ -33,7 +34,7 @@ struct VelocityAdvection
                                      for s in plasma.specie_axis ]
 
             grad_spc_coefficients = [ plasma.species[s].charge^2 / sqrt(
-                plasma.species[s].mass^3 * plasma.specie[s].temperature )
+                plasma.species[s].mass^3 * plasma.species[s].temperature )
                                       for s in plasma.specie_axis ]
 
             # Total coefficients
@@ -42,10 +43,13 @@ struct VelocityAdvection
                                             spc_coeff in adv_spc_coefficients,
                                             adv_coeff in integrator.coefficients[vel_ind] ]
 
-            gradient_coefficients = dt^3 * [ grad_coeff * spc_coeff
+            gradient_coefficients = dt^3 * [ grad_coeff * spc_coeff * dp
                                              for dp in delta_p,
                                              spc_coeff in grad_spc_coefficients,
                                              grad_coeff in integrator.gradient_coefficients ]
+
+            # Gradient correction to expanded form
+            @. gradient_coefficients *=  integrator.coefficients[grad_ind]
 
             # Make struct
             new(plan,

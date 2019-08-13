@@ -48,7 +48,8 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                 isC = ( a == 'C' )
                 if isC
                     grad_adv_num += 1
-                    get_gradient_correction!(grad, poisson!, electricfield) # Get $ grad = \nabla |E|^2 $
+                    #get_gradient_correction!(grad, poisson!, electricfield) # Get $ grad = \nabla |E|^2 $
+                    grad[1] = (2 * electricfield[1] .* (chargedensity .+ 1)) # TODO: This line works (1d), but idk why
                 end
 
                 velocity_advection(plasma, electricfield, grad, prop,
