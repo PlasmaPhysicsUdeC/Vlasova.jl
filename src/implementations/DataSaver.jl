@@ -1,9 +1,8 @@
-
 function (d::DataSaver)(plasma::Plasma, tm::TimeManager, t::Integer; progress_file = "/" )
 
     # Saved every iteration
     it = t - d.last_iteration_saved
-    d.chargedensity[UnitRange.(1, plasma.box.Nx)..., it] = get_density( plasma )
+    d.chargedensity[plasma.box.space_axes..., it] = get_density( plasma )
     d.kinetic_energy[it, :] = get_kinetic_energies( plasma )
 
     # Save distribution ?
@@ -14,12 +13,12 @@ function (d::DataSaver)(plasma::Plasma, tm::TimeManager, t::Integer; progress_fi
         save_to_disk(d, plasma, t)
         notify_progress(tm, t, filename = progress_file)
     end
-        
+
 end
 
 function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     last_it = d.last_iteration_saved
-       
+
     # For the common files
     fid = HDF5.h5open(d.path*"shared_data.h5", "r+")
     fid["chargedensity"][p.box.space_axes..., (last_it+1):t] = d.chargedensity[p.box.space_axes..., 1:(t-last_it)]
@@ -36,7 +35,7 @@ function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     # Update indices
     d.last_iteration_saved = t
     d.checkpoints_reached += 1
-    
+
     # At the last iteration, specify that the files are complete
     if t == d.checkpoint_axis[end]
         fid = HDF5.h5open(d.path*"shared_data.h5", "r+")
@@ -48,8 +47,8 @@ end
 function save_distribution(d::DataSaver, p::Plasma)
     for s in 1:p.number_of_species
         fid = HDF5.h5open(d.path*p.species[s].name*".h5", "r+")
-        fid["distribution"][UnitRange.(1, p.box.N)..., d.last_distribution_saved + 1 ] = p.species[s].distribution
+        fid["distribution"][p.box.distribution_axes..., d.last_distribution_saved + 1 ] = p.species[s].distribution
         HDF5.close(fid)
     end
     d.last_distribution_saved += 1
-end 
+end
