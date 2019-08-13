@@ -5,7 +5,8 @@ export notify,
     suppress_stdout,
     hasnan,
     adiabatic_cutoff,
-    outer
+    outer,
+    ⊗
 
 export @hasnan
 
@@ -149,12 +150,14 @@ function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
 end
 
 raw"""
-    Generalized external product between two arrays, A and B.
-
+    Generalized external operation between two arrays, A and B.
+    
+    In general, `outer(A, B, f)` returns `R` such that
     ```math
-    R_{ij} = A_i \otimes B_j
+    R_{ij} = f(A_i, B_j)
     ```
-    where ``\otimes`` is, by default the usual multiplication.
+
+    By default, `f` is the usual multiplication, so that `outer` is the external product.
 
     ```@example
     A = [1.0, 2.0, 3.0, 4.0];
@@ -180,3 +183,11 @@ function outer(A::Array{TA},
     end
     return R
 end
+
+
+"""
+Infix form of the external product between two arrays
+
+See ["outer"](@ref)
+"""
+⊗ = outer
