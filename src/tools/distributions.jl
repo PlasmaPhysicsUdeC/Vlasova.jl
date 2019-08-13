@@ -36,7 +36,7 @@ function maxwellian2d(vx, vy; vtx::Float64 = 1.0, vty::Float64 = 1.0, vdx::Float
     =#
     Mx = maxwellian1d(vx, vt = vtx, vd = vdx)
     My = maxwellian1d(vy, vt = vty, vd = vdy)
-    
+
     return Mx*My'
 end
 
@@ -50,7 +50,7 @@ function maxwellian2d(box::Box; vtx::Float64 = 1.0, vty::Float64 = 1.0, vdx::Flo
     =#
     Mx = maxwellian1d(box.v[1], vt = vtx, vd = vdx)
     My = maxwellian1d(box.v[2], vt = vty, vd = vdy)
-    
+
     return Mx*My'
 end
 
@@ -61,7 +61,7 @@ function twostream1d(v; vt1::Float64 = 1.0, vt2::Float64 = 1.0, vd1::Float64 = -
     =#
 
     # Normalization constants
-    c1 = n1 / ( vt1*sqrt(2pi) ) 
+    c1 = n1 / ( vt1*sqrt(2pi) )
     c2 = n2 / ( vt2*sqrt(2pi) )
     return @. c1 * exp( -0.5*( (v - vd1)/vt1 )^2 ) + c2 * exp( -0.5*( (v - vd2)/vt2 )^2 )
 end
@@ -72,7 +72,7 @@ function bump_on_tail1d(v; vtb::Float64 = 0.5, vdb::Float64 = 4.5, nc::Float64 =
     #=
     Returns a normalized 1-dimensional bump on tail distribution.
     =#
-    
+
     c1 = nc / sqrt(2pi) # Normalization constant
     c2 = nb / (vtb * sqrt(2pi)) # Normalization constant
     return @. c1 * exp( -0.5*v^2 ) + c2 * exp( -0.5 * ((v - vdb)/vtb)^2 )

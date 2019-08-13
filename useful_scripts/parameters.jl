@@ -4,17 +4,17 @@ using Vlasova
 simulation_name = "tst_1d"
 
 # Space nodes
-Nx = 256
-Nv = 512
+Nx = 128
+Nv = 256
 
 # Space lengths
 Lx = 5pi
 vMin = -6.0       # Minimum velocities
-vMax = 8.0        # Maximum velocities
+vMax = 6.0        # Maximum velocities
 
 # Final conditions
 dt = 1e-1
-final_time = 50            # In electron plasma periods
+final_time = 200            # In electron plasma periods
 
 # Save the distribution function ( final_time will always be saved )
 save_distribution_times = 0:50:final_time |> collect

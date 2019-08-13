@@ -5,23 +5,23 @@ export get_kinetic_energy,
     get_electrostatic_energy,
     get_power_per_mode,
     get_dispersion_relation
-    
+
 
 """
     Obtain the kinetic energy from a distribution function
     Requires:
     * distribution: Array of Float64
     * box: Element of type Box
-    
+
     Optional, keyword:
     * temperature: [1.0] The temperature normalized to electron's temperature
-    
+
     Returns:
     * kinetic_energy: Float64
 """
 function get_kinetic_energy(distribution::Array{Float64}, box::Box;
                             temperature::Real = 1.0);
-    
+
     kinen = dropdims( sum( distribution, dims = box.space_dims ), dims = box.space_dims )
 
     for d in 1:box.number_of_dims
@@ -34,7 +34,7 @@ end
 
 """
     Obtain the electric field from a charge distribution.
-    
+
     In general, the electric field will be an array where the n-th component is the electric field
     along the n-th dimension.
 
@@ -42,18 +42,18 @@ end
 
     ```@example
     using Vlasova
-    box = Box("sim", 64, 64, 2pi, -6, 6 ); 
+    box = Box("sim", 64, 64, 2pi, -6, 6 );
     chargedensity = sin.( box.x[1] );
     Ex = get_electric_field(chargedensity, box)
     ```
 """
 function get_electric_field(chargedensity::Array{Float64}, box::Box)
-    
+
     Nx2p1, fourier_axis = get_rfft_dims( box.x )
-    
+
     k = rfft_wavevector( box.x )
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
-    
+
     integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
     for d in 1:box.number_of_dims
         integrate[d] = -1im ./ k2
@@ -61,22 +61,22 @@ function get_electric_field(chargedensity::Array{Float64}, box::Box)
             integrate[d][ i ] *= k[d][ i[d] ]
         end
     end
-    
+
     fourier_density = FFTW.rfft( chargedensity, box.space_dims )
     efield = Array{Array{Float64}}(undef, box.number_of_dims)
     for d in 1:box.number_of_dims
         efield[d] = FFTW.irfft( integrate[d] .* fourier_density, box.Nx[1], box.space_dims )
     end
-    
+
     return efield
 end
 
 function get_electric_field(;
                             potential::Array{Float64}, box::Box)
-    
+
     Nx2p1, fourier_axis = get_rfft_dims( box.x )
     k = rfft_wavevector( box.x )
-    
+
     integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
     for d in 1:box.number_of_dims
         integrate[d] = ones(fourier_axis)
@@ -108,7 +108,7 @@ raw"""
     * box: An element of type Box.
 """
 function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
-    
+
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
 
     es = abs2.( FFTW.rfft( chargedensity, box.space_dims ) ) ./ k2
@@ -118,7 +118,7 @@ function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
     rescale_axis = [ i == 1 ? 1 : 1:N[i] for i in 1:length(N) ]
 
     es[rescale_axis...] *= 0.5
-    
+
     es = sum(es, dims = box.space_dims )
 
     return (prod(box.dx) / prod(box.Nx) ) * dropdims( es, dims = box.space_dims)
@@ -130,7 +130,7 @@ Obtain the power spectrum of the electrostatic energy in space.
 Depending on chargedensity, the result may depend on time.
 """
 function get_power_per_mode( chargedensity::Array{Float64}, box::Box )
-    
+
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
 
     es = abs2.( FFTW.rfft( chargedensity, box.space_dims )) ./ k2
@@ -145,7 +145,7 @@ end
 function get_dispersion_relation(chargedensity::Array{Float64}, box::Box)
 
     k2 = get_k2(box); k2[1] = Inf # So that the inverse yields 0.0
-    
+
     disprel = abs2.( FFTW.rfft( chargedensity ) ) ./ k2
 
     return disprel
@@ -155,7 +155,7 @@ end
 #
 function get_dispersion_relation2(chargedensity::Array{Float64}, box::Box)
     efield = get_electric_field(chargedensity, box)
-    
+
     disprel = abs2.( FFTW.rfft(efield[1]) )
     for d in 2:box.number_of_dims
         disprel += abs2.( FFTW.rfft( efield[d] ) )
