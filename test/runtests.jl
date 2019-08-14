@@ -1,2 +1,3 @@
-# TODO: When everything is working, put a simple example here (lowres)
-println("\n No tests have been configured yet\n")
+using Test, Vlasova
+
+include("test_poisson_2d.jl")
