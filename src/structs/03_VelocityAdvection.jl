@@ -46,10 +46,8 @@ struct VelocityAdvection
             gradient_coefficients = dt^3 * [ grad_coeff * spc_coeff * dp
                                              for dp in delta_p,
                                              spc_coeff in grad_spc_coefficients,
-                                             grad_coeff in integrator.gradient_coefficients ]
-
-            # Gradient correction to expanded form
-            @. gradient_coefficients *=  integrator.coefficients[grad_ind]
+                                             grad_coeff in ( integrator.gradient_coefficients .*
+                                                             integrator.coefficients[grad_ind] ) ]
 
             # Make struct
             new(plan,
