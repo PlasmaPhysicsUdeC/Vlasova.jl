@@ -1,6 +1,6 @@
 module Vlasova
 
-import LinearAlgebra, FFTW, HDF5, Dates
+import LinearAlgebra, FFTW, HDF5, Dates, QuadGK
 
 # Structs
 export Box, VlasovaIntegrator, Specie, Plasma, get_zero
