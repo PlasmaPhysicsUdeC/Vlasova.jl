@@ -19,17 +19,21 @@ export get_kinetic_energy,
     Returns:
     * kinetic_energy: Float64
 """
-function get_kinetic_energy(distribution::Array{Float64}, box::Box;
+function get_kinetic_energy(distribution::Array{Float64}, box::Box; # This is just a temporal fix, find a better way to accomplish it later
                             temperature::Real = 1.0);
 
-    kinen = dropdims( sum( distribution, dims = box.space_dims ), dims = box.space_dims )
+    fred = dropdims( sum( distribution, dims = box.space_dims ), dims = box.space_dims )
 
-    for d in 1:box.number_of_dims
-        @. kinen *= @views box.v[d]^2
-        kinen = dropdims( sum( kinen, dims = 1 ), dims = 1)
+    s = 0.0
+    for i in CartesianIndices( box.Nv ) # This reduction could be parallelized
+        v2 = 0.0
+        for d in box.dim_axis
+            v2 += v[d][i[d]]
+        end
+        s += fred[i] * v2
     end
 
-    return temperature * 0.5 * prod(box.dx) * prod(box.dv) * kinen;
+    return temperature * 0.5 * prod(box.dx) * prod(box.dv) * s;
 end
 
 """
@@ -38,7 +42,7 @@ end
     In general, the electric field will be an array where the n-th component is the electric field
     along the n-th dimension.
 
-    If the charge density depends upon time, the electrif field will also depend on time.
+    If the charge density depends upon time, the electric field will also depend on time.
 
     ```@example
     using Vlasova
