@@ -19,7 +19,7 @@ export get_kinetic_energy,
     Returns:
     * kinetic_energy: Float64
 """
-function get_kinetic_energy(distribution::Array{Float64}, box::Box; # This is just a temporal fix, find a better way to accomplish it later
+function get_kinetic_energy(distribution::Array{Float64}, box::Box; # TODO: This is just a temporal fix, find a FASTER way to accomplish it later
                             temperature::Real = 1.0);
 
     fred = dropdims( sum( distribution, dims = box.space_dims ), dims = box.space_dims )
@@ -28,7 +28,7 @@ function get_kinetic_energy(distribution::Array{Float64}, box::Box; # This is ju
     for i in CartesianIndices( box.Nv ) # This reduction could be parallelized
         v2 = 0.0
         for d in box.dim_axis
-            v2 += v[d][i[d]]
+            v2 += box.v[d][i[d]]^2
         end
         s += fred[i] * v2
     end
