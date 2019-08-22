@@ -26,3 +26,51 @@ Vlasova considers the Vlasov equation coupled to the Poisson equation. This mean
 * The phase space is periodic in positions and velocities
 
 Vlasova utilizes Fourier Transforms in the space as well as velocity dimensions, which require periodicity along them.
+
+
+## TODO: Redo documentation.
+
+Latex strings are enclosed by double backticks, `.
+
+For example
+```markdown
+`` 
+\frac{1}{2}
+	``
+```
+will produce
+
+`` 
+\frac{1}{2}
+``
+
+Note that the  backslash, `\`, does not need to be escaped. This is not true for documentation in `.jl` files, where it should be replaced by
+```markdown
+`` 
+\\frac{1}{2}
+``
+```
+
+Also, you can use environments such as `math`, `jldoctest` and `@example`, but only in markdown files, NOT in the `.jl` files.
+
+Some examples of this environments are shown below:
+
+* This is math environment:
+```math
+Ax^2 + Bx + C = 0
+```
+
+* This is a doctest
+```jldoctest
+a = 1
+b = 2
+a + b
+
+# output
+3
+```
+
+* And this is an example. Note that the result is calculated and automatically appended.
+```@example
+a = ones(10)
+```
