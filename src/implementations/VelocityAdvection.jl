@@ -21,12 +21,12 @@ function (vadv::VelocityAdvection)(plasma::Plasma, electricfield, grad, prop;
 
             # Propagator dependency on E with gradient correction # TODO: Not working yet
             for d in 1:plasma.box.number_of_dims
-                @. prop[d] = cis( coef[d] * electricfield[d] + grad_coef[d] * grad[d] )
+                @. prop[d] = cis( - coef[d] * electricfield[d] + grad_coef[d] * grad[d] )
             end
         else
             # Propagator dependency on E
             for d in 1:plasma.box.number_of_dims
-                @. prop[d] = cis( coef[d] * electricfield[d] )
+                @. prop[d] = cis( - coef[d] * electricfield[d] )
             end
         end
 

@@ -28,7 +28,7 @@ struct SpaceAdvection
         end
 
         # shift: Array (advections) of array (species) of space propagators
-        shift = [ [ exp.( 1im * pos_coeff * sp_coeff * ktimesv )
+        shift = [ [ exp.( -1im * pos_coeff * sp_coeff * ktimesv )
                     for sp_coeff in specie_coefficients ]
                   for pos_coeff in pos_coefficients ]
 
