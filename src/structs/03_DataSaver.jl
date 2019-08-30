@@ -7,28 +7,26 @@ mutable struct DataSaver
     last_distribution_saved::Int64
     checkpoints_reached::Int64
     path::String
-    
+
     DataSaver(plasma::Plasma,
-              tm::TimeManager,
+              Nt::Integer, dt::Float64,
               checkpoint_percent::Integer = 10,
               continue_from_backup::Bool = false,
               save_distribution_times::Array{N, 1} where N <: Union{Float64, Int64} = Float64[]
               ) = begin
 
-                  Nt = floor(Int, tm.final_time / tm.dt + 1)
-
                   # Save distribution axis
                   save_distribution_times = sort( Float64.( save_distribution_times ) )
                   ## All saving times must be multiple of dt
-                  @assert all( isinteger.( round.(save_distribution_times ./ tm.dt, digits = 10) )
+                  @assert all( isinteger.( round.(save_distribution_times ./ dt, digits = 10) )
                                ) "Not all times to save the distribution function are multiples of dt"
-                  @assert all(save_distribution_times .- tm.final_time .<= 0) "The times to save the distribution function can not be larger than final_time"
+                  @assert all(save_distribution_times .<= (Nt-1)*dt ) "The times to save the distribution function can not be larger than final_time"
                   ## Always save the last instant
-                  (tm.final_time in save_distribution_times) ? nothing : append!(save_distribution_times, tm.final_time)
-                  
-                  save_distribution_axis = floor.(Int, save_distribution_times ./ tm.dt .+ 1)
+                  (Nt in save_distribution_times) ? nothing : append!(save_distribution_times, Nt)
+
+                  save_distribution_axis = round.(Int, save_distribution_times ./ dt) .+ 1
                   Ndf = size( save_distribution_axis, 1 )
-                  
+
                   # Checkpoint axis
                   @assert 1 <= checkpoint_percent <= 100  "checkpoint_percent must be valued between 1 and 100"
                   @assert isinteger(100/checkpoint_percent) "checkpoint_percent must be a whole divisor of 100"
@@ -60,7 +58,7 @@ mutable struct DataSaver
                       # Initialize files
                       # Make folder to save data
                       mkpath(path)
-                      
+
                       # Common file
                       fid = HDF5.h5open(path*"shared_data.h5", "w")
                       fid["chargedensity"] = Array{Float64}(undef, plasma.box.Nx..., Nt)
@@ -74,7 +72,7 @@ mutable struct DataSaver
                       # Specie file(s)
                       save_df0 = ( 0.0 in save_distribution_times )
                       save_df0 ? ( last_distribution_saved += 1 ) : nothing
-                      
+
                       for s in 1:plasma.number_of_species
                           fid = HDF5.h5open(path*plasma.species[s].name*".h5", "w")
                           fid["distribution"] = Array{Float64}(undef, plasma.box.N..., Ndf)
@@ -82,7 +80,7 @@ mutable struct DataSaver
                           if save_df0
                               fid["distribution"][UnitRange.(1, plasma.box.N)..., 1] = plasma.species[s].distribution
                           end
-                          
+
                           fid["times_saved"] = save_distribution_times
                           if s == 1
                               fid["last_iteration_saved"] = [ last_iteration_saved ]
@@ -91,7 +89,7 @@ mutable struct DataSaver
                           HDF5.close(fid)
                       end
                   end
-                  
+
                   new( chargedensity,
                        kinetic_energy,
                        checkpoint_axis,

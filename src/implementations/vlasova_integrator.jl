@@ -14,6 +14,9 @@ function vlasova_integrator!(plasma, final_time, dt;
                              progress_file::String = "/",
                              FFTW_flags = FFTW.ESTIMATE )         # TODO: Test the [nosave] case: checkpoint_percent = 100)
 
+    # Number of time iterations
+    Nt = round(Int, final_time / dt) + 1
+
     # Initialize objects
     notify("Preparing integrator data. This may take a while...")
     ##  To solve poisson equation
@@ -23,12 +26,10 @@ function vlasova_integrator!(plasma, final_time, dt;
     velocity_advection = VelocityAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
     ## To save data in memory and flush it to disk on checkpoints
     ## Also, initialize h5 files (saving first checkpoint) or restore data and allow to save the whole DF at save_distribution times
-    time_manager = TimeManager(final_time, dt)
-    datasaver = DataSaver(plasma, time_manager, checkpoint_percent, continue_from_backup, save_distribution_times)
+    datasaver = DataSaver(plasma, Nt, dt, checkpoint_percent, continue_from_backup, save_distribution_times)
 
     # Do the magic!
-    notify("Everything initialized.")
-    integrator(plasma, time_manager,
+    integrator(plasma, Nt, dt,
                poisson, external_potential,
                space_advection, velocity_advection,
                velocity_filtering,

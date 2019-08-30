@@ -1,5 +1,5 @@
 function (integrator::VlasovaIntegrator)(plasma::Plasma,
-                                         time_manager::TimeManager,
+                                         Nt::Integer, dt::Float64,
                                          poisson!::Poisson,
                                          external_potential::Function,
                                          space_advection::SpaceAdvection,
@@ -23,17 +23,17 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     end
 
     # Iteration axis
-    iteration_axis = (datasaver.last_iteration_saved + 1):time_manager.final_iteration
+    iteration_axis = (datasaver.last_iteration_saved + 1):Nt
     println(output, "Entering main loop... $(Dates.now())"); flush(output)
 
     # Make progress indicator
     progressbar = ProgressMeter.Progress(length(iteration_axis),
-                                         desc = "Main loop...",
+                                         desc = "Integrating plasma...",
                                          output = output )
 
     # Go!
     for t in iteration_axis
-        time = (t-2) * time_manager.dt
+        time = (t-2) * dt
         pos_adv_num = 0
         vel_adv_num = 0
         grad_adv_num = 0
