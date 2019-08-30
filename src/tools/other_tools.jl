@@ -1,4 +1,6 @@
-export mean,
+export @vlasova,
+    @hasnan,
+    mean,
     reducedims,
     suppress_stdout,
     hasnan,
@@ -6,7 +8,12 @@ export mean,
     outer,
     ⊗
 
-export @hasnan
+"""
+Evaluate code inside the scope of the Vlasova module
+"""
+macro vlasova( codeblock )
+    Vlasova.eval( codeblock )
+end
 
 """
     Get the mean value of an N-dimensional array along the dimensions `dims`
