@@ -1,13 +1,10 @@
 # To avoid closures, parameters will be passed between functions in a container
 
-# TODO: Name should be in plasma, not in box (?)
-
 """
     Store the information about the physical Box inside which the simulation runs. #TODO
 """
 struct Box
     # Fundamental quantities
-    name::String     # TODO: Change to name (in all the project)
     Nx::NTuple{N, Int64} where N
     Nv::NTuple{N, Int64} where N
     Lx::NTuple{N, Float64} where N
@@ -36,8 +33,7 @@ struct Box
     # Constructors
 
     # Construct with the fundamental parameters only
-    _Box(name::String,
-         Nx::NTuple{N, Int64} where N,
+    _Box(Nx::NTuple{N, Int64} where N,
          Nv::NTuple{N, Int64} where N,
          Lx::NTuple{N, Float64} where N,
          vmin::NTuple{N, Float64} where N,
@@ -69,10 +65,9 @@ struct Box
              for d in dim_axis
                  x[d] = [ i * dx[d] for i in 0:(Nx[d]-1) ]
                  v[d] = [ vmin[d] + i*dv[d] for i in 0:(Nv[d]-1) ]
-             end 
-             # Make the struct 
-             new(name, 
-                 Nx,
+             end
+             # Make the struct
+             new(Nx,
                  Nv,
                  Lx,
                  vmin,
@@ -93,19 +88,17 @@ struct Box
                  v )
 
          end
-    
+
     # Convert (elements, Arrays or Tuples of) Integers/Reals into Tuples of Int64/Float64
     Box(args...
-        ;name::String,
-        Nx::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Integer,
+        ;Nx::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Integer,
         Nv::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Integer,
         Lx::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Real,
         vmin::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Real,
         vmax::Union{T, Array{T, 1}, NTuple{N, T} where N } where T <: Real
         ) = begin
             @assert args == () "Box should not be called using non-keyword arguments."
-            _Box(name,
-                 Int64.(Tuple(Nx)),
+            _Box(Int64.(Tuple(Nx)),
                  Int64.(Tuple(Nv)),
                  Float64.(Tuple(Lx)),
                  Float64.(Tuple(vmin)),
@@ -120,8 +113,7 @@ function Base.display(b::Box)
     ---
     $(b.number_of_dims)-dimensional Vlasova Box.
     ---
-    
-    name = $(b.name)
+
     Nx = $(b.Nx)
     Nv = $(b.Nv)
     Lx = $(b.Lx)
