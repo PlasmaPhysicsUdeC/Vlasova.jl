@@ -5,10 +5,8 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                          space_advection::SpaceAdvection,
                                          velocity_advection::VelocityAdvection,
                                          velocity_filtering::Bool,
-                                         datasaver::DataSaver;
-                                         progress_file::String)
-
-    output = stdout
+                                         datasaver::DataSaver,
+                                         outputs::Array{T, 1}) where T <: IO
 
     # Preallocate to make operations in place
     chargedensity = get_density( plasma )
@@ -24,14 +22,13 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
 
     # Iteration axis
     iteration_axis = (datasaver.last_iteration_saved + 1):Nt
-    println(output, "Entering main loop... $(Dates.now())"); flush(output)
 
-    # Make progress indicator
-    progressbar = ProgressMeter.Progress(length(iteration_axis),
-                                         desc = "Integrating plasma...",
-                                         output = output )
+    # Make progress indicators
+    progressbars = [ ProgressMeter.Progress(length(iteration_axis),
+                                         output = op ) for op in outputs ]
 
     # Go!
+    println.(outputs, "Starting integration @ $(Dates.now())"); flush.(outputs)
     for t in iteration_axis
         time = (t-2) * dt
         pos_adv_num = 0
@@ -66,7 +63,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
 
         # Save data and update progressbar
         datasaver(plasma, t)
-        ProgressMeter.next!(progressbar)
+        ProgressMeter.next!.(progressbars)
     end
     return 0;
 end

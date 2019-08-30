@@ -5,20 +5,38 @@
             * checkpoint_percent [10]: Is the percentage accomplished between one flush of the data to the disk and another.
 """
 function integrate(plasma, final_time, dt;
-                             integrator::VlasovaIntegrator = verlet_velocity,
-                             external_potential::Function = get_zero,
-                             continue_from_backup::Bool = false,
-                             save_distribution_times::Array{T} where T <: Real = Float64[],
-                             checkpoint_percent::Integer = 10,
-                             velocity_filtering::Bool = true,
-                             progress_file::String = "/",
-                             FFTW_flags = FFTW.ESTIMATE )         # TODO: Test the [nosave] case: checkpoint_percent = 100)
+                   integrator::VlasovaIntegrator = verlet_velocity,
+                   external_potential::Function = get_zero,
+                   continue_from_backup::Bool = false,
+                   save_distribution_times::Array{T} where T <: Real = Float64[],
+                   checkpoint_percent::Integer = 100,
+                   velocity_filtering::Bool = true,
+                   save_path::String = "/",
+                   FFTW_flags = FFTW.ESTIMATE )
+
+    if (size(save_distribution_times, 1) !== 0)
+        @assert (save_path !== "/") "The variable save_path must be specified if you want to save distributions"
+    end
+    if ( checkpoint_percent < 100 )
+        @assert (save_path !== "/") "The variable save_path must be specified if you want to use checkpoints"
+    end
+    mkpath(save_path)
+    save_data = (save_path !== "/") ||
+        (size(save_distribution_times, 1) !== 0) ||
+        ( checkpoint_percent < 100 )
+
+    # Message output channels
+    outputs = [ stdout ]
+    if save_data
+        fid = open( joinpath(save_path, "progress_file"), "w")
+        outputs = [stdout, fid]
+    end
+    println.(outputs, "Preparing integrator. This may take a while..."); flush.(outputs)
 
     # Number of time iterations
     Nt = round(Int, final_time / dt) + 1
 
     # Initialize objects
-    println("Preparing integrator data. This may take a while...")
     ##  To solve poisson equation
     poisson = Poisson(plasma, FFTW_flags = FFTW_flags)
     ## Advections
@@ -26,7 +44,7 @@ function integrate(plasma, final_time, dt;
     velocity_advection = VelocityAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
     ## To save data in memory and flush it to disk on checkpoints
     ## Also, initialize h5 files (saving first checkpoint) or restore data and allow to save the whole DF at save_distribution times
-    datasaver = DataSaver(plasma, Nt, dt, checkpoint_percent, continue_from_backup, save_distribution_times)
+    datasaver = DataSaver(plasma, Nt, dt, save_data, save_path, checkpoint_percent, continue_from_backup, save_distribution_times)
 
     # Do the magic!
     integrator(plasma, Nt, dt,
@@ -34,7 +52,9 @@ function integrate(plasma, final_time, dt;
                space_advection, velocity_advection,
                velocity_filtering,
                datasaver,
-               progress_file = progress_file)
+               outputs)
 
+    # close progress_file if it corresponds
+    save_data ? close(fid) : nothing
     return nothing;
 end

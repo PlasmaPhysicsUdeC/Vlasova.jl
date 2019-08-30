@@ -11,9 +11,9 @@ end
 println("Parameters file: ", parametersfile)
 include( parametersfile )
 
-Base.Sys.set_process_title("julia "*simulation_name )    # Set process title of the simulation
+Base.Sys.set_process_title("Vlasova-" )    # Set process title of the simulation #TODO: append name
 
-# Continue from backup ? 
+# Continue from backup ?
 (@isdefined continue_from_backup) ? nothing : continue_from_backup = false
 # FFTW flags
 (@isdefined FFTW_flags) ? nothing : FFTW_flags = Vlasova.FFTW.ESTIMATE
@@ -28,14 +28,10 @@ Base.Sys.set_process_title("julia "*simulation_name )    # Set process title of 
 # Save distribution
 (@isdefined save_distribution_times) ? nothing : save_distribution_times = Float64[]
 # Checkpoint percent
-(@isdefined checkpoint_percent) ? nothing : checkpoint_percent = 10
+(@isdefined checkpoint_percent) ? nothing : checkpoint_percent = 100
+# Save path
+(@isdefined save_path) ? nothing : save_path = "/"
 
-# Prepare the simulation folder
-simulation_path = "data/$simulation_name"           # Set name to save data
-mkpath(simulation_path)                             # Create folder
-run(`cp $parametersfile $simulation_path/parameters.jl`)            # Copy parameters.jl to simulation folder
-println("Folder $simulation_path prepared")
-progress_file = simulation_path*"/progress_file"
 
 # Run!
 # Create Specie array
@@ -49,11 +45,11 @@ plasma = Plasma(species, box)
 
 # Go!
 integrate(plasma, final_time, dt,
-                    save_distribution_times = save_distribution_times,
-                    continue_from_backup = continue_from_backup,
-                    external_potential = external_potential,
-                    velocity_filtering = velocity_filtering,
-                    checkpoint_percent = checkpoint_percent,
-                    integrator = integrator,
-                    FFTW_flags = FFTW_flags,
-                    progress_file = progress_file)
+          save_distribution_times = save_distribution_times,
+          continue_from_backup = continue_from_backup,
+          external_potential = external_potential,
+          velocity_filtering = velocity_filtering,
+          checkpoint_percent = checkpoint_percent,
+          integrator = integrator,
+          FFTW_flags = FFTW_flags,
+          save_path = save_path)

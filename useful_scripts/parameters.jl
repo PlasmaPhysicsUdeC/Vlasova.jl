@@ -1,7 +1,7 @@
 using Vlasova
 
 # Name to save the data
-simulation_name = "tst_1d"
+#save_path = "data/mysimulation"
 
 # Space nodes
 Nx = 128
@@ -17,10 +17,10 @@ dt = 1e-1
 final_time = 200            # In electron plasma periods
 
 # Save the distribution function ( final_time will always be saved )
-save_distribution_times = 0:50:final_time |> collect
+# save_distribution_times = 0:50:final_time |> collect
 
 # Backup simulation after some % accomplished
-checkpoint_percent = 10
+#checkpoint_percent = 100
 
 # Multi-threding
 num_threads = 2
@@ -89,8 +89,7 @@ function initial_distribution(box::Box; perturbate::Bool = false)
 end
 
 # Create plasma box
-box = Box( name = simulation_name,
-           Nx = Nx,
+box = Box( Nx = Nx,
            Nv = Nv,
            Lx = Lx,
            vmin = vMin,

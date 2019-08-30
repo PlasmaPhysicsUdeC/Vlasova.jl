@@ -7,9 +7,12 @@ mutable struct DataSaver
     last_distribution_saved::Int64
     checkpoints_reached::Int64
     path::String
+    save_data::Bool
 
     DataSaver(plasma::Plasma,
               Nt::Integer, dt::Float64,
+              save_data::Bool,
+              path::String,
               checkpoint_percent::Integer = 10,
               continue_from_backup::Bool = false,
               save_distribution_times::Array{N, 1} where N <: Union{Float64, Int64} = Float64[]
@@ -21,8 +24,6 @@ mutable struct DataSaver
                   @assert all( isinteger.( round.(save_distribution_times ./ dt, digits = 10) )
                                ) "Not all times to save the distribution function are multiples of dt"
                   @assert all(save_distribution_times .<= (Nt-1)*dt ) "The times to save the distribution function can not be larger than final_time"
-                  ## Always save the last instant
-                  (Nt in save_distribution_times) ? nothing : append!(save_distribution_times, Nt)
 
                   save_distribution_axis = round.(Int, save_distribution_times ./ dt) .+ 1
                   Ndf = size( save_distribution_axis, 1 )
@@ -39,28 +40,25 @@ mutable struct DataSaver
                   checkpoints_reached = 1
                   last_distribution_saved = 0
 
-                  # Path
-                  path = "data/"*plasma.box.name*"/"
-
                   if continue_from_backup
                       # Restore data
-                      for s in 1:plasma.number_of_species
-                          fid = HDF5.h5open(path*plasma.species[s].name*".h5", "r")
+                      for s in plasma.specie_axis
+                          fid = HDF5.h5open(plasma.species[s].name*".h5", "r")
                           if s == 1
                               last_iteration_saved = fid["last_iteration_saved"][1][1]
                               last_distribution_saved = fid["last_distribution_saved"][1][1]
                           end
-                          plasma.species[s].distribution .= dropdims( fid["distribution"][UnitRange.(1, plasma.box.N)..., Ndf], dims = 2 * plasma.box.number_of_dims + 1 )
+                          plasma.species[s].distribution .= dropdims( fid["distribution"][UnitRange.(1, plasma.box.N)..., Ndf],
+                                                                      dims = 2 * plasma.box.number_of_dims + 1 )
                           HDF5.close(fid)
                       end
                       checkpoints_reached = findfirst( last_iteration_saved .== checkpoint_axis )
-                  else
+
+                  elseif save_data
                       # Initialize files
-                      # Make folder to save data
-                      mkpath(path)
 
                       # Common file
-                      fid = HDF5.h5open(path*"shared_data.h5", "w")
+                      fid = HDF5.h5open( joinpath(path, "shared_data.h5"), "w")
                       fid["chargedensity"] = Array{Float64}(undef, plasma.box.Nx..., Nt)
                       fid["total_kinetic_energy"] = Array{Float64}(undef, Nt)
                       fid["specie_names"] = [plasma.species[s].name for s in plasma.specie_axis]
@@ -73,12 +71,12 @@ mutable struct DataSaver
                       save_df0 = ( 0.0 in save_distribution_times )
                       save_df0 ? ( last_distribution_saved += 1 ) : nothing
 
-                      for s in 1:plasma.number_of_species
-                          fid = HDF5.h5open(path*plasma.species[s].name*".h5", "w")
+                      for s in plasma.specie_axis
+                          fid = HDF5.h5open(joinpath(path, plasma.species[s].name*".h5"), "w")
                           fid["distribution"] = Array{Float64}(undef, plasma.box.N..., Ndf)
 
                           if save_df0
-                              fid["distribution"][UnitRange.(1, plasma.box.N)..., 1] = plasma.species[s].distribution
+                              fid["distribution"][plasma.box.distribution_axes..., 1] = plasma.species[s].distribution
                           end
 
                           fid["times_saved"] = save_distribution_times
@@ -97,6 +95,7 @@ mutable struct DataSaver
                        last_iteration_saved,
                        last_distribution_saved,
                        checkpoints_reached,
-                       path)
+                       path,
+                       save_data)
               end
 end
