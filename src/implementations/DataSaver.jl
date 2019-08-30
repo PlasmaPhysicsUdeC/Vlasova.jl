@@ -1,4 +1,4 @@
-function (d::DataSaver)(plasma::Plasma, tm::TimeManager, t::Integer; progress_file = "/" )
+function (d::DataSaver)(plasma::Plasma, t::Integer )
 
     # Saved every iteration
     it = t - d.last_iteration_saved
@@ -11,7 +11,6 @@ function (d::DataSaver)(plasma::Plasma, tm::TimeManager, t::Integer; progress_fi
     # is checkpoint ?
     if t in d.checkpoint_axis
         save_to_disk(d, plasma, t)
-        notify_progress(tm, t, filename = progress_file)
     end
 
 end

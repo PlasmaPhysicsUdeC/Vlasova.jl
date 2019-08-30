@@ -8,6 +8,8 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                          datasaver::DataSaver;
                                          progress_file::String)
 
+    output = stdout
+
     # Preallocate to make operations in place
     chargedensity = get_density( plasma )
     electricfield = poisson!( chargedensity )
@@ -22,10 +24,12 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
 
     # Iteration axis
     iteration_axis = (datasaver.last_iteration_saved + 1):time_manager.final_iteration
-    notify("Entering main loop... $(Dates.now())", filename = progress_file, mode = "w")
+    println(output, "Entering main loop... $(Dates.now())"); flush(output)
 
-    # Start counting time
-    time_manager( start = Dates.now() )
+    # Make progress indicator
+    progressbar = ProgressMeter.Progress(length(iteration_axis),
+                                         desc = "Main loop...",
+                                         output = output )
 
     # Go!
     for t in iteration_axis
@@ -60,8 +64,9 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
             end
         end
 
-        # Save data and notify progress at checkpoints
-        datasaver(plasma, time_manager, t, progress_file = progress_file)
+        # Save data and update progressbar
+        datasaver(plasma, t)
+        ProgressMeter.next!(progressbar)
     end
     return 0;
 end
