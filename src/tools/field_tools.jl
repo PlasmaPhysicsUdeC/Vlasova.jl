@@ -44,9 +44,9 @@ end
 
     If the charge density depends upon time, the electric field will also depend on time.
 
-    ```@example
+    ```julia
     using Vlasova
-    box = Box("sim", 64, 64, 2pi, -6, 6 );
+    box = Box(Nx = 64, Nv = 64, Lx = 2pi, vmin = -6,  vmax = 6 );
     chargedensity = sin.( box.x[1] );
     Ex = get_electric_field(chargedensity, box)
     ```
@@ -99,13 +99,14 @@ function get_electric_field(;
 end
 
 raw"""
-    Obtains the electrostatic energy from the charge density.
+    Obtain the electrostatic energy from the charge density.
     If the charge density dependes upon time, the result will also depend upon time.
 
     The electrostatic energy is calculated in Fourier space as
-    Energy = \int \rho_k* \Phi_k dk,
-    where \rho_k is the transformed charge density, \Phi_k = rho_k / |k|^2 is the
-    transformed electrostatic potential, and k is the Fourier-conjugate variable of x.
+        ``EE_k = \int \rho_k* \Phi_k dk``,
+    where ``EE_k`` is the transformed electrostatic energy, ``\rho_k`` is the transformed charge density,
+    ``\Phi_k = rho_k / |k|^2`` is the transformed electrostatic potential,
+    and ``k`` is the Fourier-conjugate variable of ``x``.
 
     The required variables are:
     * chargedensity: Array of Float64
@@ -131,7 +132,7 @@ end
 """
 Obtain the power spectrum of the electrostatic energy in space.
 
-Depending on chargedensity, the result may depend on time.
+If the chargedensity depends on time, the result will also depend on time.
 """
 function get_power_per_mode( chargedensity::Array{Float64}, box::Box )
 
@@ -172,8 +173,8 @@ end
     an instant `time`.
 
     The potential is the superposition of 1d potentials of the form
-     `\\Phi = \\sum_i \\Phi_i \\cos ( k_i x_i - \\omega_i t)`
-    where i = x, y, z...
+        ``\\Phi = \\sum_i \\Phi_i \\cos ( k_i x_i - \\omega_i t)``
+    where ``i = x, y, z``...
 """
 function get_potential(box::Box, time::Real; amplitude, wavevector, frequency, time_integrated = false)
     # TODO: This is slow
