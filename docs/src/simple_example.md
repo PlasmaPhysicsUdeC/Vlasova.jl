@@ -30,5 +30,5 @@ electrons = Specie("electrons", -1.0, 1.0, 1.0, ones(Nx)*maxwellian1d( box ) )
 
 plasma = Plasma( electrons, box )
 
-vlasova_integrator!(plasma, Nt, dt)
+integrate(plasma, Nt, dt)
 ```

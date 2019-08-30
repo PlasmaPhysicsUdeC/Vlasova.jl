@@ -24,8 +24,8 @@ include("implementations/VelocityAdvection.jl")
 include("implementations/VlasovaIntegrator.jl")
 
 # Main integrator
-export vlasova_integrator!
-include("implementations/vlasova_integrator.jl")
+export integrate
+include("implementations/integrate.jl")
 
 # Extras
 export vlasova_multithread

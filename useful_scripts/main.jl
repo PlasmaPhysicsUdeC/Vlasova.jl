@@ -48,7 +48,7 @@ species = [ Specie(name = name[s],
 plasma = Plasma(species, box)
 
 # Go!
-vlasova_integrator!(plasma, final_time, dt,
+integrate(plasma, final_time, dt,
                     save_distribution_times = save_distribution_times,
                     continue_from_backup = continue_from_backup,
                     external_potential = external_potential,

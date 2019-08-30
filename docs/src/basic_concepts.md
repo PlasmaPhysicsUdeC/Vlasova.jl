@@ -5,7 +5,7 @@ Any simulation will consist of a set of initial conditions (the *plasma* initial
 To perform a simulation is as simple as writing
 
 ```
-vlasova_integrator!(plasma, final_time, dt)
+integrate(plasma, final_time, dt)
 ```
 where *plasma* holds all the information of the plasma at the initial instant, *final_time* is the ammount of time desired to integrate the plasma, normalized to electron plasma periods, and *dt* is the *time step* used to integrate.
 
