@@ -1,6 +1,4 @@
-export notify,
-    string2file,
-    mean,
+export mean,
     reducedims,
     suppress_stdout,
     hasnan,
@@ -10,49 +8,8 @@ export notify,
 
 export @hasnan
 
-# TODO: make a progressbar function
 """
-    Print a string both to the screen and to a file.
-    ** If a global variable disable_notify = true is defined, notify will do nothing **
-
-    Required:
-    * string:: String to print
-
-    Optional, keyword:
-    * filename: String with the name of a file.
-                If not specified, notify is equivalent to println()
-
-    * mode: String specifying the mode under which filename will be open.
-            [Options: "a" (append, default), "w" (write) ]
-"""
-function notify(string::String; filename::String = "/", mode::String = "a")
-    (@isdefined disable_notify) && disable_notify ? (return nothing) : nothing
-
-    println(string)
-    (filename != "/") ? string2file(filename, string*"\n", mode) : nothing
-    return nothing
-end
-
-"""
-    Write a string to a file
-
-    Required:
-    * filename: String. The name of the target file
-    * string: String to write to filename
-
-    Optional
-    * mode: Mode under which open filename.
-            [Options: "r" (read), "w" (write), "a" (append, default), "r+" (special read & write)]
-"""
-function string2file(filename::String, string::String, mode::String = "a")
-    open(filename, mode) do f
-        write(f, string)
-    end
-    return nothing
-end
-
-"""
-    Get the mean value of an N-dimensional array
+    Get the mean value of an N-dimensional array along the dimensions `dims`
 
     Requires:
     * array: Array

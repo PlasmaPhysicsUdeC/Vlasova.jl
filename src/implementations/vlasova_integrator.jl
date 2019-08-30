@@ -18,7 +18,7 @@ function vlasova_integrator!(plasma, final_time, dt;
     Nt = round(Int, final_time / dt) + 1
 
     # Initialize objects
-    notify("Preparing integrator data. This may take a while...")
+    println("Preparing integrator data. This may take a while...")
     ##  To solve poisson equation
     poisson = Poisson(plasma, FFTW_flags = FFTW_flags)
     ## Advections

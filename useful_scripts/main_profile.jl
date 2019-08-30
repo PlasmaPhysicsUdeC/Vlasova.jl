@@ -34,7 +34,7 @@ Base.Sys.set_process_title("julia "*simulation_name )    # Set process title of 
 simulation_path = "data/$simulation_name"           # Set name to save data
 mkpath(simulation_path)                             # Create folder
 run(`cp $parametersfile $simulation_path/parameters.jl`)            # Copy parameters.jl to simulation folder
-Vlasova.notify("Folder $simulation_path prepared")
+println("Folder $simulation_path prepared")
 progress_file = simulation_path*"/progress_file"
 
 # Run!
