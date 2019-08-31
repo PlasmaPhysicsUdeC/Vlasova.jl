@@ -1,6 +1,5 @@
 export @vlasova,
     @hasnan,
-    mean,
     reducedims,
     suppress_stdout,
     hasnan,
@@ -17,23 +16,6 @@ Evaluate `codeblock` inside the scope of the Vlasova module
 """
 macro vlasova( codeblock )
     Vlasova.eval( codeblock )
-end
-
-"""
-Get the mean value of an N-dimensional array along the dimensions `dims`
-
-Requires:
-* array: Array
-
-Returns
-* mean: Float64
-"""
-function mean(array::Array; dims = (0))
-    if dims == (0)
-        return sum(array) / prod(size( array ));
-    else
-        return sum(array, dims = dims) / prod(size( array )[ [dims...] ]);
-    end
 end
 
 """
