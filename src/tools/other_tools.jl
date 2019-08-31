@@ -9,20 +9,24 @@ export @vlasova,
     ⊗
 
 """
-Evaluate code inside the scope of the Vlasova module
+```julia
+@vlasova codeblock
+```
+
+Evaluate `codeblock` inside the scope of the Vlasova module
 """
 macro vlasova( codeblock )
     Vlasova.eval( codeblock )
 end
 
 """
-    Get the mean value of an N-dimensional array along the dimensions `dims`
+Get the mean value of an N-dimensional array along the dimensions `dims`
 
-    Requires:
-    * array: Array
+Requires:
+* array: Array
 
-    Returns
-    * mean: Float64
+Returns
+* mean: Float64
 """
 function mean(array::Array; dims = (0))
     if dims == (0)
@@ -32,19 +36,22 @@ function mean(array::Array; dims = (0))
     end
 end
 
-# Change reducedims for a @squeezing macro
 """
-    Performs a reduction function, f,  over an array, A, along the dimensions, dims,
-    and drop the dimensions reduced.
+```julia
+reducedims(f::Function, A::Array; dims = (0))
+```
 
-    In general,
-    ```
-    reducedims( f, A, dims = dims)
-    ```
-    is equivalent to
-    ```
-    dropdims( f(A, dims = dims), dims = dims )
-    ```
+Perform a reduction function, `f`,  over an array, `A`, along the dimension(s), `dims`,
+and drop the dimensions reduced.
+
+In general,
+```
+reducedims( f, A, dims = dims)
+```
+is equivalent to
+```
+dropdims( f(A, dims = dims), dims = dims )
+```
 """
 function reducedims(f::Function, A::Array; dims = (0))
     if dims == (0)
@@ -55,7 +62,17 @@ function reducedims(f::Function, A::Array; dims = (0))
 end
 
 """
-    Execute a block of code without printing anything to screen
+```julia
+@supress_stdout codeblock
+```
+
+Evaluate `codeblock` without printing anything to screen.
+
+# Examples
+```jldoctest; setup = :(using Vlasova)
+julia> @suppress_stdout println(2)
+
+```
 """
 macro suppress_stdout(codeblock)
     quote
@@ -77,7 +94,23 @@ macro suppress_stdout(codeblock)
 end
 
 """
-    Test whether some element of var (or var itself) is a NaN
+```julia
+@hasnan var
+```
+
+Test whether some element of `var` (or itself) is a `NaN`
+
+# Examples
+```jldoctest; setup = :(using Vlasova)
+julia> @hasnan NaN
+true
+
+julia> @hasnan [1.0, NaN]
+true
+
+julia> @hasnan [1, 2, Inf]
+false
+```
 """
 macro hasnan(var)
     quote
@@ -87,20 +120,23 @@ end
 
 
 """
-    Test whether some element of var (or var itself) is a NaN
+Test whether some element of `var` (or itself) is a `NaN`
 """
 function hasnan(var)
     return findfirst(isnan.(var)) != nothing
 end
 
 """
-    Return 1.0 for times before cutoff_time, adiabatically go to 0.0 until cutoff_time + cutoff_delay and return 0.0 afterwards
+```julia
+adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
+```
 
-    The shape used to go from 1.0 to 0.0 is
-    ```math
-    f(x) =  \\frac{( 1 + cos(x) )}{2}
-    ```
-    with ```x \\in [0, pi]```.
+Return ``1.0`` if  `time`<`cutoff_time`, adiabatically go to ``0.0``
+ until `time = cutoff_time + cutoff_delay` and return `0.0` afterwards.
+
+The shape used to go from ``1.0`` to ``0.0`` is
+
+``f(x) =  \\frac{( 1 + \\cos(x) )}{2},`` with ``x \\in [0, \\pi]``.
 """
 function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
     damp_time = time - cutoff_time
@@ -113,26 +149,40 @@ function adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
     end
 end
 
-raw"""
-    Generalized external operation between two arrays, A and B.
-    
-    In general, `outer(A, B, f)` returns `R` such that
-    ```math
-    R_{ij} = f(A_i, B_j)
-    ```
+"""
+```julia
+outer(A::Array{TA}, B::Array{TB}, f::Function = *) where TA where TB
+```
+Generalized external operation between two arrays, `A` and `B`.
 
-    By default, `f` is the usual multiplication, so that `outer` is the external product.
+In general, `outer(A, B, f)` returns `R` such that
 
-    ```@example
-    A = [1.0, 2.0, 3.0, 4.0];
-    B = [0.0, 1.0];
-    outer(A, B, *)
-    outer(A, B, -)
-    ```
+``R_{ij} = f(A_i, B_j) ``
 
-    # Note
-    This function is not optimized to be fast, but only to offer a comfortable syntax.
-    """
+# Notes
+* If `f` is not specified, `outer` corresponds to the external product.
+* This function is not optimized to be fast, but only to offer a comfortable syntax.
+It should not be used in performance-critical parts of the code.
+
+# Examples
+```jldoctest; setup = :(using Vlasova)
+julia> A = [1.0, 2.0, 3.0];
+
+julia> B = [0.0, 1.0];
+
+julia> outer(A, B, *)
+3×2 Array{Float64,2}:
+ 0.0  1.0
+ 0.0  2.0
+ 0.0  3.0
+
+julia> outer(A, B, -)
+3×2 Array{Float64,2}:
+ 1.0  0.0
+ 2.0  1.0
+ 3.0  2.0
+```
+"""
 function outer(A::Array{TA},
                B::Array{TB},
                f::Function = *) where TA where TB
@@ -150,8 +200,24 @@ end
 
 
 """
-Infix form of the external product between two arrays
+```julia
+A ⊗ B
+```
 
-See ["outer"](@ref)
+Infix form of the external product between two arrays.
+See [`Vlasova.outer`](@ref).
+
+# Examples
+```jldoctest; setup = :(using Vlasova)
+julia> A = [1, 2, 3];
+
+julia> B = [0, 1];
+
+julia> A ⊗ B
+3×2 Array{Int64,2}:
+ 0  1
+ 0  2
+ 0  3
+```
 """
-⊗ = outer
+⊗ = Vlasova.outer
