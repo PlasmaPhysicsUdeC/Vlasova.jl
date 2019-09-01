@@ -9,10 +9,10 @@ to perform a simulation.
 
 # Notes
 * A `Plasma` is a container that points to the `species` and `box`. This means that
-they share the same memory, and if the plasma is integrated, the distributions in `species`
+  they share the same memory, and if the plasma is integrated, the distributions in `species`
 will change accordingly.
 * To create a `Plasma`, you can provide a single `Specie` or an `Array{Specie}`.
-In the case that a single `Specie` is provided, it will be transformed into an `Array` internally.
+  In the case that a single `Specie` is provided, it will be transformed into an `Array` internally.
 
 # Examples
 
