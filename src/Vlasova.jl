@@ -1,4 +1,3 @@
-__precompile__()
 module Vlasova
 
 import LinearAlgebra, FFTW, HDF5, Dates, QuadGK, ProgressMeter
