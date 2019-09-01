@@ -76,9 +76,9 @@ twostream1d(v; vt1::Real = 1.0, vt2::Real = 1.0, vd1::Real = -2.0, vd2::Real = 2
 Generate a 1-d monospecies Two Stream distribution.
 
 # Notes
-* `vt1 and `vt2` are the thermal velocities of the first and second stream, respectively.
-* `vd1 and `vd2` are the drift velocities of the first and second stream, respectively.
-* `n1 and `n2` are the densities of the first and second stream, respectively.
+* `vt1` and `vt2` are the thermal velocities of the first and second stream, respectively.
+* `vd1` and `vd2` are the drift velocities of the first and second stream, respectively.
+* `n1` and `n2` are the densities of the first and second stream, respectively.
 """
 function twostream1d(v; vt1::Real = 1.0, vt2::Real = 1.0, vd1::Real = -2.0, vd2::Real = 2.0, n1::Real = 0.5, n2::Real = 0.5)
     @assert isapprox(n1 + n2, 1.0) "The densities of the two streams do not add up to 1"
@@ -113,10 +113,8 @@ end
     Generate a 1-dimensional BGK state.
 
 # Notes
-* The BGK state is constructed according to the mathematical description given by [`Silantyev et al. (2017-1)`](@ref https://aip.scitation.org/doi/10.1063/1.4979289), derived from the potential
-
-``\\Phi(x) = -\\phi_0 \\cos( k x )``
-
+* The BGK state is constructed according to the mathematical description given by [`Silantyev et al. (2017-1)`](https://aip.scitation.org/doi/10.1063/1.4979289), derived from the potential
+``\\Phi(x) = -\\phi_0 \\cos( k x ),``
 and a Maxwellian equilibrium distribution.
 
 * If a 2-d box is provided, the keyword `dim` may be used to select the dimension of the box to construct the BGK state.

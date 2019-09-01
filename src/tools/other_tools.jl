@@ -61,7 +61,7 @@ Evaluate `codeblock` without printing anything to screen.
 
 # Examples
 ```jldoctest; setup = :(using Vlasova)
-julia> @suppress_stdout println(2)
+julia> @suppress_stdout println(2) # Prints nothing
 
 ```
 """
@@ -122,7 +122,7 @@ end
 adiabatic_cutoff(time::Real; cutoff_time::Real, cutoff_delay::Real)
 ```
 
-Return ``1.0`` if  `time`<`cutoff_time`, adiabatically go to ``0.0``
+Return ``1.0`` if  `time < cutoff_time`, adiabatically go to ``0.0``
  until `time = cutoff_time + cutoff_delay` and return `0.0` afterwards.
 
 The shape used to go from ``1.0`` to ``0.0`` is
