@@ -1,7 +1,16 @@
-# To avoid closures, parameters will be passed between functions in a container
-
 """
-    Store the information about the physical Box inside which the simulation runs. #TODO
+```julia
+Box(;Nx, Nv, Lx, vmin, vmax)
+```
+
+Create an object to store all the information about the physical space under which a [`Vlasova.Plasma`](@ref) lives.
+
+# Notes
+* All arguments to create a box are keywords.
+* `Nx` and `Nv` must be an `Integer`, a `Tuple{Integer}` or an `Array{Integer}`.
+* `Lx`, `vmin` and `vmax` must be a `Real`, a `Tuple{Real}` or an `Array{Real}`.
+* All of the keywords given must have the same number of elements, or an error will be thrown.
+* All `Real`s will be converted to `Float64` and all `Integer`s will be converted to `Int64`.
 """
 struct Box
     # Fundamental quantities
@@ -10,7 +19,7 @@ struct Box
     Lx::NTuple{N, Float64} where N
     vmin::NTuple{N, Float64} where N
     vmax::NTuple{N, Float64} where N
-    # Derived quntities
+    # Derived quantities
     ## Dims
     N::NTuple{N, Int64} where N
     number_of_dims::Int64
@@ -118,6 +127,7 @@ function Base.display(b::Box)
     Nv = $(b.Nv)
     Lx = $(b.Lx)
     vmin = $(b.vmin)
-    vmax = $(b.vmax)"
-    println(d)
+    vmax = $(b.vmax)
+"
+    print(d)
 end

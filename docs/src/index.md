@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Vlasova is a package *mostly* written in julia, which aims to provide a set of tools to perform and examine Vlasov-Poisson simulations easily.
+Vlasova is a package written in julia, which aims to provide a set of tools to perform and examine one or two-dimensional Vlasov-Poisson simulations easily.
 
 ## Features
 
@@ -28,7 +28,7 @@ Vlasova considers the Vlasov equation coupled to the Poisson equation. This mean
 Vlasova utilizes Fourier Transforms in the space as well as velocity dimensions, which require periodicity along them.
 
 
-## TODO: Redo documentation.
+## TODO: Redo documentation and setup all docstrings with `using Vlasova`.
 
 Latex strings are enclosed by double backticks, `.
 
@@ -36,7 +36,7 @@ For example
 ```markdown
 `` 
 \frac{1}{2}
-	``
+``
 ```
 will produce
 

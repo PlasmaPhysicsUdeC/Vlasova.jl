@@ -113,9 +113,7 @@ end
     Generate a 1-dimensional BGK state.
 
 # Notes
-* The BGK state is constructed according to the mathematical description given by [`Silantyev et al. (2017-1)`](https://aip.scitation.org/doi/10.1063/1.4979289), derived from the potential
-``\\Phi(x) = -\\phi_0 \\cos( k x ),``
-and a Maxwellian equilibrium distribution.
+* The BGK state is constructed according to the mathematical description given by [`Silantyev et al. (2017-1)`](https://aip.scitation.org/doi/10.1063/1.4979289), derived from the potential ``\\Phi(x) = -\\phi_0 \\cos( k x ),`` and a Maxwellian equilibrium distribution.
 
 * If a 2-d box is provided, the keyword `dim` may be used to select the dimension of the box to construct the BGK state.
 """

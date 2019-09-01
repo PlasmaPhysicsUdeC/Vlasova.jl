@@ -1,13 +1,12 @@
 """
-    Define a charged species in a Vlasova plasma.
-    Contains and requires the following properties of a charged specie:
-        * name :: String
-        * charge :: Real
-        * mass :: Real
-        * temperature :: Real
-        * distribution function :: Array{Real}
-        where the distribution function is an array of 2N dimensions,
-        and N is the number of spatial dimensions
+```julia
+Specie(name::String, charge::Real, mass:Real, temperature::Real, distribution::Array{T} where T :< Real)
+```
+
+Create a container representing one charged species in a Vlasova plasma.
+
+# Notes
+* All `Real`s will be converted to `Float64` internally.
 """
 struct Specie                   # TODO: Accept thermal_velocity or temperature. (rewrite integrator to use vth)
     name::String
@@ -51,16 +50,33 @@ end
 
 
 function Base.display(s::Specie)
-    dim = Int( length(size(s.distribution)) / 2 )
+    dim = div(length(size(s.distribution)), 2)
     d = "
     ---
     $dim-dimensional Vlasova Specie.
     ---
-    
+
     name = $(s.name)
     charge = $(s.charge)
     mass = $(s.mass)
     temperature = $(s.temperature)
-    distribution size = $(size(s.distribution))"
-    println(d)
+    distribution size = $(size(s.distribution))
+    "
+    print(d)
+end
+
+function Base.display(s::Array{Specie})
+    dim = div(length(size(s[1].distribution)), 2)
+    sp_list = ""
+    for i in 1:size(s, 1)
+        sp_list *= "$i) "*s[i].name*"\n    "
+    end
+    d = "
+    ---
+    Array of $dim-dimensional Vlasova Species.
+    ---
+
+    Species contained:
+    $sp_list "
+    print(d)
 end

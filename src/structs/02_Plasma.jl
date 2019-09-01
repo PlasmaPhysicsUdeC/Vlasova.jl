@@ -1,23 +1,43 @@
 """
-    Defines a Vlasovian Plasma, and contains:
-        * species: An array of Specie elements
-        * box: The parameters of the simulation, of type Box
-        * number_of_species: The number of charged species contained in the plasma
-        * specie_axis: A tuple of indices, to iterate over each specie.
-        
-        To be defined, it required to specify species and box:
-            julia> parameters = Box( ... );
-            julia> plasma = Plasma([Specie(...),
-                                    Specie(...)],
-                                    parameters );
-        *** This struct is dependent on the Specie and Box structs ***
-        """
+```julia
+Plasma(species::Array{Specie}, box::Box)
+```
+
+Take `species` and `box` and link them into a single container called `Plasma`,
+which represents a physical plasma and contains all of the information required
+to perform a simulation.
+
+# Notes
+* A `Plasma` is a container that points to the `species` and `box`. This means that
+they share the same memory, and if the plasma is integrated, the distributions in `species`
+will change accordingly.
+* To create a `Plasma`, you can provide a single `Specie` or an `Array{Specie}`.
+In the case that a single `Specie` is provided, it will be transformed into an `Array` internally.
+
+# Examples
+
+```jldoctest; setup = :(using Vlasova)
+julia> box = Box(Nx = 32,
+                 Nv = 64,
+                 Lx = 2pi,
+                 vmin = -6,
+                 vmax = 6);
+
+julia> species = Specie(name = "electrons",
+                        charge = -1,
+                        mass = 1,
+                        temperature = 1,
+                        distribution = ones(box.Nx) ⊗ maxwellian1d(box));
+
+julia> plasma = Plasma(species, box);
+```
+"""
 struct Plasma
     species::Array{Specie, 1}
     box::Box
     number_of_species::Int64
     specie_axis::Base.OneTo{Int64}
-    
+
     # Constructors
     # Calculate derived quantities from the array of species
     Plasma(s::Union{T, Array{T}} where T <: Specie,
@@ -46,8 +66,6 @@ function Base.display(p::Plasma)
     ---
     $(p.box.number_of_dims)-dimensional Vlasova Plasma.
     ---
-    
-    # TODO: Do display( Specie  ) first
     "
-    println(d)
+    print(d)
 end

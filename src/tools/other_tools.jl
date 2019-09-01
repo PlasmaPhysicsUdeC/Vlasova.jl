@@ -145,7 +145,7 @@ In general, `outer(A, B, f)` returns `R` such that
 # Notes
 * If `f` is not specified, `outer` corresponds to the external product.
 * This function is not optimized to be fast, but only to offer a comfortable syntax.
-It should not be used in performance-critical parts of the code.
+  It should not be used in performance-critical parts of the code.
 
 # Examples
 ```jldoctest; setup = :(using Vlasova)
