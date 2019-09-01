@@ -24,7 +24,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     iteration_axis = (datasaver.last_iteration_saved + 1):Nt
 
     # Make progress indicators
-    progressbars = [ ProgressMeter.Progress(length(iteration_axis),
+    progressbars = [ ProgressMeter.Progress(length(iteration_axis), # TODO: set to real % when cont. from backup
                                          output = op ) for op in outputs ]
 
     # Go!
