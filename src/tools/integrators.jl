@@ -34,7 +34,7 @@ ChinC = VlasovaIntegrator("ABACABA", [1/6,
                                       1/6],
                           gradient_coefficients = [ 1 / 48 ])
 
-begin
+let
     lambda = 1/(2 - 2^(1/3))
     teta = lambda / 2
 
@@ -48,11 +48,11 @@ begin
 end
 
 
-begin
+let
     xi = 0.006938106540706989
     lambda = 0.2470939580390842
     teta = 0.08935804763220157
-    
+
     global ABACABA = VlasovaIntegrator("ABACABA", [teta,
                                                    lambda,
                                                    0.5 - teta,
@@ -66,4 +66,4 @@ end
 
 
 
-# TODO: Implement the **120 Eff integrator from Omelyan2003
+# TODO: Implement the **120 Eff gradient integrator from Omelyan2003
