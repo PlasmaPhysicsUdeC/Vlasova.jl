@@ -1,18 +1,18 @@
 """
-        Takes a element of type Plasma and integrates it until final_time using steps of length dt.
+        Take an element of type Plasma and integrate it until final_time using steps of length dt.
         Accepts the optional keywords:
             * continue_from_backup [false]: Tells whether the simulation should be restarted from a backup file.
             * checkpoint_percent [10]: Is the percentage accomplished between one flush of the data to the disk and another.
 """
 function integrate(plasma, final_time, dt;
-                   integrator::VlasovaIntegrator = verlet_velocity,
-                   external_potential::Function = get_zero,
-                   continue_from_backup::Bool = false,
-                   save_distribution_times::Array{T} where T <: Real = Float64[],
-                   checkpoint_percent::Integer = 100,
-                   velocity_filtering::Bool = true,
-                   save_path::String = "/",
-                   FFTW_flags = FFTW.ESTIMATE )
+                   integrator::VlasovaIntegrator = integrator,
+                   external_potential::Function = external_potential,
+                   continue_from_backup::Bool = continue_from_backup,
+                   save_distribution_times::Array{T} where T <: Real = save_distribution_times,
+                   checkpoint_percent::Integer = checkpoint_percent,
+                   velocity_filtering::Bool = velocity_filtering,
+                   save_path::String = save_path,
+                   FFTW_flags = FFTW_flags)
 
     if (size(save_distribution_times, 1) !== 0)
         @assert (save_path !== "/") "The variable save_path must be specified if you want to save distributions"
@@ -25,7 +25,7 @@ function integrate(plasma, final_time, dt;
         (size(save_distribution_times, 1) !== 0) ||
         ( checkpoint_percent < 100 )
 
-    # Message output channels
+    # Output streams
     outputs = [ stdout ]
     if save_data
         fid = open( joinpath(save_path, "progress_file"), "w")
@@ -35,6 +35,9 @@ function integrate(plasma, final_time, dt;
 
     # Number of time iterations
     Nt = round(Int, final_time / dt) + 1
+
+    # Multithread
+    vlasova_multithread( NUM_THREADS )
 
     # Initialize objects
     ##  To solve poisson equation

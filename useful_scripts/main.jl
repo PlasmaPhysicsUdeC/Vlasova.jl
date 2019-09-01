@@ -13,26 +13,6 @@ include( parametersfile )
 
 Base.Sys.set_process_title("Vlasova-" )    # Set process title of the simulation #TODO: append name
 
-# Continue from backup ?
-(@isdefined continue_from_backup) ? nothing : continue_from_backup = false
-# FFTW flags
-(@isdefined FFTW_flags) ? nothing : FFTW_flags = Vlasova.FFTW.ESTIMATE
-# Multithreading
-(@isdefined num_threads) ? vlasova_multithread( num_threads  ) : nothing
-# Integrator
-(@isdefined integrator) ? nothing : integrator = verlet_velocity
-# Velocity filtering
-(@isdefined velocity_filtering) ? nothing : velocity_filtering = true
-# External potential
-(@isdefined external_potential) ? nothing : external_potential = Vlasova.get_zero
-# Save distribution
-(@isdefined save_distribution_times) ? nothing : save_distribution_times = Float64[]
-# Checkpoint percent
-(@isdefined checkpoint_percent) ? nothing : checkpoint_percent = 100
-# Save path
-(@isdefined save_path) ? nothing : save_path = "/"
-
-
 # Run!
 # Create Specie array
 species = [ Specie(name = name[s],
@@ -44,12 +24,4 @@ species = [ Specie(name = name[s],
 plasma = Plasma(species, box)
 
 # Go!
-integrate(plasma, final_time, dt,
-          save_distribution_times = save_distribution_times,
-          continue_from_backup = continue_from_backup,
-          external_potential = external_potential,
-          velocity_filtering = velocity_filtering,
-          checkpoint_percent = checkpoint_percent,
-          integrator = integrator,
-          FFTW_flags = FFTW_flags,
-          save_path = save_path)
+integrate(plasma, final_time, dt )
