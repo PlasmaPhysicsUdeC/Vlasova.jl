@@ -1,7 +1,7 @@
 export @vlasova,
     @hasnan,
+    @suppress_stdout,
     reducedims,
-    suppress_stdout,
     hasnan,
     adiabatic_cutoff,
     outer,
@@ -20,7 +20,7 @@ To change the default value of an inner variable of Vlasova, such as `NUM_THREAD
 
 ```jldoctest; setup = :(using Vlasova)
 julia> @vlasova NUM_THREADS = 2
-NUM_THREADS = 2
+2
 ```
 """
 macro vlasova( codeblock )
