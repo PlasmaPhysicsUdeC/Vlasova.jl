@@ -12,7 +12,16 @@ export @vlasova,
 @vlasova codeblock
 ```
 
-Evaluate `codeblock` inside the scope of the Vlasova module
+Evaluate `codeblock` inside the scope of the Vlasova module.
+
+# Examples
+
+To change the default value of an inner variable of Vlasova, such as `NUM_THREADS`, use
+
+```jldoctest; setup = :(using Vlasova)
+julia> @vlasova NUM_THREADS = 2
+NUM_THREADS = 2
+```
 """
 macro vlasova( codeblock )
     Vlasova.eval( codeblock )
@@ -27,11 +36,11 @@ Perform a reduction function, `f`,  over an array, `A`, along the dimension(s), 
 and drop the dimensions reduced.
 
 In general,
-```
+```julia
 reducedims( f, A, dims = dims)
 ```
 is equivalent to
-```
+```julia
 dropdims( f(A, dims = dims), dims = dims )
 ```
 """
