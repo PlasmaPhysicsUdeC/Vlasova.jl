@@ -89,7 +89,7 @@ end
 @hasnan var
 ```
 
-Test whether some element of `var` (or itself) is a `NaN`
+Test whether some element of `var` (or itself) is a `NaN`.
 
 # Examples
 ```jldoctest; setup = :(using Vlasova)
@@ -107,14 +107,6 @@ macro hasnan(var)
     quote
         findfirst(isnan.($var)) != nothing
     end
-end
-
-
-"""
-Test whether some element of `var` (or itself) is a `NaN`
-"""
-function hasnan(var)
-    return findfirst(isnan.(var)) != nothing
 end
 
 """
