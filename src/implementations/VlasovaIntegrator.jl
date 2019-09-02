@@ -24,8 +24,11 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     iteration_axis = (datasaver.last_iteration_saved + 1):Nt
 
     # Make progress indicators
-    progressbars = [ ProgressMeter.Progress(length(iteration_axis), # TODO: set to real % when cont. from backup
-                                         output = op ) for op in outputs ]
+    progressbars = [ ProgressMeter.Progress(length(iteration_axis),
+                                            output = op ) for op in outputs ]
+
+    # Sync progressbars when continuing from a backup
+    [ProgressMeter.next!.(progressbars) for i in 2:datasaver.last_iteration_saved ]
 
     # Go!
     println.(outputs, "Starting integration @ $(Dates.now())"); flush.(outputs)
