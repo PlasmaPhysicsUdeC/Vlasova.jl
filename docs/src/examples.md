@@ -1,3 +1,5 @@
+# DEPRECATED
+
 ## Simple 1-d simulation
 
 One simple example of a simulation would be
@@ -30,5 +32,5 @@ electrons = Specie("electrons", -1.0, 1.0, 1.0, ones(Nx)*maxwellian1d( box ) )
 
 plasma = Plasma( electrons, box )
 
-integrate(plasma, Nt, dt)
+integrate!(plasma, Nt, dt)
 ```

@@ -23,13 +23,14 @@ julia> box = Box(Nx = 32,
                  vmin = -6,
                  vmax = 6);
 
-julia> species = Specie(name = "electrons",
+julia> electrons = Specie(name = "electrons",
                         charge = -1,
                         mass = 1,
                         temperature = 1,
                         distribution = ones(box.Nx) ⊗ maxwellian1d(box));
 
-julia> plasma = Plasma(species, box);
+julia> plasma = Plasma(species = [electrons],
+                       box = box);
 ```
 """
 struct Plasma
@@ -40,21 +41,23 @@ struct Plasma
 
     # Constructors
     # Calculate derived quantities from the array of species
-    Plasma(s::Union{T, Array{T}} where T <: Specie,
-           b::Box ) = begin
-               isarray = typeof(s) <: Array
-               isarray ? nothing : (s = [s])
-               sdims = div.([length( size(s[i].distribution) ) for i in 1:length(s)], 2)
-               for i in 2:length(s)
+    Plasma(args...
+           ;species::Union{T, Array{T}} where T <: Specie,
+           box::Box ) = begin
+               isarray = typeof(species) <: Array
+               isarray ? nothing : (species = [species])
+               sdims = div.([length( size(species[i].distribution) ) for i in 1:length(species)], 2)
+               for i in 2:length(species)
                    @assert sdims[i] == sdims[1] "The sizes of the distribution functions of the species do not match."
                end
-               bdim = b.number_of_dims
+               bdim = box.number_of_dims
                sdim = sdims[1]
                bd = "($bdim + $bdim)"
                sd = "($sdim + $sdim)"
                @assert bdim == sdim "The species are $sd-dimensional, but the box provided is $bd-dimensional."
-               new(s,
-                   b,
+               @assert args == () "Box should not be called using non-keyword arguments."
+               new(species,
+                   box,
                    size(s, 1),
                    Base.OneTo(size(s, 1))
                    )
