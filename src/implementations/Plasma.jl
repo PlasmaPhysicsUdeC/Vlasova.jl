@@ -1,6 +1,12 @@
 """
-Collect the total charge density of an element of type plasma.
-Prefer in-place version.
+```julia
+get_density(plasma::Plasma)
+```
+
+Collect and return the total `chargedensity` of a `plasma`.
+
+# Notes
+* For performance critical parts of the code, prefer the in-place version [`get_density!`](@ref).
 """
 function get_density(plasma::Plasma)
 
@@ -14,7 +20,11 @@ function get_density(plasma::Plasma)
 end
 
 """
-Same as get_density but in place!
+```julia
+get_density!(chargedensity, plasma::Plasma)
+```
+
+Collect the total `chargedensity` of a `plasma` in place.
 """
 function get_density!(chargedensity, plasma::Plasma)
     # Replace chargedensity content
@@ -37,7 +47,11 @@ end
 
 
 """
-Return an array of kinetic energies, where the i-th component corresponds to the i-th charged specie of the plasma.
+```julia
+get_kinetic_energies(plasma::Plasma)
+```
+
+Return an array of kinetic energies, where the `i`-th component corresponds to the `i`-th charged specie of the Plasma.
 """
 function get_kinetic_energies(plasma::Plasma)
 

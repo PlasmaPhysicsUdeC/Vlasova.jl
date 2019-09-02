@@ -1,3 +1,6 @@
+"""
+Executed at every iteration of the integrator.
+"""
 function (d::DataSaver)(plasma::Plasma, t::Integer )
     if d.save_data
         # Saved every iteration
@@ -15,6 +18,9 @@ function (d::DataSaver)(plasma::Plasma, t::Integer )
     end
 end
 
+"""
+Flush the values accumulated on a `DataSaver` object to disk.
+"""
 function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     last_it = d.last_iteration_saved
 
