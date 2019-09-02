@@ -41,7 +41,7 @@ function get_density!(chargedensity, plasma::Plasma)
     end
 
     # Ensure quasi-neutrality
-    chargedensity .= chargedensity .- mean(chargedensity)
+    chargedensity .= chargedensity .- Statistics.mean(chargedensity)
     return 0;
 end
 
