@@ -11,24 +11,27 @@ function integrate(plasma, final_time, dt;
                    save_distribution_times::Array{T} where T <: Real = save_distribution_times,
                    checkpoint_percent::Integer = checkpoint_percent,
                    velocity_filtering::Bool = velocity_filtering,
-                   save_path::String = save_path,
+                   data_path::String = data_path,
                    FFTW_flags = FFTW_flags)
 
+    if continue_from_backup
+        @assert (data_path !== "/") "The variable data_path must be specified if you want to continue from a backup (the path to the backup)"
+    end
     if (size(save_distribution_times, 1) !== 0)
-        @assert (save_path !== "/") "The variable save_path must be specified if you want to save distributions"
+        @assert (data_path !== "/") "The variable data_path must be specified if you want to save distributions"
     end
     if ( checkpoint_percent < 100 )
-        @assert (save_path !== "/") "The variable save_path must be specified if you want to use checkpoints"
+        @assert (data_path !== "/") "The variable data_path must be specified if you want to use checkpoints"
     end
-    mkpath(save_path)
-    save_data = (save_path !== "/") ||
+    mkpath(data_path)
+    save_data = (data_path !== "/") ||
         (size(save_distribution_times, 1) !== 0) ||
         ( checkpoint_percent < 100 )
 
     # Output streams
     outputs = [ stdout ]
     if save_data
-        fid = open( joinpath(save_path, "progress_file"), "w")
+        fid = open( joinpath(data_path, "progress_file"), "w")
         outputs = [stdout, fid]
     end
     println.(outputs, "Preparing integrator. This may take a while..."); flush.(outputs)
@@ -47,7 +50,7 @@ function integrate(plasma, final_time, dt;
     velocity_advection = VelocityAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
     ## To save data in memory and flush it to disk on checkpoints
     ## Also, initialize h5 files (saving first checkpoint) or restore data and allow to save the whole DF at save_distribution times
-    datasaver = DataSaver(plasma, Nt, dt, save_data, save_path, checkpoint_percent, continue_from_backup, save_distribution_times)
+    datasaver = DataSaver(plasma, Nt, dt, save_data, data_path, checkpoint_percent, continue_from_backup, save_distribution_times)
 
     # Do the magic!
     integrator(plasma, Nt, dt,

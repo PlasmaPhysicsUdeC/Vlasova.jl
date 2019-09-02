@@ -1,4 +1,4 @@
-using Vlasova
+using Vlasova, Statistics
 
 # Get parameters
 parametersfile = "parameters.jl"

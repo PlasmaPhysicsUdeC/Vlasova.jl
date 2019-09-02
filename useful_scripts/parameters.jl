@@ -1,7 +1,7 @@
 using Vlasova
 
 # Name to save the data
-#save_path = "data/mysimulation"
+#data_path = "data/mysimulation"
 
 # Space nodes
 Nx = 128
