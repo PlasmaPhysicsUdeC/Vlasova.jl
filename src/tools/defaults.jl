@@ -15,7 +15,7 @@ continue_from_backup = false
 FFTW_flags = FFTW.ESTIMATE
 ```
 
-Flags used by [`FFTW`](@ref https://github.com/JuliaMath/FFTW.jl) on the Fourier Transform plans inside Vlasova.
+Flags used by [`FFTW`](https://github.com/JuliaMath/FFTW.jl) on the Fourier Transform plans inside Vlasova.
 
 # Notes
 * This value must be changed from inside Vlasova. If you want to change it, use [`@vlasova`](@ref).
@@ -30,7 +30,7 @@ NUM_THREADS = 1
 Number of threads to use in the FFT's inside Vlasova.
 
 # Notes
-* This value is passed to [`FFTW`](@ref https://github.com/JuliaMath/FFTW.jl).
+* This value is passed to [`FFTW`](https://github.com/JuliaMath/FFTW.jl).
 * This value must be changed from inside Vlasova. If you want to change it, use [`@vlasova`](@ref).
 """
 NUM_THREADS = 1
@@ -40,7 +40,7 @@ NUM_THREADS = 1
 integrator = verlet_velocity
 ```
 
-Default [`symplectic integrator`](@ref https://en.wikipedia.org/wiki/Symplectic_integrator) to be used by Vlasova.
+Default [`symplectic integrator`](https://en.wikipedia.org/wiki/Symplectic_integrator) to be used by Vlasova.
 
 # Notes
 * This value must be changed from inside Vlasova. If you want to change it, use [`@vlasova`](@ref).
