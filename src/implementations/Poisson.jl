@@ -23,7 +23,7 @@ function (poisson::Poisson)(electricfield, chargedensity; external_potential = Z
         @views LinearAlgebra.ldiv!( electricfield[d], poisson.plan, poisson.dens2field[d] .* poisson.fourier_density )
     end
 
-    return 0;
+    return nothing;
 end
 
 """
@@ -57,5 +57,5 @@ function get_gradient_correction!(grad, p::Poisson, E)
         @views LinearAlgebra.ldiv!(grad[i], p.plan, -1im .* p.k[i] .* p.fourier_density)
     end
 
-    return 0;
+    return nothing;
 end

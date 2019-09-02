@@ -68,5 +68,5 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
         datasaver(plasma, t)
         ProgressMeter.next!.(progressbars)
     end
-    return 0;
+    return nothing;
 end

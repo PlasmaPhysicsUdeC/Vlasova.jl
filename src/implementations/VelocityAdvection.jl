@@ -40,7 +40,7 @@ function (vadv::VelocityAdvection)(plasma::Plasma, electricfield, grad, prop;
         LinearAlgebra.ldiv!( plasma.species[s].distribution, vadv.plan, vadv.transformed_DF )
 
     end
-    return 0;
+    return nothing;
 end
 
 """
@@ -52,7 +52,7 @@ function lowpass_velocityfilter!(transformed_DF, filter, box)
         @views @. transformed_DF[box.space_axes..., i] *= filter[i]
     end
 
-    return 0;
+    return nothing;
 end
 
 
@@ -72,7 +72,7 @@ function _velocity_advection!(transformed_DF, prop, Nx, Nvx)
         @views @. e0 *= prop[1] # j = 1, 2, 3 ...
     end
 
-    return 0;
+    return nothing;
 end
 
 """
@@ -112,5 +112,5 @@ function _velocity_advection!(transformed_DF, prop, Nx, Ny, Nvx, Nvy)
         @views @. e0 *= prop[2]
     end
 
-    return 0;
+    return nothing;
 end

@@ -16,6 +16,8 @@ function (d::DataSaver)(plasma::Plasma, t::Integer )
             save_to_disk(d, plasma, t)
         end
     end
+
+    return nothing;
 end
 
 """
@@ -47,6 +49,8 @@ function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
         HDF5.attrs(fid)["status"] = "Complete"
         HDF5.close(fid)
     end
+
+    return nothing;
 end
 
 function save_distribution(d::DataSaver, p::Plasma)
@@ -56,4 +60,6 @@ function save_distribution(d::DataSaver, p::Plasma)
         HDF5.close(fid)
     end
     d.last_distribution_saved += 1
+
+    return nothing;
 end

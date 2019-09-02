@@ -17,7 +17,7 @@ function (space_advection::SpaceAdvection)(plasma::Plasma; advection_number::Int
                             space_advection.plan, space_advection.transformed_DF)
     end
 
-    return 0;
+    return nothing;
 end
 
 
@@ -25,5 +25,5 @@ end
 
     @. transformed_DF *= shift
 
-    return 0;
+    return nothing;
 end
