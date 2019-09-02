@@ -1,3 +1,6 @@
+"""
+Apply a velocity advection over the plasma.
+"""
 function (vadv::VelocityAdvection)(plasma::Plasma, electricfield, grad, prop;
                                    advection_number::Int64,
                                    gradient_number::Int64,
@@ -40,6 +43,9 @@ function (vadv::VelocityAdvection)(plasma::Plasma, electricfield, grad, prop;
     return 0;
 end
 
+"""
+Apply element-wise product of the distribution function in the velocity-transformed space against a given filter.
+"""
 function lowpass_velocityfilter!(transformed_DF, filter, box)
 
     for i in CartesianIndices(filter)
@@ -50,21 +56,37 @@ function lowpass_velocityfilter!(transformed_DF, filter, box)
 end
 
 
-# 1D
+"""
+[1D] Perform the product of the distribution in the velocity-transformed space with the corresponding exponential propagator.
+
+The product is performed considering that
+
+`` \\exp\\left( -i  E_x[j]  p_x[k] \\left) = \\exp \\left( - i \\Delta p_x E_x[j]  \\right)^k`` where ``k = 0, 1, 2, \\ldots, N_{vx}/2``.
+
+"""
 function _velocity_advection!(transformed_DF, prop, Nx, Nvx)
-    # Calculate propagator as exp(coef * Ex * dux)^j, where ux = dux*j and j = 0,1,2...
-    e0 = ones(Complex{Float64}, Nx )
+    # prop[i] = exp( -i * dp * E[i] )
+    e0 = ones(Complex{Float64}, Nx ) # prop ^ j, with j = 0
     for i in 1:Nvx
         @views @. transformed_DF[:, i] *= e0
-        @views @. e0 *= prop[1]
+        @views @. e0 *= prop[1] # j = 1, 2, 3 ...
     end
 
     return 0;
 end
 
-# 2D
-function _velocity_advection!(transformed_DF, prop, Nx, Ny, Nvx, Nvy)
+"""
+[2D] Perform the product of the distribution in the velocity-transformed space with the corresponding exponential propagator.
 
+The product is performed considering that
+
+`` \\exp\\left[ -i  ( E_x[j]  p_x[k] + E_y[l] p_y[m] \\left] = \\exp \\left[ - i \\Delta p_x E_x[j]  \\right]^k \\exp \\left[ - i \\Delta p_y E_y[l]  \\right]^m`
+
+ where ``k = 0, 1, 2, \\ldots, N_{vx}/2`` and  `` m = -N_{vy}/2, \\ldots, N_{vy}/2``.
+
+"""
+function _velocity_advection!(transformed_DF, prop, Nx, Ny, Nvx, Nvy)
+    # Calculate the exponential propagator exp( -i * p_x * E_x ) as in the 1-d version.
     ex = Array{Complex{Float64}}(undef, Nx, Ny, Nvx)
     e0 = ones(Complex{Float64}, Nx, Ny)
     for j in 1:Nvx
