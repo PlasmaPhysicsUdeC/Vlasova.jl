@@ -37,7 +37,7 @@ function integrate(plasma, final_time, dt;
     Nt = round(Int, final_time / dt) + 1
 
     # Multithread
-    vlasova_multithread( NUM_THREADS )
+    (NUM_THREADS > 1) ? FFTW.set_num_threads( NUM_THREADS ) : nothing
 
     # Initialize objects
     ##  To solve poisson equation
