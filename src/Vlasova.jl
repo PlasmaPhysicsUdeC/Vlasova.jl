@@ -27,10 +27,6 @@ include("implementations/VlasovaIntegrator.jl")
 export integrate
 include("implementations/integrate.jl")
 
-# Extras
-export vlasova_multithread
-include("extras/multithreading.jl")
-
 # Misc tools
 # Multiple exports here. They are specified in each file.
 include("tools/integrators.jl")
