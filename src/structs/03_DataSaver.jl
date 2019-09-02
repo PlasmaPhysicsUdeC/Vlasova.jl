@@ -20,6 +20,8 @@ mutable struct DataSaver
 
                   # Save distribution axis
                   save_distribution_times = sort( Float64.( save_distribution_times ) )
+                  # Always save the last distribution function ( slot needed for backing up )
+                  append!(save_distribution_times, (Nt-1)*dt)
                   ## All saving times must be multiple of dt
                   @assert all( isinteger.( round.(save_distribution_times ./ dt, digits = 10) )
                                ) "Not all times to save the distribution function are multiples of dt"
@@ -41,9 +43,10 @@ mutable struct DataSaver
                   last_distribution_saved = 0
 
                   if continue_from_backup
+                      @assert isfile(joinpath(path, plasma.species[1].name*".h5")) "There is no valid backup in the specified folder."
                       # Restore data
                       for s in plasma.specie_axis
-                          fid = HDF5.h5open(plasma.species[s].name*".h5", "r")
+                          fid = HDF5.h5open( joinpath(path, plasma.species[s].name*".h5"), "r")
                           if s == 1
                               last_iteration_saved = fid["last_iteration_saved"][1][1]
                               last_distribution_saved = fid["last_distribution_saved"][1][1]
@@ -51,6 +54,7 @@ mutable struct DataSaver
                           plasma.species[s].distribution .= dropdims( fid["distribution"][UnitRange.(1, plasma.box.N)..., Ndf],
                                                                       dims = 2 * plasma.box.number_of_dims + 1 )
                           HDF5.close(fid)
+                          @assert last_iteration_saved < Nt "The simulation saved in the folder '$path' has already ended successfully."
                       end
                       checkpoints_reached = findfirst( last_iteration_saved .== checkpoint_axis )
 
