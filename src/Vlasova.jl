@@ -24,7 +24,7 @@ include("implementations/VelocityAdvection.jl")
 include("implementations/VlasovaIntegrator.jl")
 
 # Main integrator
-export integrate
+export integrate!
 include("implementations/integrate.jl")
 
 # Misc tools

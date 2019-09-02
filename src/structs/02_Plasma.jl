@@ -58,8 +58,8 @@ struct Plasma
                @assert args == () "Box should not be called using non-keyword arguments."
                new(species,
                    box,
-                   size(s, 1),
-                   Base.OneTo(size(s, 1))
+                   size(species, 1),
+                   Base.OneTo(size(species, 1))
                    )
            end
 end

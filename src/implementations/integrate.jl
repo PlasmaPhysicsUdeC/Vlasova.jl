@@ -1,18 +1,15 @@
 """
-        Take an element of type Plasma and integrate it until final_time using steps of length dt.
-        Accepts the optional keywords:
-            * continue_from_backup [false]: Tells whether the simulation should be restarted from a backup file.
-            * checkpoint_percent [10]: Is the percentage accomplished between one flush of the data to the disk and another.
+TODO
 """
-function integrate(plasma, final_time, dt;
-                   integrator::VlasovaIntegrator = integrator,
-                   external_potential::Function = external_potential,
-                   continue_from_backup::Bool = continue_from_backup,
-                   save_distribution_times::Array{T} where T <: Real = save_distribution_times,
-                   checkpoint_percent::Integer = checkpoint_percent,
-                   velocity_filtering::Bool = velocity_filtering,
-                   data_path::String = data_path,
-                   FFTW_flags = FFTW_flags)
+function integrate!(plasma, final_time, dt;
+                    integrator::VlasovaIntegrator = integrator,
+                    external_potential::Function = external_potential,
+                    continue_from_backup::Bool = continue_from_backup,
+                    save_distribution_times::Array{T} where T <: Real = save_distribution_times,
+                    checkpoint_percent::Integer = checkpoint_percent,
+                    velocity_filtering::Bool = velocity_filtering,
+                    data_path::String = data_path,
+                    FFTW_flags = FFTW_flags)
 
     if continue_from_backup
         @assert (data_path !== "/") "The variable data_path must be specified if you want to continue from a backup (the path to the backup)"
