@@ -10,9 +10,10 @@ which will evolve `plasma` until time `final_time` using steps `dt`.
 
 However, a lot more may be customized.
 
+## Default behavior
+
 Currently, the variables that may be customized to control the behavior of [`integrate!`](@ref) are
 
-## Default behavior
 ```@autodocs
 Modules = [Vlasova]
 Pages = ["defaults.jl"]
