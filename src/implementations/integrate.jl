@@ -12,13 +12,13 @@ function integrate!(plasma::Plasma, final_time::Real, dt::Real;
                     FFTW_flags = FFTW_flags)
 
     if continue_from_backup
-        @assert (data_path !== "/") "The variable data_path must be specified if you want to continue from a backup (the path to the backup)"
+        @assert (data_path !== "/") "The variable data_path must be specified if you want to continue from a backup."
     end
     if (size(save_distribution_times, 1) !== 0)
-        @assert (data_path !== "/") "The variable data_path must be specified if you want to save distributions"
+        @assert (data_path !== "/") "The variable data_path must be specified if you want to save distributions."
     end
     if ( checkpoint_percent < 100 )
-        @assert (data_path !== "/") "The variable data_path must be specified if you want to use checkpoints"
+        @assert (data_path !== "/") "The variable data_path must be specified if you want to use checkpoints."
     end
     mkpath(data_path)
     save_data = (data_path !== "/") ||
