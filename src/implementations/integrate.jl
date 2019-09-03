@@ -1,7 +1,7 @@
 """
 TODO
 """
-function integrate!(plasma, final_time, dt;
+function integrate!(plasma::Plasma, final_time::Real, dt::Real;
                     integrator::VlasovaIntegrator = integrator,
                     external_potential::Function = external_potential,
                     continue_from_backup::Bool = continue_from_backup,
