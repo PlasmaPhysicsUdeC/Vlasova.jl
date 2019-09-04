@@ -30,8 +30,6 @@ Nt = HDF5.h5read("electrons.h5", "last_iteration_saved")[1]
 chargedensity = HDF5.h5read("shared_data.h5", "chargedensity")[:, 1:Nt]
 total_kinetic_energy = HDF5.h5read("shared_data.h5", "total_kinetic_energy")[1:Nt]
 
-@show hasnan(chargedensity)
-
 time_axis = Array([i*dt for i=0:Nt-1]);
 
 k = rfft_wavevector( box.x[1] )
