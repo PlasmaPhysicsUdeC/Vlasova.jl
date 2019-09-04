@@ -210,14 +210,14 @@ julia> A ⊗ B
 """
 
 ```julia
-cosine_perturbation1d(box::Box; mode, amp, dim = 1)
+cosine_perturbation1d(box::Box; modes, amplitudes, dim = 1)
 ```
 
 Prepare the spatial part of a perturbed distribution function.
 
 In general, this function returns
 
-`` P(x) = 1 + \\sum_m A_m \\cos ( k_m * x ), ``
+`` S = 1 + \\sum_m A_m \\cos ( k_m x ), ``
 
 where the index ``m`` denotes the perturbed mode, `` k_m = 2\\pi m / L_x `` is the wavenumber of each mode,
 and ``A_m`` is the corresponding amplitude.
