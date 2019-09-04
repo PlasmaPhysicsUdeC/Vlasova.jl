@@ -6,7 +6,8 @@ export @vlasova,
     adiabatic_cutoff,
     outer,
     ⊗,
-    cosine_perturbation1d
+    cosine_perturbation1d,
+    sim_from_file
 
 """
 ```julia
@@ -259,11 +260,43 @@ end
 
 
 """
-# TODO: this docs. __UNTESTED__
+```julia
+sim_from_file(parfile::String)
+```
 
-Start a simulation from a file that defines at least the plasma, the final time, and the dt
+Start a simulation from a file that defines at least the `plasma`, `final_time`, and `dt` (with that names).
+
+# Notes
+
+* When the variable [`Vlasova.data_path`](@ref) is set, this function will make a copy of the file
+  of parameters into that path.
+* This function was developed to simplify the workflow by just having a file defining tha basic parameters
+  and running the simulation in one instruction, while having the possibility to save the results and the
+  file with parameters itself.
+
+
+# Examples
+
+Supposing that there is a file "parameters.jl" in the current path, and it defines the variables
+specified, a simulation may be performed as it follows
+
+```julia
+julia> using Vlasova
+
+julia> sim_from_file("parameters.jl")
+Preparing integrator. This may take a while...
+Starting integration @ (...)
+Progress: 100%[======================================] Time: (...)
+```
+
+The same as before could be performed in the following one-liner directly from the terminal
+
+```bash
+\$ julia -e 'using Vlasova; sim_from_file("parameters.jl\")'
+```
+which allows the use of tools such as nohup.
 """
-function start_from_parameters(parfile::String)
+function sim_from_file(parfile::String)
     # Check existence of the required variables
     for var in [:plasma, :final_time, :dt]
         @assert (@isdefined var) "The parameters file must define the $(String(var))."
@@ -271,8 +304,9 @@ function start_from_parameters(parfile::String)
 
     # Include parameters
     include( parfile )
-    # Copy parameters to folder file (if defined)
-    !isempty( save_path ) ? cp( parfile, save_path, force = true) : nothing
+    # Copy parameters to folder file if defined
+    mkpath( data_path )
+    !isempty( data_path ) ? cp( parfile, joinpath( data_path, parfile), force = true) : nothing
     # Start integrator
     integrate!(plasma, final_time, dt)
 end
