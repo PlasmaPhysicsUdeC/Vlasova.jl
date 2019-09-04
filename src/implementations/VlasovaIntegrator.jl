@@ -74,7 +74,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
         ## Buffer to stdout
         print( buff_str )
         ## Buffer to progressfile only if progressbar changed
-        if datasaver.save_data && ~isempty( buff_str )
+        if datasaver.save_data && !isempty( buff_str )
             write( joinpath(datasaver.path, "progressfile"),
                    start_str * buff_str[2:end-3] )
         end

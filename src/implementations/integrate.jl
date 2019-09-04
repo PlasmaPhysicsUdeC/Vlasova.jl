@@ -11,20 +11,6 @@ function integrate!(plasma::Plasma, final_time::Real, dt::Real;
                     data_path::String = data_path,
                     FFTW_flags = FFTW_flags)
 
-    if continue_from_backup
-        @assert (data_path !== "/") "The variable data_path must be specified if you want to continue from a backup."
-    end
-    if (size(save_distribution_times, 1) !== 0)
-        @assert (data_path !== "/") "The variable data_path must be specified if you want to save distributions."
-    end
-    if ( checkpoint_percent < 100 )
-        @assert (data_path !== "/") "The variable data_path must be specified if you want to use checkpoints."
-    end
-    mkpath(data_path)
-    save_data = (data_path !== "/") ||
-        (size(save_distribution_times, 1) !== 0) ||
-        ( checkpoint_percent < 100 )
-
     println("Preparing integrator. This may take a while...")
 
     # Number of time iterations
@@ -41,7 +27,7 @@ function integrate!(plasma::Plasma, final_time::Real, dt::Real;
     velocity_advection = VelocityAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
     ## To save data in memory and flush it to disk on checkpoints
     ## Also, initialize h5 files (saving first checkpoint) or restore data and allow to save the whole DF at save_distribution times
-    datasaver = DataSaver(plasma, Nt, dt, save_data, data_path, checkpoint_percent, continue_from_backup, save_distribution_times)
+    datasaver = DataSaver(plasma, Nt, dt, data_path, checkpoint_percent, continue_from_backup, save_distribution_times)
 
     # Do the magic!
     integrator(plasma, Nt, dt,

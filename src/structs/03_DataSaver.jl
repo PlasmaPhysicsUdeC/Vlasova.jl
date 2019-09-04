@@ -11,28 +11,37 @@ mutable struct DataSaver
 
     DataSaver(plasma::Plasma,
               Nt::Integer, dt::Float64,
-              save_data::Bool,
               path::String,
-              checkpoint_percent::Integer = 10,
-              continue_from_backup::Bool = false,
-              save_distribution_times::Array{N, 1} where N <: Union{Float64, Int64} = Float64[]
+              checkpoint_percent::Integer,
+              continue_from_backup::Bool,
+              save_distribution_times::Array{N, 1} where N <: Union{Float64, Int64}
               ) = begin
+
+                  # Save data
+                  save_data = !isempty(data_path) ||
+                      !isempty(save_distribution_times) ||
+                      ( checkpoint_percent < 100 )
+
+                  if isempty( data_path )
+                      @assert checkpoint_percent == 100 "The variable data_path must be specified if you want to use checkpoints."
+                      @assert !continue_from_backup "The variable data_path must be specified if you want to continue from a backup."
+                      @assert isempty( save_distribution_times ) "The variable data_path must be specified if you want to save distributions."
+                  end
 
                   # Save distribution axis
                   save_distribution_times = sort( Float64.( save_distribution_times ) )
                   # Always save the last distribution function ( slot needed for backing up )
                   append!(save_distribution_times, (Nt-1)*dt)
                   ## All saving times must be multiple of dt
-                  @assert all( isinteger.( round.(save_distribution_times ./ dt, digits = 10) )
-                               ) "Not all times to save the distribution function are multiples of dt"
-                  @assert all(save_distribution_times .<= (Nt-1)*dt ) "The times to save the distribution function can not be larger than final_time"
+                  @assert all(isinteger, save_distribution_times ./ dt) "Not all times to save the distribution function are multiples of dt."
+                  @assert all(save_distribution_times .<= (Nt-1)*dt ) "The times to save the distribution function can not be larger than final_time."
 
                   save_distribution_axis = round.(Int, save_distribution_times ./ dt) .+ 1
                   Ndf = size( save_distribution_axis, 1 )
 
                   # Checkpoint axis
-                  @assert 1 <= checkpoint_percent <= 100  "checkpoint_percent must be valued between 1 and 100"
-                  @assert isinteger(100/checkpoint_percent) "checkpoint_percent must be a whole divisor of 100"
+                  @assert 1 <= checkpoint_percent <= 100  "checkpoint_percent must be valued between 1 and 100."
+                  @assert isinteger(100/checkpoint_percent) "checkpoint_percent must be a whole divisor of 100."
                   checkpoint_axis = collect(Int, range(1, stop = Nt, length = Int(100/checkpoint_percent) + 1 ))
                   checkpoint_step = checkpoint_axis[2] - checkpoint_axis[1]
 
@@ -60,6 +69,7 @@ mutable struct DataSaver
 
                   elseif save_data
                       # Initialize files
+                      mkpath(path)
 
                       # Common file
                       fid = HDF5.h5open( joinpath(path, "shared_data.h5"), "w")
