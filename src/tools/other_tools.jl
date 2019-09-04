@@ -256,3 +256,23 @@ function cosine_perturbation1d(box::Box;
 
     return 1 .+ reducedims(sum, A' .* cos.( k' .* x ), dims = 2)
 end
+
+
+"""
+# TODO: this docs. __UNTESTED__
+
+Start a simulation from a file that defines at least the plasma, the final time, and the dt
+"""
+function start_from_parameters(parfile::String)
+    # Check existence of the required variables
+    for var in [:plasma, :final_time, :dt]
+        @assert (@isdefined var) "The parameters file must define the $(String(var))."
+    end
+
+    # Include parameters
+    include( parfile )
+    # Copy parameters to folder file (if defined)
+    !isempty( save_path ) ? cp( parfile, save_path, force = true) : nothing
+    # Start integrator
+    integrate!(plasma, final_time, dt)
+end
