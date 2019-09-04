@@ -25,13 +25,7 @@ function integrate!(plasma::Plasma, final_time::Real, dt::Real;
         (size(save_distribution_times, 1) !== 0) ||
         ( checkpoint_percent < 100 )
 
-    # Output streams
-    outputs = [ stdout ]
-    if save_data
-        fid = open( joinpath(data_path, "progress_file"), "w")
-        outputs = [stdout, fid]
-    end
-    println.(outputs, "Preparing integrator. This may take a while..."); flush.(outputs)
+    println("Preparing integrator. This may take a while...")
 
     # Number of time iterations
     Nt = round(Int, final_time / dt) + 1
@@ -54,10 +48,7 @@ function integrate!(plasma::Plasma, final_time::Real, dt::Real;
                poisson, external_potential,
                space_advection, velocity_advection,
                velocity_filtering,
-               datasaver,
-               outputs)
+               datasaver )
 
-    # close progress_file if it corresponds
-    save_data ? close(fid) : nothing
     return nothing;
 end

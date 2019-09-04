@@ -5,8 +5,7 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                                          space_advection::SpaceAdvection,
                                          velocity_advection::VelocityAdvection,
                                          velocity_filtering::Bool,
-                                         datasaver::DataSaver,
-                                         outputs::Array{T, 1}) where T <: IO
+                                         datasaver::DataSaver )
 
     # Preallocate to make operations in place
     chargedensity = get_density( plasma )
@@ -24,14 +23,17 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
     iteration_axis = (datasaver.last_iteration_saved + 1):Nt
 
     # Make progress indicators
-    progressbars = [ ProgressMeter.Progress(length(iteration_axis),
-                                            output = op ) for op in outputs ]
+    buff = IOBuffer()
+    progressbar = ProgressMeter.Progress(length(iteration_axis),
+                                         barglyphs = ProgressMeter.BarGlyphs("[=> ]"),
+                                         output = buff )
 
-    # Sync progressbars when continuing from a backup
-    [ProgressMeter.next!.(progressbars) for i in 2:datasaver.last_iteration_saved ]
+    # Sync progressbar when continuing from a backup
+    progressbar.counter = datasaver.last_iteration_saved
 
     # Go!
-    println.(outputs, "Starting integration @ $(Dates.now())"); flush.(outputs)
+    start_str = "Starting integration @ $(Dates.now())\n"
+    print( start_str )
     for t in iteration_axis
         time = (t-2) * dt
         pos_adv_num = 0
@@ -64,9 +66,18 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
             end
         end
 
-        # Save data and update progressbar
+        # Save data
         datasaver(plasma, t)
-        ProgressMeter.next!.(progressbars)
+        # Update progressbar in buffer
+        ProgressMeter.next!(progressbar)
+        buff_str = String(take!(buff))
+        ## Buffer to stdout
+        print( buff_str )
+        ## Buffer to progressfile only if progressbar changed
+        if datasaver.save_data && ~isempty( buff_str )
+            write( joinpath(datasaver.path, "progressfile"),
+                   start_str * buff_str[2:end-3] )
+        end
     end
     return nothing;
 end

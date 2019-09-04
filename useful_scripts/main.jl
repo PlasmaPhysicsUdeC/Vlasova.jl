@@ -21,7 +21,8 @@ species = [ Specie(name = name[s],
                    temperature = temperature[s],
                    distribution = initial_distribution(box, perturbate = perturbed[s]) ) for s in 1:length(name) ]
 # Create Plasma
-plasma = Plasma(species, box)
+plasma = Plasma(species = species,
+                box = box )
 
 # Go!
-integrate(plasma, final_time, dt )
+integrate!(plasma, final_time, dt )
