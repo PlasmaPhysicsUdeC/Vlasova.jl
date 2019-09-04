@@ -99,13 +99,13 @@ checkpoint_percent = 100
 
 """
 ```julia
-data_path = "/"
+data_path = ""
 ```
 
 Path to save the results of the simulation.
 
 # Notes
-* When set to "/" (default value), the results of the simulation will not be saved to the disk.
+* When set to "" (empty `String`, default value), the results of the simulation will not be saved to the disk.
 * This value must be changed from inside Vlasova. If you want to change it, use [`@vlasova`](@ref).
 """
-data_path = "/"
+data_path = ""
