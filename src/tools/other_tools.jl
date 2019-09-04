@@ -5,7 +5,8 @@ export @vlasova,
     hasnan,
     adiabatic_cutoff,
     outer,
-    ⊗
+    ⊗,
+    cosine_perturbation1d
 
 """
 ```julia
@@ -204,3 +205,54 @@ julia> A ⊗ B
 ```
 """
 ⊗ = Vlasova.outer
+
+
+"""
+
+```julia
+cosine_perturbation1d(box::Box; mode, amp, dim = 1)
+```
+
+Prepare the spatial part of a perturbed distribution function.
+
+In general, this function returns
+
+`` P(x) = 1 + \\sum_m A_m \\cos ( k_m * x ), ``
+
+where the index ``m`` denotes the perturbed mode, `` k_m = 2\\pi m / L_x `` is the wavenumber of each mode,
+and ``A_m`` is the corresponding amplitude.
+
+# Notes
+* This function accepts a single perturbed mode or a spectrum, but the number of perturbed modes
+  must match with the number of amplitudes.
+* The variable `modes` must be an `Integer`, a `Tuple` of `Integer`s or an `Array` of `Integer`s.
+* The variable `amplitudes` must be an `Real`, a `Tuple` of `Real`s or an `Array` of `Real`s.
+* In the case of using a 2-dimensional box, the keyword `dim` may be used to select which 
+  dimension should be perturbed.
+
+# Examples
+```jldoctest; setup = :(using Vlasova )
+julia> box = Box(Nx = 256, Nv = 512, Lx = 5pi, vmin = -6, vmax = 6 );
+
+julia> p = cosine_perturbation1d(box, modes = [1, 3], amplitudes = [1e-3, 1.5e-3] );
+
+julia> sum(p) ≈ box.Nx[1]
+true
+```
+"""
+function cosine_perturbation1d(box::Box;
+                               modes::Union{T, NTuple{N, T} where N, Array{T, 1}} where T <: Integer,
+                               amplitudes::Union{T, NTuple{N, T} where N, Array{T, 1}} where T <: Real,
+                               dim::Integer = 1)
+
+    @assert length(modes) == length(amplitudes) "The perturbations and amplitudes should have the same length."
+    @assert !in(0, modes) "The mode zero (0) can not be perturbed."
+
+    x = box.x[dim]              # Space
+    Lx = box.Lx[dim]            # Space length
+
+    k = Float64[modes...] * 2pi / Lx # Perturbation spectrum
+    A = Float64[amplitudes...]             # Perturbation amplitude(s)
+
+    return 1 .+ reducedims(sum, A' .* cos.( k' .* x ), dims = 2)
+end
