@@ -11,11 +11,10 @@ makedocs(format = format,
          pages = [
              "Home" => "index.md", # The name index.md is required by Documenter
              "Basic concepts" => "basic_concepts.md",
-             "Integrating a plasma" => "integrating_a_plasma.md",
+             "Default Behavior" => "default_behavior.md",
+             "Tools" => "tools.md",
+             "Hacking Vlasova" => "hacking_vlasova.md",
              "Examples" => "examples.md",
-             "API" => [
-                 "Exported" => "API/exported.md",
-                 "Not exported" => "API/not_exported.md"
-             ]
+             "Not Exported" => "not_exported.md"
          ]
          )

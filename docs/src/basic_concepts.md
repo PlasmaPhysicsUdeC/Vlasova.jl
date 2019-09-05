@@ -1,5 +1,3 @@
-## Basic concepts
-
 Any simulation will consist of a set of initial conditions (the **plasma** initial state) and a determined amount of time to integrate it, which will be accomplished through little time steps.
 
 To perform a simulation is as simple as writing
@@ -9,7 +7,7 @@ integrate!(plasma, final_time, dt)
 ```
 where `plasma` holds all the information of the plasma at the initial instant, `final_time` is the amount of time desired to integrate the plasma, normalized to plasma periods of the species used as reference, and `dt` is the time step used to integrate.
 
-### How is a plasma constructed?
+## How is a plasma constructed?
 
 In Vlasova, a plasma is an element of type `Plasma`, which itself relies on two structs:
 
@@ -21,7 +19,7 @@ In Vlasova, a plasma is an element of type `Plasma`, which itself relies on two 
   Represents a charged species in the plasma. Each species must have a `name`, `charge`, `mass`, `temperature`, and `distribution`, and a plasma may be formed by many species.
 
 
-### Defining the phase space
+## Defining the phase space
 
 First, it is necessary to provide the phase space. For example, in the 1-dimensional case one could do
 
@@ -36,7 +34,7 @@ box = Box(Nx = 512,
 Where `Nx` and `Nv` are the number of space and velocity nodes, `Lx` is the space extension of the plasma, and `vmin` and `vmax` are the minimum and maximum velocities, normalized to the thermal velocity of each specie, respectively.
 
 
-### Defining the species that form the plasma
+## Defining the species that form the plasma
 
 Having the space for the plasma defined, the next step is to define the species that compose the plasma. It is very common to consider only electrons, so let's try that!
 
@@ -49,9 +47,9 @@ electrons = Specie(name = "electrons",
 ```
 where [`maxwellian1d`](@ref) is one of the distributions provided by this same package.
 
-### Putting space and particles together to make up a plasma.
+## Making up the plasma
 
-Finally, the plasma is constructed as
+Finally, the plasma is constructed using the information about the space and the species as
 
 ```julia
 plasma = Plasma(species = [ electrons ],
@@ -61,3 +59,15 @@ plasma = Plasma(species = [ electrons ],
 Some important points to keep in mind are:
 * The Vlasova integrator will ensure quasineutrality by adding the necessary charge background. In the present case, for example, a neutralizing fixed ion background will be added, and only the electron's dynamics will be considered.
 * The plasma struct is just a container *pointing* to the species, meaning that any change performed over `plasma` will be reflected on the species.
+
+## Integrating a plasma
+
+As stated earlier, the plasma may be evolved in time just by typing
+
+```julia
+integrate!(plasma, final_time, dt),
+```
+
+which will evolve `plasma` until time `final_time` using steps `dt`.
+
+However, there are many orders which can be passed to Vlasova to change the way it works. For example, one may want to save the results to disk, or use checkponts to backup the data every some percent accomplished of the integration. All this features may be found in the section [`Default behavior`](@ref).
