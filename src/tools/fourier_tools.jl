@@ -1,46 +1,17 @@
 export wavevector,
-    get_rfft_dims,
     rfft_wavevector,
-    anisotropic_filter
+    get_rfft_dims
 
 """
-    Obtain the size of an array after it is rfft-transformed
-    The function also outputs the CartesianIndices of the transformed object
-"""
-function get_rfft_dims(A::Array{Float64}; transformed_dims)
-    N = size( A )
-    @assert maximum( transformed_dims ) < length( N) "all transformed_dims must exist in the array"
+```julia
+get_k2( box::Box )
+```
 
-    rdim = transformed_dims[1]
-    N2p1 = Tuple( (i == rdim ) ? div( N[rdim], 2 ) + 1 : N[i] for i in 1:size(N, 1) )
-    fourier_axis = CartesianIndices( N2p1 )
+Obtain the squared space-wavevector,
 
-    return N2p1, fourier_axis
-end
+``k^2 = k_1^2 + k_2^2 + ... k_n^2``
 
-function get_rfft_dims(x::Array{Array{Float64, 1}})
-    sz = Tuple( size(a, 1) for a in x )
-    Nx2p1 = Tuple( (i == 1) ? div( sz[i], 2 ) + 1 : sz[i] for i in 1:size(sz, 1) )
-
-    fourier_axis = CartesianIndices( Nx2p1 )
-
-    return Nx2p1, fourier_axis
-end
-
-function get_rfft_dims(box::Box)
-
-    N2p1 = Tuple( (i == 1) ? div( box.N[1], 2 ) + 1 : box.N[i] for i in 1:box.number_of_dims )
-    fourier_axis = CartesianIndices( N2p1 )
-
-    return N2p1, fourier_axis
-end
-
-"""
-    Obtain the squared wavevector,
-
-    `k^2 = k_1^2 + k_2^2 + ... k_n^2`
-
-    where k_1 is a half of the first wavevector as it would be used on a real DFT.
+where ``k_1`` is an rfft-wavevector (non-negative half of the whole wavevector).
 """
 function get_k2( box::Box )
     Nx2p1, fourier_axis = get_rfft_dims( box.x )
@@ -55,8 +26,57 @@ function get_k2( box::Box )
     return k2
 end
 
-# Exported functions start here
+"""
+```julia
+anisotropic_filter(box::Box)
+```
 
+Filter to get rid of numerical problems by artificially damping very high (non-physical) frequencies.
+
+# Notes
+* This function is not performance-critical since it is executed just once when [`integrate!`](@ref) is prepared.
+* The result of this function is multiplied element-wise with the rfft-velocity-transformed distribution
+function(s) to damp the high frequencies.
+* Please take into consideration that using this kind of filtering is equivalent to adding hyperviscosity
+  to the Vlasov equation.
+* If you want to disable filtering, just set the Vlasova variable [`velocity_filtering`](@ref)
+  to `false` using the [`@vlasova`](@ref) macro, but take into account that recurrence may appear.
+* If you know what you are doing, you can redefine this function to filter in an alternate way.
+"""
+function anisotropic_filter(box::Box)
+    u = rfft_wavevector( box.v )
+    Nv2p1, fourier_indices = get_rfft_dims( box.v )
+
+    filter = ones( Nv2p1 )
+    for d in box.number_of_dims
+        umax = maximum(u)
+        filter1d = @. exp( -36*( u[d] / umax )^36 )
+        for i in fourier_indices
+            filter[i] *= filter1d[ i[d] ]
+        end
+    end
+
+    return filter
+end
+
+# ===== Exported functions start here =====
+
+"""
+```julia
+wavevector(vector::Array{Float64, 1})
+```
+
+Obtain the Fourier-conjugate of a 1-dimensional array.
+
+# Examples
+
+```julia
+julia> time_axis = collect( 0:dt:final_time );
+
+julia> frequency = wavevector( time_axis );
+
+```
+"""
 function wavevector(vector::Array{Float64, 1})
     N = size(vector, 1)
     length = (vector[2] - vector[1] )*N;
@@ -65,6 +85,20 @@ function wavevector(vector::Array{Float64, 1})
     return FFTW.fftshift( wavevector ) * 2pi/length;
 end
 
+
+"""
+```julia
+rfft_wavevector(vector::Array{Float64, 1})
+```
+
+Obtain the rfft-Fourier-conjugate of a 1-dimensional array.
+
+# Examples
+
+```julia
+julia> kx = rfft_wavevector( box.x[1] );
+```
+"""
 function rfft_wavevector(vector::Array{Float64, 1})
     N = size(vector, 1)
     length = (vector[2] - vector[1] )*N
@@ -73,8 +107,19 @@ function rfft_wavevector(vector::Array{Float64, 1})
 end
 
 """
-    Obtain the wavevector of an array such as position or velocity
-    with the form used in Vlasova.jl
+```julia
+rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
+```
+
+Obtain the Fourier-conjugate of the space or velocity variables
+using the usual conventions of Vlasova.
+
+# Examples
+
+```julia
+julia> k = rfft_wavevector( box.x );
+
+```
 """
 function rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
     number_of_dims = length(vector)
@@ -89,34 +134,54 @@ function rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
 end
 
 """
-        Filter to get rid of numerical problems by artificially damping very high (non-physical) frequencies
-        This function requires the vector of frequencies and returns the shape of the filter
-        in the frequency space.
+```julia
+get_rfft_dims(A::Array{Float64}; transformed_dims)
+```
+
+Obtain the `size` and `CartesianIndices` of an array after it is rfft-transformed.
 """
-function anisotropic_filter(box::Box)
-    wavevector = rfft_wavevector( box.v )
-    Nv2p1, fourier_indices = get_rfft_dims( box.v )
+function get_rfft_dims(A::Array{Float64}; transformed_dims)
+    N = size( A )
+    @assert maximum( transformed_dims ) < length( N) "all transformed_dims must exist in the array"
 
-    filter = ones( Nv2p1 )
-    for d in box.number_of_dims
-        filter1d = _anisotropic_filter( wavevector[d] )
-        for i in fourier_indices
-            filter[i] *= filter1d[ i[d] ]
-        end
-    end
+    rdim = transformed_dims[1]
+    N2p1 = Tuple( (i == rdim ) ? div( N[rdim], 2 ) + 1 : N[i] for i in 1:size(N, 1) )
+    fourier_axis = CartesianIndices( N2p1 )
 
-    return filter
+    return N2p1, fourier_axis
 end
 
 """
-    Define the shape of the anisotropic filter along each dimension.
+```julia
+get_rfft_dims(x::Array{Array{Float64, 1}})
+```
+Obtain the `size` and `CartesianIndices` of the Fourier-conjugate variable of the input.
 
-    It is unexported and any extension to the anisotropic filter is recommended to be performed on
-    the function anisotropic_filter(::Box) rather than this one, since that is the one called when
-    a VelocityAdvection is built.
+# Important
+* This extension of the function was developed to be used only over `box.x` and `box.v`
+  inside the inner functions of Vlasova. Any other use is not encouraged.
 """
-function _anisotropic_filter(u::Array{Float64}) # 1-dimensional
-    u_max = maximum(u)
+function get_rfft_dims(x::Array{Array{Float64, 1}})
+    sz = Tuple( size(a, 1) for a in x )
+    Nx2p1 = Tuple( (i == 1) ? div( sz[i], 2 ) + 1 : sz[i] for i in 1:size(sz, 1) )
 
-    return @. exp( -36*( u / u_max )^36 )
+    fourier_axis = CartesianIndices( Nx2p1 )
+
+    return Nx2p1, fourier_axis
+end
+
+
+"""
+```julia
+get_rfft_dims(box::Box)
+```
+Obtain the `size` and `CartesianIndices` of the whole Fourier space of a [`Box`](@ref),
+including the space and velocity dimensions.
+"""
+function get_rfft_dims(box::Box)
+
+    N2p1 = Tuple( (i == 1) ? div( box.N[1], 2 ) + 1 : box.N[i] for i in 1:box.number_of_dims )
+    fourier_axis = CartesianIndices( N2p1 )
+
+    return N2p1, fourier_axis
 end

@@ -8,21 +8,18 @@ export get_kinetic_energy,
 
 
 """
-    Obtain the kinetic energy from a distribution function
-    Requires:
-    * distribution: Array of Float64
-    * box: Element of type Box
+```julia
+get_kinetic_energy(box::Box, species::Specie);
+```
 
-    Optional, keyword:
-    * temperature: [1.0] The temperature normalized to electron's temperature
+Obtain the kinetic energy from a `Specie` and a `Box`.
 
-    Returns:
-    * kinetic_energy: Float64
 """
-function get_kinetic_energy(distribution::Array{Float64}, box::Box; # TODO: This is just a temporal fix, find a FASTER way to accomplish it later
-                            temperature::Real = 1.0);
+function get_kinetic_energy(box::Box, species::Specie);
 
-    fred = dropdims( sum( distribution, dims = box.space_dims ), dims = box.space_dims )
+    fred = reducedims(sum,
+                      species.distribution,
+                      dims = box.space_dims )
 
     s = 0.0
     for i in CartesianIndices( box.Nv ) # This reduction could be parallelized
@@ -33,25 +30,40 @@ function get_kinetic_energy(distribution::Array{Float64}, box::Box; # TODO: This
         s += fred[i] * v2
     end
 
-    return temperature * 0.5 * prod(box.dx) * prod(box.dv) * s;
+    return species.temperature * prod(box.dx) * prod(box.dv) * s / 2;
 end
 
 """
-    Obtain the electric field from a charge distribution.
+```julia
+get_electric_field(box::Box, chargedensity::Array{Float64})
+```
 
-    In general, the electric field will be an array where the n-th component is the electric field
-    along the n-th dimension.
+Obtain the electric field from a charge distribution.
 
-    If the charge density depends upon time, the electric field will also depend on time.
+# Notes
+* This function follows the usual Vlasova convention that scalars such
+  as the `chargedensity`are `Array{Float64}` and the vectors such as
+  the `electric_field` are `Array{Array{Float64}}`, where each component
+  corresponds to the same component of the vector which is a scalar (`Array{Float64}`).
+  This is true even in the 1-dimensional case.
 
-    ```julia
-    using Vlasova
-    box = Box(Nx = 64, Nv = 64, Lx = 2pi, vmin = -6,  vmax = 6 );
-    chargedensity = sin.( box.x[1] );
-    Ex = get_electric_field(chargedensity, box)
-    ```
+* The `chargedensity` may depend upon time over the last axis, in which case
+  each component of the `electric_field` will have the same dependence on time.
+
+# Examples
+
+```jldoctest; setup = :(using Vlasova)
+julia> box = Box(Nx = 256, Nv = 512, Lx = 2pi, vmin = -6,  vmax = 6 );
+
+julia> chargedensity = sin.( box.x[1] ); # Fake data FTW
+
+julia> E = get_electric_field(box, chargedensity); # Should be ``-cos(x)``
+
+julia> E[1] ≈ -cos.( box.x[1] ) # E[1] since E is an Array{Array{Float64}}
+true
+```
 """
-function get_electric_field(chargedensity::Array{Float64}, box::Box)
+function get_electric_field(box::Box, chargedensity::Array{Float64})
 
     Nx2p1, fourier_axis = get_rfft_dims( box.x )
 
@@ -75,44 +87,27 @@ function get_electric_field(chargedensity::Array{Float64}, box::Box)
     return efield
 end
 
-function get_electric_field(;
-                            potential::Array{Float64}, box::Box)
-
-    Nx2p1, fourier_axis = get_rfft_dims( box.x )
-    k = rfft_wavevector( box.x )
-
-    integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
-    for d in 1:box.number_of_dims
-        integrate[d] = ones(fourier_axis)
-        for i in fourier_axis
-            integrate[d][ i ] *= k[d][ i[d] ]
-        end
-    end
-
-    phik = FFTW.rfft( potential, box.space_dims )
-    efield = Array{Array{Float64}}(undef, box.number_of_dims)
-    for d in 1:box.number_of_dims
-        efield[d] = FFTW.irfft( integrate[d] .* phik, box.Nx[1], box.space_dims )
-    end
-
-    return efield
-end
-
-raw"""
-    Obtain the electrostatic energy from the charge density.
-    If the charge density dependes upon time, the result will also depend upon time.
-
-    The electrostatic energy is calculated in Fourier space as
-        ``EE_k = \int \rho_k* \Phi_k dk``,
-    where ``EE_k`` is the transformed electrostatic energy, ``\rho_k`` is the transformed charge density,
-    ``\Phi_k = rho_k / |k|^2`` is the transformed electrostatic potential,
-    and ``k`` is the Fourier-conjugate variable of ``x``.
-
-    The required variables are:
-    * chargedensity: Array of Float64
-    * box: An element of type Box.
 """
-function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
+```julia
+get_electrostatic_energy( box::Box, chargedensity::Array{Float64} )
+```
+
+Obtain the electrostatic energy from the charge density.
+
+# Notes
+* The electrostatic energy is calculated in Fourier space as
+
+  ``ES_k = \\int \\rho_k* \\Phi_k dk``,
+
+  where ``ES_k`` is the transformed electrostatic energy, ``\\rho_k`` is the
+  transformed charge density, ``\\Phi_k = rho_k / |k|^2`` is the transformed
+  electrostatic potential, and ``k`` is the Fourier-conjugate variable of ``x``.
+
+* The `chargedensity` may depend upon time on its last axis, in which case
+  the result will also depend upon time in the same manner.
+
+"""
+function get_electrostatic_energy( box::Box, chargedensity::Array{Float64} )
 
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
 
@@ -120,21 +115,26 @@ function get_electrostatic_energy( chargedensity::Array{Float64}, box::Box )
 
     N = size( es )
 
+    # Need to double x-wavenumbers since rfft is used
     rescale_axis = [ i == 1 ? 1 : 1:N[i] for i in 1:length(N) ]
-
     es[rescale_axis...] *= 0.5
 
-    es = sum(es, dims = box.space_dims )
+    es = reducedims(es, dims = box.space_dims )
 
-    return (prod(box.dx) / prod(box.Nx) ) * dropdims( es, dims = box.space_dims)
+    return (prod(box.dx) / prod(box.Nx) ) * es
 end
 
 """
+```julia
+get_power_per_mode( box::Box, chargedensity::Array{Float64} )
+```
+
 Obtain the power spectrum of the electrostatic energy in space.
 
-If the chargedensity depends on time, the result will also depend on time.
+# Notes
+* If the `chargedensity` depends on time, the result will also depend on time.
 """
-function get_power_per_mode( chargedensity::Array{Float64}, box::Box )
+function get_power_per_mode( box::Box, chargedensity::Array{Float64} )
 
     k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
 
@@ -145,9 +145,17 @@ end
 
 
 """
-    Obtain the energy density fourier-transformed in space and time.
+```julia
+get_dispersion_relation(box::Box, chargedensity::Array{Float64})
+```
+
+Obtain the energy density Fourier-transformed in space and time.
+
+# Notes
+* The transformation in time is performed with a `FFTW.fft`,
+  and the frequency may be obtained through [`wavevector`](@ref Vlasova.wavevector).
 """
-function get_dispersion_relation(chargedensity::Array{Float64}, box::Box)
+function get_dispersion_relation(box::Box, chargedensity::Array{Float64})
 
     k2 = get_k2(box); k2[1] = Inf # So that the inverse yields 0.0
 
@@ -155,43 +163,55 @@ function get_dispersion_relation(chargedensity::Array{Float64}, box::Box)
 
     return disprel
 end
-#
-# TODO: This 2 functions give different results. Why?
-#
-function get_dispersion_relation2(chargedensity::Array{Float64}, box::Box)
-    efield = get_electric_field(chargedensity, box)
 
-    disprel = abs2.( FFTW.rfft(efield[1]) )
-    for d in 2:box.number_of_dims
-        disprel += abs2.( FFTW.rfft( efield[d] ) )
-    end
-    return disprel              # TODO: scaling?
-end
+# function get_electric_field(;
+#                             box::Box, potential::Array{Float64})
 
-"""
-    Generate an electrostatic potential with the size of the Box `box` at
-    an instant `time`.
+#     Nx2p1, fourier_axis = get_rfft_dims( box.x )
+#     k = rfft_wavevector( box.x )
 
-    The potential is the superposition of 1d potentials of the form
-        ``\\Phi = \\sum_i \\Phi_i \\cos ( k_i x_i - \\omega_i t)``
-    where ``i = x, y, z``...
-"""
-function get_potential(box::Box, time::Real; amplitude, wavevector, frequency, time_integrated = false)
-    # TODO: This is slow
-    same_length = box.number_of_dims == length(amplitude) == length(wavevector) == length(frequency)
-    @assert same_length "The amplitude, wavevector and frequency must be of the size of the box provided"
+#     integrate = Array{Array{Complex{Float64}}}(undef, box.number_of_dims)
+#     for d in 1:box.number_of_dims
+#         integrate[d] = ones(fourier_axis)
+#         for i in fourier_axis
+#             integrate[d][ i ] *= k[d][ i[d] ]
+#         end
+#     end
 
-    if time_integrated
-        pot =  [ sum( -amplitude[d] * sin.( wavevector[d] * box.x[d][i[d]]
-                                            - frequency[d] * time  ) / frequency[d]
-                      for d in box.dim_axis )
-                 for i in CartesianIndices( box.Nx ) ]
-    else
-        pot =  [ sum( amplitude[d] * cos.( wavevector[d] * box.x[d][i[d]]
-                                           - frequency[d] * time  )
-                      for d in box.dim_axis )
-                 for i in CartesianIndices( box.Nx ) ]
-    end
+#     phik = FFTW.rfft( potential, box.space_dims )
+#     efield = Array{Array{Float64}}(undef, box.number_of_dims)
+#     for d in 1:box.number_of_dims
+#         efield[d] = FFTW.irfft( integrate[d] .* phik, box.Nx[1], box.space_dims )
+#     end
 
-    return pot
-end
+#     return efield
+# end
+
+
+# """
+#     Generate an electrostatic potential with the size of the Box `box` at
+#     an instant `time`.
+
+#     The potential is the superposition of 1d potentials of the form
+#         ``\\Phi = \\sum_i \\Phi_i \\cos ( k_i x_i - \\omega_i t)``
+#     where ``i = x, y, z``...
+# """
+# function get_potential(box::Box, time::Real; amplitude, wavevector, frequency, time_integrated = false)
+#     # TODO: This is slow
+#     same_length = box.number_of_dims == length(amplitude) == length(wavevector) == length(frequency)
+#     @assert same_length "The amplitude, wavevector and frequency must be of the size of the box provided"
+
+#     if time_integrated
+#         pot =  [ sum( -amplitude[d] * sin.( wavevector[d] * box.x[d][i[d]]
+#                                             - frequency[d] * time  ) / frequency[d]
+#                       for d in box.dim_axis )
+#                  for i in CartesianIndices( box.Nx ) ]
+#     else
+#         pot =  [ sum( amplitude[d] * cos.( wavevector[d] * box.x[d][i[d]]
+#                                            - frequency[d] * time  )
+#                       for d in box.dim_axis )
+#                  for i in CartesianIndices( box.Nx ) ]
+#     end
+
+#     return pot
+# end
