@@ -167,10 +167,10 @@ Obtain the electrostatic energy from the charge density.
 # Notes
 * The electrostatic energy is calculated in Fourier space as
 
-  ``ES_k = \\int \\rho_k* \\Phi_k dk``,
+  ``P_k = \\int \\rho_k \\Phi_k dk``,
 
-  where ``ES_k`` is the transformed electrostatic energy, ``\\rho_k`` is the
-  transformed charge density, ``\\Phi_k = rho_k / |k|^2`` is the transformed
+  where ``P_k`` is the transformed electrostatic energy, ``\\rho_k`` is the
+  transformed charge density, ``\\Phi_k = \\rho_k / |k|^2`` is the transformed
   electrostatic potential, and ``k`` is the Fourier-conjugate variable of ``x``.
 
 * The `chargedensity` may depend upon time on its last axis, in which case

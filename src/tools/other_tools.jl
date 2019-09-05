@@ -264,7 +264,7 @@ end
 sim_from_file(parfile::String)
 ```
 
-Start a simulation from a file that defines at least the `plasma`, `final_time`, and `dt` (with that names).
+Start a simulation from a file that defines at least the `plasma`, `final_time`, and `dt` (with those names).
 
 # Notes
 
