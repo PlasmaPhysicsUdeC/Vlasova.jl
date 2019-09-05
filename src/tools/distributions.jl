@@ -1,4 +1,8 @@
-export maxwellian1d, maxwellian2d, twostream1d, bump_on_tail1d, bgk1d
+export maxwellian1d,
+    maxwellian2d,
+    twostream1d,
+    bump_on_tail1d,
+    bgk1d
 
 """
 ```julia
@@ -120,7 +124,7 @@ Generate a 1-dimensional BGK state.
 
 * The BGK state is constructed according to the mathematical description given by [`Silantyev et al. (2017-1)`](https://aip.scitation.org/doi/10.1063/1.4979289), derived from the potential ``\\Phi(x) = -\\phi_0 \\cos( k x ),`` and a Maxwellian equilibrium distribution.
 
-* If a 2-d box is provided, the keyword `dim` may be used to select the dimension of the box to construct the BGK state.
+* If a 2-d box is provided, the keyword `dim` may be used to select the dimension of the box used to construct the BGK state.
 """
 function bgk1d( box; amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1 ) # Use FastGaussQuadrature instead.
     @assert box.Lx[dim] == 2pi / wavenumber "The wavenumber provided does not fit exactly once in the box"
