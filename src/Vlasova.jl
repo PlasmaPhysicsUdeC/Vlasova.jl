@@ -16,7 +16,6 @@ include("structs/03_SpaceAdvection.jl")
 include("structs/03_VelocityAdvection.jl")
 
 # Function implementations
-include("implementations/Plasma.jl")
 include("implementations/Poisson.jl")
 include("implementations/DataSaver.jl")
 include("implementations/SpaceAdvection.jl")

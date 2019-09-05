@@ -6,13 +6,83 @@ export get_kinetic_energy,
     get_power_per_mode,
     get_dispersion_relation
 
+"""
+```julia
+get_density(box::Box, species::Specie)
+```
+
+Collect the charge density of a [`Specie`](@ref).
+"""
+@inline function get_density(box::Box, species::Specie)
+    return species.charge * prod(box.dv) * reducedims(sum,
+                                                      species.distribution,
+                                                      dims = box.velocity_dims)
+end
+
+# TODO: Verify @ref pointing with specialization.
+"""
+```julia
+get_density(plasma::Plasma)
+```
+
+Collect and return the total charge density of a [`Plasma`](@ref).
+"""
+function get_density(plasma::Plasma)
+
+    # Allocate array
+    chargedensity = Array{Float64}(undef, plasma.box.Nx)
+
+    # Call in-place version
+    get_density!(chargedensity, plasma)
+
+    # Ensure quasi-neutrality
+    chargedensity .= chargedensity .- Statistics.mean(chargedensity)
+
+    return chargedensity
+end
+
+"""
+```julia
+get_density!(chargedensity::Array{Float64}, plasma::Plasma)
+```
+
+Collect the total `chargedensity` of a [`Plasma`](@ref) in place.
+"""
+function get_density!(chargedensity::Array{Float64}, plasma::Plasma)
+    # Replace chargedensity content
+    chargedensity .= get_density(plasma.box, plasma.species[1])
+
+    # Loop over species
+    for s in 2:plasma.number_of_species
+        chargedensity .+= get_density(plasma.box, plasma.species[s])
+    end
+
+    # Ensure quasi-neutrality
+    chargedensity .= chargedensity .- Statistics.mean(chargedensity)
+    return nothing;
+end
+
+"""
+```julia
+get_kinetic_energy(plasma::Plasma)
+```
+
+Obtain the total kinetic energy of a [`Plasma`](@ref).
+"""
+function get_kinetic_energy(plasma::Plasma)
+    kinen = 0.0
+    for s in plasma.box.specie_axis
+        kinen += get_kinetic_energy(plasma.box, plasma.species[s])
+    end
+    return kinen
+end
 
 """
 ```julia
 get_kinetic_energy(box::Box, species::Specie);
 ```
 
-Obtain the kinetic energy from a `Specie` and a `Box`.
+Obtain the kinetic energy from a [`Specie`](@ref) and a [`Box`](@ref).
 
 """
 function get_kinetic_energy(box::Box, species::Specie);
@@ -55,7 +125,7 @@ Obtain the electric field from a charge distribution.
 ```jldoctest; setup = :(using Vlasova)
 julia> box = Box(Nx = 256, Nv = 512, Lx = 2pi, vmin = -6,  vmax = 6 );
 
-julia> chargedensity = sin.( box.x[1] ); # Fake data FTW
+julia> chargedensity = sin.( box.x[1] ); # Fake data FTW!
 
 julia> E = get_electric_field(box, chargedensity); # Should be ``-cos(x)``
 
