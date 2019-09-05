@@ -6,7 +6,8 @@ function (d::DataSaver)(plasma::Plasma, t::Integer )
         # Saved every iteration
         it = t - d.last_iteration_saved
         d.chargedensity[plasma.box.space_axes..., it] = get_density( plasma )
-        d.kinetic_energy[it, :] = get_kinetic_energies( plasma )
+        d.kinetic_energy[it, :] = [ get_kinetic_energy(plasma.box, plasma.species[s])
+                                    for s in plasma.specie_axis ]
 
         # Save distribution ?
         ( t in d.save_distribution_axis ) ? save_distribution(d, plasma) : nothing
@@ -29,7 +30,9 @@ function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     # For the common files
     fid = HDF5.h5open(joinpath(d.path, "shared_data.h5"), "r+")
     fid["chargedensity"][p.box.space_axes..., (last_it+1):t] = d.chargedensity[p.box.space_axes..., 1:(t-last_it)]
-    fid["total_kinetic_energy"][(last_it + 1):t] = dropdims( sum(d.kinetic_energy[1:(t-last_it), :], dims = 2 ), dims = 2 )
+    fid["total_kinetic_energy"][(last_it + 1):t] = reducedims(sum,
+                                                              d.kinetic_energy[1:(t-last_it), :],
+                                                              dims = 2 )
     HDF5.close(fid)
 
     for s in 1:p.number_of_species
