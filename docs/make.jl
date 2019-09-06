@@ -10,6 +10,7 @@ makedocs(format = format,
          repo = "https://gitlab.com/jgidi/Vlasova.jl/blob/{commit}{path}#{line}",
          pages = [
              "Home" => "index.md", # The name index.md is required by Documenter
+             "Installation" => "installation.md",
              "Basic concepts" => "basic_concepts.md",
              "Default Behavior" => "default_behavior.md",
              "Tools" => "tools.md",

@@ -1,6 +1,6 @@
 """
 ```julia
-Specie(name::String, charge::Real, mass:Real, temperature::Real, distribution::Array{T} where T :< Real)
+Specie(;name::String, charge::Real, mass:Real, temperature::Real, distribution::Array{T} where T :< Real)
 ```
 
 Create a container representing one charged species in a Vlasova plasma.

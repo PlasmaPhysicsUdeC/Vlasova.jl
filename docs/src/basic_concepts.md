@@ -70,4 +70,4 @@ integrate!(plasma, final_time, dt),
 
 which will evolve `plasma` until time `final_time` using steps `dt`.
 
-However, there are many orders which can be passed to Vlasova to change the way it works. For example, one may want to save the results to disk, or use checkponts to backup the data every some percent accomplished of the integration. All this features may be found in the section [`Default behavior`](@ref).
+However, there are many orders which can be passed to Vlasova to change the way it works. For example, one may want to save the results to disk, or use checkpoints to backup the data every some percent accomplished of the integration. All this features may be found in the section [Default behavior](@ref).

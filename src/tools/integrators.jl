@@ -1,5 +1,7 @@
 export verlet_position, verlet_velocity, mclachlan_velocity, BABAB, ChinA, ChinC, ABABABA, ABACABA
 
+# TODO: Docs!
+
 verlet_position = VlasovaIntegrator("ABA", [0.5,
                                             1.0,
                                             0.5])
@@ -7,6 +9,9 @@ verlet_velocity = VlasovaIntegrator("BAB", [0.5,
                                             1.0,
                                             0.5])
 
+"""
+Doc this! [`McLachlan et al. (1992)`](https://iopscience.iop.org/article/10.1088/0951-7715/5/2/011)
+"""
 mclachlan_velocity = VlasovaIntegrator("BABA", [1 - 1/sqrt(2),
                                                 1/sqrt(2),
                                                 1/sqrt(2),

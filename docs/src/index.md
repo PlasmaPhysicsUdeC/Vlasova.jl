@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Vlasova is a package written in julia, which aims to provide a set of tools to perform and examine one or two-dimensional Vlasov-Poisson simulations easily.
+Vlasova is a package for julia, written in julia, which aims to provide a set of tools to perform and examine one or two-dimensional Vlasov-Poisson simulations easily.
 
 ## Features
 
@@ -14,7 +14,7 @@ The Vlasova package provides tools to easily:
   * Multi-specie
 
 * Examine the results of a simulation generically.
-* Use arbitrary symplectic **non-gradient** integrators.
+* Use arbitrary symplectic **non-gradient** integrators. (gradient integrators are being implemented!)
 * Perform multi-threaded simulations.
 
 ## Asumptions
