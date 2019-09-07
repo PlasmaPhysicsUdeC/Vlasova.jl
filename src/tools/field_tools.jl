@@ -189,7 +189,7 @@ function get_electrostatic_energy( box::Box, chargedensity::Array{Float64} )
     rescale_axis = [ i == 1 ? 1 : 1:N[i] for i in 1:length(N) ]
     es[rescale_axis...] *= 0.5
 
-    es = reducedims(es, dims = box.space_dims )
+    es = reducedims(sum, es, dims = box.space_dims )
 
     return (prod(box.dx) / prod(box.Nx) ) * es
 end
