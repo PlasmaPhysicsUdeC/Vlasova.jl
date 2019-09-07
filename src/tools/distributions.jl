@@ -149,7 +149,6 @@ function bgk1d( box; amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1
 
     # Distribution
     distribution = zeros(Nx, Nv)
-    energy = similar( distribution )
     for j in 1:Nv
         for i in 1:Nx
             # Single particle energy in the wave frame
@@ -174,9 +173,8 @@ function bgk1d( box; amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1
             end
             # Path contribution over path length
             distribution[i, j] = BGKT / T
-            energy[i, j] = W
         end
     end
 
-    return distribution, energy
+    return distribution
 end
