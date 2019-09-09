@@ -78,7 +78,7 @@ mutable struct DataSaver
                       fid["specie_names"] = [plasma.species[s].name for s in plasma.specie_axis]
                       ## Save first instant
                       fid["chargedensity"][UnitRange.(1, plasma.box.Nx)..., 1] = get_density( plasma )
-                      fid["total_kinetic_energy"][1] = sum( get_kinetic_energies(plasma) )
+                      fid["total_kinetic_energy"][1] = get_kinetic_energy(plasma)
                       HDF5.close(fid)
 
                       # Specie file(s)
