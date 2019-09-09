@@ -10,7 +10,7 @@ box = Box(Nx = (64, 64),
           vmax = (6, 6)
           );
 
-f01d = bgk1d(box, wavenumber = 0.35, amplitude = 0.2, vphi = 3.3582, dim = 1)[1]
+f01d = bgk1d(box, wavenumber = 0.35, amplitude = 0.2, vphi = 3.3582, dim = 1)
 f0 = permutedims( ones(box.Nx[1]) ⊗ f01d, (2, 1, 3)) ⊗ maxwellian1d(box.v[2])
 
 electrons = Specie(name = "electrons",
@@ -37,7 +37,7 @@ EE = EE / TE
 K = K / TE
 
 
-p2 = scatter([EE], scale = :log10, label = "EE")
+p2 = scatter([EE], yscale = :log10, label = "EE")
 scatter!(p2, [K], label = "K")
 
 plot(p1, p2)
