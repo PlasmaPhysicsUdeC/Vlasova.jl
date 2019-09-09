@@ -2,8 +2,7 @@ using Test, Vlasova
 import FFTW
 
 # Make plasma
-box = Box( name = "test",
-           Nx = (8, 10),
+box = Box( Nx = (8, 10),
            Nv = (12, 14),
            Lx = (5pi, 10.0),
            vmin = (-6, -8),
@@ -16,7 +15,7 @@ electrons = Specie(name = "electrons",
                    temperature = 1.0,
                    distribution = ones(box.Nx...) ⊗ maxwellian2d( box.v... )  )
 
-plasma = Plasma(electrons, box);
+plasma = Plasma(species = electrons, box = box);
 
 # Time info
 dt = 0.1
@@ -35,9 +34,6 @@ vadv = Vlasova.VelocityAdvection( plasma,
                                   integrator,
                                   dt,
                                   FFTW_flags = FFTW.ESTIMATE)
-
-tm = Vlasova.TimeManager( final_time,
-                          dt )
 
 # Tests structs
 Nx2 = div(box.Nx[1], 2)
