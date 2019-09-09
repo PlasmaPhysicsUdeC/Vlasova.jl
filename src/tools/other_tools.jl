@@ -106,7 +106,7 @@ false
 ```
 """
 macro hasnan(var)
-    quote
+    return quote
         findfirst(isnan.($var)) != nothing
     end
 end
