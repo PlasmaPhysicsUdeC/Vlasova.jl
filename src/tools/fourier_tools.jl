@@ -48,8 +48,8 @@ function anisotropic_filter(box::Box)
     Nv2p1, fourier_indices = get_rfft_dims( box.v )
 
     filter = ones( Nv2p1 )
-    for d in box.number_of_dims
-        umax = maximum(u)
+    for d in 1:box.number_of_dims
+        umax = maximum(u[d])
         filter1d = @. exp( -36*( u[d] / umax )^36 )
         for i in fourier_indices
             filter[i] *= filter1d[ i[d] ]
