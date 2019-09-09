@@ -1,8 +1,8 @@
 export @vlasova,
     @hasnan,
     @suppress_stdout,
-    reducedims,
     hasnan,
+    reducedims,
     adiabatic_cutoff,
     outer,
     ⊗,
@@ -93,6 +93,9 @@ end
 
 Test whether some element of `var` (or itself) is a `NaN`.
 
+# Notes
+* There is also a function version [`hasnan`](@ref).
+
 # Examples
 ```jldoctest; setup = :(using Vlasova)
 julia> @hasnan NaN
@@ -109,6 +112,32 @@ macro hasnan(var)
     return quote
         findfirst(isnan.($var)) != nothing
     end
+end
+
+"""
+```julia
+hasnan( var )
+```
+
+Test whether some element of `var` (or itself) is a `NaN`.
+
+# Notes
+* There is also a macro version [`@hasnan`](@ref).
+
+# Examples
+```jldoctest; setup = :(using Vlasova)
+julia> hasnan( NaN )
+true
+
+julia> hasnan( [1.0, NaN] )
+true
+
+julia> hasnan( [1, 2, Inf] )
+false
+```
+"""
+function hasnan(var)
+    return findfirst(isnan.(var)) != nothing
 end
 
 """
