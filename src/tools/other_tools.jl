@@ -7,7 +7,9 @@ export @vlasova,
     outer,
     ⊗,
     cosine_perturbation1d,
-    sim_from_file
+    sim_from_file,
+    find_local_maxima,
+    find_exponential_growth
 
 """
 ```julia
@@ -338,4 +340,92 @@ function sim_from_file(parfile::String)
     !isempty( data_path ) ? cp( parfile, joinpath( data_path, parfile), force = true) : nothing
     # Start integrator
     integrate!(plasma, final_time, dt)
+end
+
+
+"""
+```julia
+find_local_maxima(a::AbstractArray{T, 1} where T <: Real; discard_borders = false )
+```
+
+Find the indices of all the local maxima of a real-valued one-dimensional `Array`.
+
+# Notes
+* If `discard_borders = true`, the values `a[1]` and `a[end]` are not tested to be local maxima.
+  This option is useful when the local maxima are wanted to fit the data.
+
+# Examples
+
+```jldoctest; setup = :(using Vlasova)
+julia> x = range(0.0, stop = 15pi, step = 0.1);
+
+julia> y = cos.(x); # Has a maximum on the first index.
+
+julia> maxima = find_local_maxima( y );
+
+julia> 1 in maxima  # Is 1 on the maxima?
+true
+
+julia> maxima = find_local_maxima( y, discard_borders = true);
+
+julia> 1 in maxima # Is 1 on the maxima?
+false
+
+"""
+function find_local_maxima(a::AbstractArray{T, 1} where T <: Real; discard_borders = false  )
+    sa = size(a, 1)
+    maxinds = Int64[]
+    if sa <= 1
+        discard_borders ? nothing : ( maxinds = copy(a) )
+    else
+        # Middle indices
+        for i in 2:(sa-1)
+            a[i-1] < a[i] > a[i+1] ? push!(maxinds, i) : nothing
+        end
+
+        if !discard_borders
+            # First index
+            a[1] > a[2] ? pushfirst!(maxinds, 1) : nothing
+            # End index
+            a[end] > a[end-1] ? push!(maxinds, sa) : nothing
+        end
+    end
+
+    return maxinds
+end
+
+
+"""
+```julia
+find_exponential_growth( x, y; interval = [-Inf, Inf] )
+```
+
+Fit the function
+
+``y(x) = A \\exp ( B x  )``
+
+ over the interval given to the `Array`s `x` and `y`, and return the growth rate, ``B``.
+
+# Notes
+* `x` and `y` must be `Array`s of the same length.
+* The exponential growth returned is the additive inverse of the damping rate.
+
+# Examples
+```jldoctest; setup = :(using Vlasova)
+julia> x = range(0.0, stop = 5pi, step = 0.1);
+
+julia> A, B = rand(2);
+
+julia> y = A * exp.(B * x); # Fake data
+
+julia> growth = find_exponential_growth(x, y);
+
+julia> growth ≈ B
+true
+
+```
+"""
+function find_exponential_growth( x, y; interval = [-Inf, Inf] )
+    idx = findall( interval[1] .<= x .<= interval[2] )
+    return CurveFit.exp_fit(x[idx], y[idx])[2]
 end
