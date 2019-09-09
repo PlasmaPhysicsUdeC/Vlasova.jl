@@ -71,7 +71,7 @@ Obtain the total kinetic energy of a [`Plasma`](@ref).
 """
 function get_kinetic_energy(plasma::Plasma)
     kinen = 0.0
-    for s in plasma.box.specie_axis
+    for s in plasma.specie_axis
         kinen += get_kinetic_energy(plasma.box, plasma.species[s])
     end
     return kinen
