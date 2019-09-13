@@ -1,101 +1,52 @@
 using Vlasova
-
-# Name to save the data
-simulation_name = "silantyev_reproduction"
-
-# Space nodes
-Nx = (64, 32)
-Nv = (256, 32)
-
-# Space lengths
-Lx = (2pi/0.35, 400pi)
-vMin = (-6, -6)       # Minimum velocities
-vMax = ( 8,  6)       # Maximum velocities
+using Statistics
 
 # Final conditions
 dt = 1e-1
-final_time = 4000            # In electron plasma periods
+final_time = 5000
 
-# Save the distribution function ( final_time will always be saved )
-save_distribution_times = 0:100:4000 |> collect
-
-# Backup simulation after some % accomplished
-checkpoint_percent = 2
-
-# Multi-threding
-num_threads = 4
-
-# Multi-specie support
-name = ["electrons"]#, "protons"]
-charge = [-1.0, 1.0]
-mass = [1.0, 1836.15267389]
-temperature = [1.0, 1.0]
-perturbed = [true, false]
-
-# Choose a Vlasova integrator
-integrator = ABABABA
-
-# You can comment this function if you are not going to use it
-function external_potential(time, box)
-    cutoff_time = 100
-    cutoff_delay = 20
-
-    k = 0.35
-    vphi = 3.488
-    potential = @. 0.015 * cos( k * ( box.x[1] - vphi * time) )
-    
-    return @. potential * adiabatic_cutoff( time; cutoff_time = cutoff_time, cutoff_delay = cutoff_delay )
+# BEHAVIOR
+@vlasova begin
+    data_path = "data/BGK_from_beam_no-pert"
+    NUM_THREADS = 4
+    save_distribution_times = 0:500:5000 |> collect
+    integrator = verlet_velocity
+    checkpoint_percent = 1
 end
 
-# Starting conditions
-function perturbate!(distribution::Array{Float64}, box::Box)
-    # Perturbation parameters
-    mode = (0, 0)
-    amplitude = (0, 0)
-    
-    # Perturbation of the form ( Ax*cos(kx*x) + Ay*cos(ky*y) ... )
-    k_mode = @. 2pi * (mode / box.Lx) * box.x
-    perturbation = zeros( box.Nx )
-    for d in box.dim_axis, i in box.space_indices
-        perturbation[i] += amplitude[d] * cos( k_mode[d][ i[d] ] )
-    end
-    
-    # Ensure that perturbation preserves mass
-    perturbation .= perturbation .-  mean(perturbation) .+ 1
+# Space nodes
+box = Box( Nx = (64, 64),
+           Nv = (512, 32),
+           Lx = (40pi, 200pi),
+           vmin = (-6.0, -6.0),
+           vmax = (8.0, 6.0)
+           )
 
-    # Apply perturbation
-    for j in box.velocity_indices
-        for i in box.space_indices
-            distribution[i, j] .*= perturbation[i]
-        end
-    end
-    return 0;
+# Species declaration
+
+let
+    fvx = bump_on_tail1d(box.v[1], vtb = 0.5, vdb = 4.5, nc = 0.9, nb = 0.1)
+    fvy = maxwellian1d( box.v[2] )
+    pertx = 1e-15 * rand(box.Nx[1]) # noise
+    perty = 1e-15 * rand(box.Nx[2]) # noise
+    pertx .-= mean(pertx)
+    perty .-= mean(perty)
+
+    global f0 =  (1 .+ pertx) ⊗ (1 .+ perty) ⊗ fvx ⊗ fvy
 end
 
-function initial_distribution(box::Box; perturbate::Bool = false)
+electrons = Specie(name = "electrons",
+                   charge = -1.0,
+                   mass = 1.0,
+                   temperature = 1.0,
+                   distribution = f0
+                   )
 
-    distribution = Array{Float64}(undef, box.N )
-    
-    M2d = Vlasova.maxwellian2d( box.v... )
 
-    for j in box.velocity_indices
-        for i in box.space_indices
-            distribution[i, j] .= M2d[j]
-        end
-    end
-
-    # Apply perturbation ?
-    perturbate ? perturbate!( distribution, box ) : nothing
-    return distribution
-end
-
-# Create plasma box
-box = Box( name = simulation_name,
-           Nx = Nx,
-           Nv = Nv,
-           Lx = Lx,
-           vmin = vMin,
-           vmax = vMax );
+# Make plasma
+plasma = Plasma( box = box,
+                 species = [ electrons ]
+                 )
 
 # Return nothing when this file is included
 nothing
