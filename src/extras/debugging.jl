@@ -21,4 +21,6 @@ function enable_debugging()
     # Define timer and enable @timeit_debug
     global timer = TimerOutputs.TimerOutput()
     TimerOutputs.enable_debug_timings( Vlasova )
+
+    return nothing
 end
