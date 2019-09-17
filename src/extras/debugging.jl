@@ -7,8 +7,12 @@ Enable debugging for the Vlasova module.
 
 # Effects
 * `TimerOutputs`:
-  * Set a global `TimerOutput` called `timer`. Calling in on the REPL shows the measured values.
+  * Set a global `TimerOutput` called `timer` (unexported).
+    Displaying it on the REPL (i.e. writing `Vlasova.timer`) will show the measured values.
   * Enable all the `@timeit_debug` annotations. This involves code recompilation, so it could take a while.
+
+# Notes
+* There is no option to disable debugging. This is accomplished by closing and re-starting the julia session.
 
 """
 function enable_debugging()
