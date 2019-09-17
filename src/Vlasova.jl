@@ -1,6 +1,6 @@
 module Vlasova
 
-import Statistics, LinearAlgebra, FFTW, HDF5, Dates, QuadGK, ProgressMeter, CurveFit
+import Statistics, LinearAlgebra, FFTW, HDF5, Dates, QuadGK, ProgressMeter, CurveFit, TimerOutputs
 
 # Structs
 export Box, VlasovaIntegrator, Specie, Plasma, get_zero
