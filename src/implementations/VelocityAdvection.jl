@@ -10,34 +10,44 @@ function (vadv::VelocityAdvection)(plasma::Plasma, electricfield, grad, prop;
     for s in 1:plasma.number_of_species
 
         # DF to velocity Fourier-space
-        LinearAlgebra.mul!(vadv.transformed_DF, vadv.plan, plasma.species[s].distribution )
+        TimerOutputs.@timeit_debug timer "Fourier transform" begin
+            LinearAlgebra.mul!(vadv.transformed_DF, vadv.plan, plasma.species[s].distribution )
+        end
 
         # Apply high-freq filter
-        filtering ? lowpass_velocityfilter!( vadv.transformed_DF, vadv.filter, plasma.box ) : nothing
+        TimerOutputs.@timeit_debug timer "filtering" begin
+            filtering ? lowpass_velocityfilter!( vadv.transformed_DF, vadv.filter, plasma.box ) : nothing
+        end
 
         # Prepare reduced propagator
         # Electricfield coefficient
         coef = vadv.advection_coefficients[ :, s, advection_number ]
 
-        if is_gradient_advection
-            grad_coef = vadv.gradient_coefficients[ :, s, gradient_number]
+        TimerOutputs.@timeit_debug timer "prepare reduced propagator" begin
+            if is_gradient_advection
+                grad_coef = vadv.gradient_coefficients[ :, s, gradient_number]
 
-            # Propagator dependency on E with gradient correction # TODO: Not working yet
-            for d in 1:plasma.box.number_of_dims
-                @. prop[d] = cis( - coef[d] * electricfield[d] + grad_coef[d] * grad[d] )
-            end
-        else
-            # Propagator dependency on E
-            for d in 1:plasma.box.number_of_dims
-                @. prop[d] = cis( - coef[d] * electricfield[d] )
+                # Propagator dependency on E with gradient correction # TODO: Not working yet
+                for d in 1:plasma.box.number_of_dims
+                    @. prop[d] = cis( - coef[d] * electricfield[d] + grad_coef[d] * grad[d] )
+                end
+            else
+                # Propagator dependency on E
+                for d in 1:plasma.box.number_of_dims
+                    @. prop[d] = cis( - coef[d] * electricfield[d] )
+                end
             end
         end
 
         # Perform advection with corrected force
-        _velocity_advection!( vadv.transformed_DF, prop, size(vadv.transformed_DF)...)
+        TimerOutputs.@timeit_debug timer "calculate and apply propagator" begin
+            _velocity_advection!( vadv.transformed_DF, prop, size(vadv.transformed_DF)...)
+        end
 
         # Return to real space
-        LinearAlgebra.ldiv!( plasma.species[s].distribution, vadv.plan, vadv.transformed_DF )
+        TimerOutputs.@timeit_debug timer "inverse Fourier transform" begin
+            LinearAlgebra.ldiv!( plasma.species[s].distribution, vadv.plan, vadv.transformed_DF )
+        end
 
     end
     return nothing;

@@ -5,13 +5,16 @@ enable_debugging()
 
 Enable debugging for the Vlasova module.
 
-# Notes
-* This function should recompile all code involving debugging annotations. For this reason it may take a while.
+# Effects
+* `TimerOutputs`:
+  * Set a global `TimerOutput` called `timer`. Calling in on the REPL shows the measured values.
+  * Enable all the `@timeit_debug` annotations. This involves code recompilation, so it could take a while.
 
 """
 function enable_debugging()
     # Put everything debug-related in-here
 
-    # Enable @timeit_debug
+    # Define timer and enable @timeit_debug
+    global timer = TimerOutputs.TimerOutput()
     TimerOutputs.enable_debug_timings( Vlasova )
 end

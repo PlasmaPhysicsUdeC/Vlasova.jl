@@ -42,11 +42,20 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
         for a in integrator.sequence
             if a == 'A'
                 pos_adv_num += 1
-                space_advection(plasma, advection_number = pos_adv_num)
-                get_density!(chargedensity, plasma)
+                TimerOutputs.@timeit_debug timer "space advection" begin
+                    space_advection(plasma, advection_number = pos_adv_num)
+                end
+
+                TimerOutputs.@timeit_debug timer "get density" begin
+                    get_density!(chargedensity, plasma)
+                end
 
                 time += space_advection.coefficients[ pos_adv_num ] # Updtate time after advection
-                poisson!(electricfield, chargedensity, external_potential = external_potential( time, plasma.box ) )
+                TimerOutputs.@timeit_debug timer "get electric field" begin
+                    poisson!(electricfield,
+                             chargedensity,
+                             external_potential = external_potential( time, plasma.box ) )
+                end
 
             else # Velocity advection (B or C)
                 vel_adv_num += 1
@@ -54,20 +63,24 @@ function (integrator::VlasovaIntegrator)(plasma::Plasma,
                 isC = ( a == 'C' )
                 if isC
                     grad_adv_num += 1
-                    #get_gradient_correction!(grad, poisson!, electricfield) # Get $ grad = \nabla |E|^2 $
-                    grad[1] = (2 * electricfield[1] .* (chargedensity .+ 1)) # TODO: This line works (1d), but idk why
+                    TimerOutputs.@timeit_debug timer "get force gradient" begin
+                        #get_gradient_correction!(grad, poisson!, electricfield) # Get $ grad = \nabla |E|^2 $
+                        grad[1] = (2 * electricfield[1] .* (chargedensity .+ 1)) # TODO: This line works (1d), but idk why
+                    end
                 end
 
-                velocity_advection(plasma, electricfield, grad, prop,
-                                   advection_number = vel_adv_num,
-                                   gradient_number = grad_adv_num,
-                                   is_gradient_advection = isC,
-                                   filtering = velocity_filtering ) # Apply filter at all velocity advections
+                TimerOutputs.@timeit_debug timer "velocity advection" begin
+                    velocity_advection(plasma, electricfield, grad, prop,
+                                       advection_number = vel_adv_num,
+                                       gradient_number = grad_adv_num,
+                                       is_gradient_advection = isC,
+                                       filtering = velocity_filtering ) # Apply filter at all velocity advections
+                end
             end
         end
 
         # Save data
-        datasaver(plasma, t)
+        TimerOutputs.@timeit_debug timer "save data" datasaver(plasma, t)
         # Update progressbar in buffer
         ProgressMeter.next!(progressbar)
         buff_str = String(take!(buff))
