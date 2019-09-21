@@ -3,7 +3,7 @@
 continue_from_backup = false
 ```
 
-Specify if Vlasova should look for an unfinished simulation in the current path, and complete it.
+Specify if Vlasova should look for an unfinished simulation in the path given by [`data_path`](@ref), and complete it.
 
 # Notes
 * This value must be changed from inside Vlasova. If you want to change it, use [`@vlasova`](@ref).
