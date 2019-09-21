@@ -1,25 +1,47 @@
 """
 ```julia
-redefine_integrator( codeblock::Expr )
+inject_to_integrator(;before_loop::Expr, inside_loop::Expr, after_loop::Expr )
 ```
 
-Inject `codeblock` explicitly into the main integrator function, such
-that it gets executed into every interation of the main temporal loop
-(once for every time step).
+Inject blocks of code explicitly into the main integrator function.
+This function requires three keyword arguments:
+* `before_loop`: Executed just before entering the integration loop.
+* `inside_loop`: Executed at the end of every iteration of the integration loop, but
+   before saving the data. This block will be executed after every `dt` is accomplished.
+* `after loop`: Executed just after ending the integration loop. It is the last thing to do
+   when the integrator is called.
 
 # Notes
 * You should only use this function if you **really** know what you are doing.
   This function is very likely to break the code.
 """
-redefine_integrator( codeblock::Expr ) = @eval begin
-    function (integrator::VlasovaIntegrator)(plasma::Plasma,
-                                             Nt::Integer, dt::Float64,
-                                             poisson!::Poisson,
-                                             external_potential::Function,
-                                             space_advection::SpaceAdvection,
-                                             velocity_advection::VelocityAdvection,
-                                             velocity_filtering::Bool,
-                                             datasaver::DataSaver )
+function inject_to_integrator(;before_loop::Expr, inside_loop::Expr, after_loop::Expr )
+    # If the injected code is not empty, debug it with TimerOutputs
+    if length(before_loop.args) > 1
+        before_loop = quote
+            TimerOutputs.@timeit_debug timer "[injected] before loop" $before_loop
+        end
+    end
+    if length(inside_loop.args) > 1
+        inside_loop = quote
+            TimerOutputs.@timeit_debug timer "[injected] inside loop" $inside_loop
+        end
+    end
+    if length(after_loop.args) > 1
+        after_loop = quote
+            TimerOutputs.@timeit_debug timer "[injected] after loop" $after_loop
+        end
+    end
+
+    # Define integrator function
+    @eval function (integrator::VlasovaIntegrator)(plasma::Plasma,
+                                                   Nt::Integer, dt::Float64,
+                                                   poisson!::Poisson,
+                                                   external_potential::Function,
+                                                   space_advection::SpaceAdvection,
+                                                   velocity_advection::VelocityAdvection,
+                                                   velocity_filtering::Bool,
+                                                   datasaver::DataSaver )
 
         # Preallocate to make operations in place
         chargedensity = get_density( plasma )
@@ -44,6 +66,9 @@ redefine_integrator( codeblock::Expr ) = @eval begin
 
         # Sync progressbar when continuing from a backup
         progressbar.counter = datasaver.last_iteration_saved
+
+        # Inject code before the main integration loop.
+        $before_loop
 
         # Go!
         start_str = "Starting integration @ $(Dates.now())\n"
@@ -93,8 +118,9 @@ redefine_integrator( codeblock::Expr ) = @eval begin
                 end
             end
 
-            # Inject external code
-            $codeblock
+            # Inject code at the end of every iteration of the integration loop.
+            $inside_loop
+
             # Save data
             TimerOutputs.@timeit_debug timer "save data" datasaver(plasma, t)
             # Update progressbar in buffer
@@ -108,9 +134,15 @@ redefine_integrator( codeblock::Expr ) = @eval begin
                        start_str * buff_str[2:end-3] )
             end
         end
+
+        # Inject code at the end of the integration loop.
+        $after_loop
+
         return nothing;
     end
 end
 
-# Define the integrator function injecting an empty code block
-redefine_integrator(quote end)
+# Define the integrator function injecting empty code blocks.
+inject_to_integrator(before_loop = quote end,
+                     inside_loop = quote end,
+                     after_loop = quote end )
