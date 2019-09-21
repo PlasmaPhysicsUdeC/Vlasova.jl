@@ -2,6 +2,7 @@ export maxwellian1d,
     maxwellian2d,
     twostream1d,
     bump_on_tail1d,
+    maxwellian_superposition1d,
     bgk1d
 
 """
@@ -112,6 +113,44 @@ function bump_on_tail1d(v; vtb::Real = 0.5, vdb::Real = 4, nc::Real = 0.9, nb::R
     return @. c1 * exp( -0.5 * v^2 ) + c2 * exp( -0.5 * ((v - vdb)/vtb)^2 )
 end
 
+
+"""
+```julia
+maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64})
+```
+
+Generate a 1-dimensional superposition of Maxwellian distributions, where
+`vt` is the array of thermal velocities, `vd` is the array of drift velocities,
+and `n` is the array of densities of each Maxwellian.
+
+"""
+function maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64})
+
+    @assert length(vt) == length(vd) == length(n) "`vt`, `vd` and `n` must have the same length."
+    @assert sum( n ) == 1 "The densities do not add up to 1."
+
+    # Normalization constants for each Maxwellian
+    c = @. n / (sqrt(2pi) * vt )
+
+    dist = zeros(size(v, 1))
+    for i in 1:length(c)
+        @. dist += c[i] * exp( -0.5* ( (v - vd[i]) / vt[i] )^2 )
+    end
+
+    return dist
+end
+
+"""
+```julia
+maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1)
+```
+
+Extension of `maxwellian_superposition1d` that allows to pass a `Box` element and its dimension, `dim`, along
+which it is desired to generate the superposition of Maxwellian distributions.
+"""
+function maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1)
+    return maxwellian_superposition1d(box.v[dim], vt = vt, vd = vd, n = n)
+end
 
 """
 ```julia

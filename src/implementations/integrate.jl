@@ -20,21 +20,24 @@ function integrate!(plasma::Plasma, final_time::Real, dt::Real;
     (NUM_THREADS > 1) ? FFTW.set_num_threads( NUM_THREADS ) : nothing
 
     # Initialize objects
-    ##  To solve poisson equation
-    poisson = Poisson(plasma, FFTW_flags = FFTW_flags)
-    ## Advections
-    space_advection = SpaceAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
-    velocity_advection = VelocityAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
-    ## To save data in memory and flush it to disk on checkpoints
-    ## Also, initialize h5 files (saving first checkpoint) or restore data and allow to save the whole DF at save_distribution times
-    datasaver = DataSaver(plasma, Nt, dt, data_path, checkpoint_percent, continue_from_backup, save_distribution_times)
-
+    TimerOutputs.@timeit_debug timer "Initialize objects" begin
+        ##  To solve poisson equation
+        TimerOutputs.@timeit_debug timer "Poisson" poisson = Poisson(plasma, FFTW_flags = FFTW_flags)
+        ## Advections
+        TimerOutputs.@timeit_debug timer "SpaceAdvection" space_advection = SpaceAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
+        TimerOutputs.@timeit_debug timer "VelocityAdvection" velocity_advection = VelocityAdvection(plasma, integrator, dt, FFTW_flags = FFTW_flags)
+        ## To save data in memory and flush it to disk on checkpoints
+        ## Also, initialize h5 files (saving first checkpoint) or restore data and allow to save the whole DF at save_distribution times
+        TimerOutputs.@timeit_debug timer "DataSaver" datasaver = DataSaver(plasma, Nt, dt, data_path, checkpoint_percent, continue_from_backup, save_distribution_times)
+    end
     # Do the magic!
-    integrator(plasma, Nt, dt,
-               poisson, external_potential,
-               space_advection, velocity_advection,
-               velocity_filtering,
-               datasaver )
+    TimerOutputs.@timeit_debug timer "Main integrator" begin
+        integrator(plasma, Nt, dt,
+                   poisson, external_potential,
+                   space_advection, velocity_advection,
+                   velocity_filtering,
+                   datasaver )
+    end
 
     return nothing;
 end

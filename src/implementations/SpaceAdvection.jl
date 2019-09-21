@@ -6,15 +6,21 @@ function (space_advection::SpaceAdvection)(plasma::Plasma; advection_number::Int
 
     for s in 1:plasma.number_of_species
 
-        LinearAlgebra.mul!(space_advection.transformed_DF,
-                           space_advection.plan, plasma.species[s].distribution)
+        TimerOutputs.@timeit_debug timer "Fourier Transform" begin
+            LinearAlgebra.mul!(space_advection.transformed_DF,
+                               space_advection.plan, plasma.species[s].distribution)
+        end
 
         # Here happens the magic!
-        _space_advection!( space_advection.transformed_DF,
-                           space_advection.shift[advection_number][s] )
+        TimerOutputs.@timeit_debug timer "Apply propagator" begin
+            _space_advection!( space_advection.transformed_DF,
+                               space_advection.shift[advection_number][s] )
+        end
 
-        LinearAlgebra.ldiv!(plasma.species[s].distribution,
-                            space_advection.plan, space_advection.transformed_DF)
+        TimerOutputs.@timeit_debug timer "Inverse Fourier Transform" begin
+            LinearAlgebra.ldiv!(plasma.species[s].distribution,
+                                space_advection.plan, space_advection.transformed_DF)
+        end
     end
 
     return nothing;

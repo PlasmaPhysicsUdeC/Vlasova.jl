@@ -1,6 +1,14 @@
 module Vlasova
 
-import Statistics, LinearAlgebra, FFTW, HDF5, Dates, QuadGK, ProgressMeter, CurveFit
+import Statistics,
+    LinearAlgebra,
+    FFTW,
+    HDF5,
+    Dates,
+    QuadGK,
+    ProgressMeter,
+    CurveFit,
+    TimerOutputs
 
 # Structs
 export Box, VlasovaIntegrator, Specie, Plasma, get_zero
@@ -34,5 +42,8 @@ include("tools/fourier_tools.jl")
 include("tools/other_tools.jl")
 include("tools/distributions.jl")
 include("tools/defaults.jl")
+
+# Extras
+include("extras/debugging.jl")
 
 end
