@@ -97,71 +97,71 @@ ChinC = VlasovaIntegrator("ABACABA", [1/6,
                                       1/6],
                           gradient_coefficients = [ 1 / 48 ])
 
-let
-    λ = 1/(2 - 2^(1/3))
-    θ = λ / 2
+"""
+```julia
+VlasovaIntegrator("ABABABA", [ θ,
+                               λ,
+                               0.5 - θ,
+                               1 - 2λ,
+                               0.5 - θ,
+                               λ,
+                               θ])
+```
+where
 
-    """
-    ```julia
-    VlasovaIntegrator("ABABABA", [ θ,
-                                   λ,
-                                   0.5 - θ,
-                                   1 - 2λ,
-                                   0.5 - θ,
-                                   λ,
-                                   θ])
-    ```
-    where
-
-    ```julia
-    λ = 1/(2 - 2^(1/3))
-    θ = λ / 2
-    ```
-    """
-    global ABABABA = VlasovaIntegrator("ABABABA", [θ,
-                                                   λ,
-                                                   0.5 - θ,
-                                                   1 - 2λ,
-                                                   0.5 - θ,
-                                                   λ,
-                                                   θ ])
-end
+```julia
+λ = 1/(2 - 2^(1/3))
+θ = λ / 2
+```
+"""
+ABABABA = VlasovaIntegrator("ABABABA",
+                                   begin
+                                   λ = 1/(2 - 2^(1/3))
+                                   θ = λ / 2
+                                   [ θ,
+                                     λ,
+                                     0.5 - θ,
+                                     1 - 2λ,
+                                     0.5 - θ,
+                                     λ,
+                                     θ ]
+                                   end)
 
 
-let
-    ξ = 0.006938106540706989
-    λ = 0.2470939580390842
-    θ = 0.08935804763220157
+"""
+```julia
+VlasovaIntegrator("ABACABA", [ θ,
+                               λ,
+                               0.5 - θ,
+                               1 - 2λ,
+                               0.5 - θ,
+                               λ,
+                               θ ],
+                             gradient_coefficients = [ ξ ])
+```
 
-    """
-    ```julia
-    VlasovaIntegrator("ABACABA", [ θ,
-                                   λ,
-                                   0.5 - θ,
-                                   1 - 2λ,
-                                   0.5 - θ,
-                                   λ,
-                                   θ ],
-                                 gradient_coefficients = [ ξ ])
-    ```
-    where
+where
 
-    ```julia
-    ξ = 0.006938106540706989
-    λ = 0.2470939580390842
-    θ = 0.08935804763220157
-    ```
-    """
-    global ABACABA = VlasovaIntegrator("ABACABA", [ θ,
-                                                    λ,
-                                                    0.5 - θ,
-                                                    1 - 2λ,
-                                                    0.5 - θ,
-                                                    λ,
-                                                    θ ],
-                                                 gradient_coefficients = [ ξ ])
-    # TODO: Check gradient coef
-end
+```julia
+ξ = 0.006938106540706989
+λ = 0.2470939580390842
+θ = 0.08935804763220157
+```
+"""
+ABACABA = VlasovaIntegrator("ABACABA",
+                            begin
+                            ξ = 0.006938106540706989
+                            λ = 0.2470939580390842
+                            θ = 0.08935804763220157
+                            [ θ,
+                              λ,
+                              0.5 - θ,
+                              1 - 2*λ,
+                              0.5 - θ,
+                              λ,
+                              θ ]
+                            end,
+                            gradient_coefficients = [ ξ ])
 
 
 

@@ -9,7 +9,7 @@ Public = true
 ## Symplectic Integrators
 
 # TODO: Cite verlet integrators
-Vlasova implements a way to define arbitrary gradient and non-gradient symplectic integrators with the function [`VlasovaIntegrator`](@ref). However, a few integrators come defined by default. Those integrators are the following, and unless explicitly cited, they were taken from [`Omelyan (2003)`](https://www.sciencedirect.com/science/article/pii/S0010465502007543).
+Vlasova implements a way to define arbitrary gradient and non-gradient symplectic integrators with the function [`VlasovaIntegrator`](@ref). Nonetheless, a few integrators come defined by default, and those integrators are the following (unless explicitly cited, they were taken from [`Omelyan (2003)`](https://www.sciencedirect.com/science/article/pii/S0010465502007543) ).
 
 ```@autodocs
 Modules = [Vlasova]
@@ -32,3 +32,11 @@ Public = true
 ## Mathematical operations
 
 ## Other Tools
+# TODO: Separate the mathematical operator from here, and put them in their section
+
+```@autodocs
+Modules = [Vlasova]
+Pages = ["other_tools.jl"]
+Private = false
+Public = true
+```
