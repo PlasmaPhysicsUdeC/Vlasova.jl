@@ -333,13 +333,16 @@ function sim_from_file(parfile::String)
         @assert (@isdefined var) "The parameters file must define the $(String(var))."
     end
 
-    # Include parameters
-    include( parfile )
-    # Copy parameters to folder file if defined
-    mkpath( data_path )
-    !isempty( data_path ) ? cp( parfile, joinpath( data_path, parfile), force = true) : nothing
-    # Start integrator
-    integrate!(plasma, final_time, dt)
+    # Evaluate in the Main module
+    @eval Main begin
+        # Include parameters
+        include( $parfile )
+        # Copy parameters to folder file if defined
+        mkpath( Vlasova.data_path )
+        !isempty( Vlasova.data_path ) ? cp( $parfile, joinpath( Vlasova.data_path, $parfile), force = true) : nothing
+        # Start integrator
+        integrate!(plasma, final_time, dt)
+    end
 end
 
 
