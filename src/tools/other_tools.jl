@@ -9,7 +9,9 @@ export @vlasova,
     cosine_perturbation1d,
     sim_from_file,
     find_local_maxima,
-    find_exponential_growth
+    find_exponential_growth,
+    center,
+    center!
 
 """
 ```julia
@@ -259,7 +261,7 @@ and ``A_m`` is the corresponding amplitude.
   must match with the number of amplitudes.
 * The variable `modes` must be an `Integer`, a `Tuple` of `Integer`s or an `Array` of `Integer`s.
 * The variable `amplitudes` must be an `Real`, a `Tuple` of `Real`s or an `Array` of `Real`s.
-* In the case of using a 2-dimensional box, the keyword `dim` may be used to select which 
+* In the case of using a 2-dimensional box, the keyword `dim` may be used to select which
   dimension should be perturbed.
 
 # Examples
@@ -431,4 +433,56 @@ true
 function find_exponential_growth( x, y; interval = [-Inf, Inf] )
     idx = findall( interval[1] .<= x .<= interval[2] )
     return CurveFit.exp_fit(x[idx], y[idx])[2]
+end
+
+"""
+```julia
+center(A::Array{T} where T <: Number; setmean = 0.0, dims = nothing)
+```
+
+Return an array consisting of `A` shifted so its new mean is `setmean`.
+By default, the new mean value is `0.0` and the mean is taken along all dimensions
+of `A`.
+
+# Notes
+* The returned array will always be of type `Float64` or `Complex{Float64}`.
+* For an in-place version of this function, see [`center!`](@ref).
+"""
+function center(A::Array{T} where T <: Number; dims = nothing, setmean = 0.0)
+    if isnothing(dims)
+        M = Statistics.mean(A) - setmean
+    else
+        M = Statistics.mean(A, dims = dims) .- setmean
+    end
+
+    B = similar(A, promote_type( eltype(A), eltype(M) ) )
+
+    @. B = A - M
+
+    return B
+end
+
+"""
+```julia
+center!(A::Array{T} where T <: Union{Float64, Complex{Float64}}; dims = nothing, setmean = 0.0)
+```
+Shift the array `A` so that its new mean is `setmean`.
+By default, the new mean value is `0.0` and the mean is taken along all dimensions of `A`.
+
+# Notes
+* The mean will always be of type `Float64` or `Complex{Float64}`. If the type of the elements
+  of `A` is not one of either, the in-place operation will fail.
+* For the not-in-place version of this function, see [`center`](@ref).
+
+"""
+function center!(A::Array{T} where T <: Union{Float64, Complex{Float64}}; dims = nothing, setmean = 0.0)
+    if isnothing(dims)
+        M = Statistics.mean(A) - setmean
+    else
+        M = Statistics.mean(A, dims = dims) .- setmean
+    end
+
+    @. A = A - M
+
+    return nothing
 end
