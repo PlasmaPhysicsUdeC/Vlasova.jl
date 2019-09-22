@@ -1,4 +1,11 @@
-export verlet_position, verlet_velocity, mclachlan_velocity, BABAB, ChinA, ChinC, ABABABA, ABACABA
+export verlet_position,
+    verlet_velocity,
+    mclachlan_velocity,
+    BABAB,
+    ChinA,
+    ChinC,
+    ABABABA,
+    ABACABA
 
 """
 ```julia
