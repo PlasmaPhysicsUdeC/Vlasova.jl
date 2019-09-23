@@ -8,7 +8,7 @@ Public = true
 
 ## Symplectic Integrators
 
-Vlasova implements a way to define arbitrary gradient and non-gradient symplectic integrators with the function [`VlasovaIntegrator`](@ref). Nonetheless, a few integrators come defined by default, and those integrators are the following (unless explicitly cited, they were taken from [`Omelyan (2003)`](https://www.sciencedirect.com/science/article/pii/S0010465502007543) ).
+Vlasova implements a way to define arbitrary gradient and non-gradient symplectic integrators with the struct [`VlasovaIntegrator`](@ref). Nonetheless, a few integrators come defined by default, and those integrators are the following (unless explicitly cited, they were taken from [`Omelyan (2003)`](https://www.sciencedirect.com/science/article/pii/S0010465502007543) ).
 
 ```@autodocs
 Modules = [Vlasova]
