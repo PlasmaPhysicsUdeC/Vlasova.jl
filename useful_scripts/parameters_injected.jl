@@ -2,20 +2,39 @@ using Vlasova
 
 # BEHAVIOR
 @vlasova begin
-    data_path = "data/test_injection"
+    data_path = "data/valentini_2005_injected"
     NUM_THREADS = 2
-    integrator = verlet_velocity
+    integrator = mclachlan_velocity
     checkpoint_percent = 10
 end
 
-bcode = quote @eval using HDF5 end
-icode = quote end
-acode = quote println("All done!") end
+# Injected Code
+bcode = quote                   # Before loop
+    @eval using HDF5, Statistics
+    fid = h5open(datasaver.path*"/f_reduced.h5", "w")
+    fid["fx"] = Array{Float64}(undef, plasma.box.Nx..., Nt)
+    fid["fv"] = Array{Float64}(undef, plasma.box.Nv..., Nt)
+    fid["fx"][:, 1] = reducedims(mean, plasma.species[1].distribution, dims = 2)
+    fid["fv"][:, 1] = reducedims(mean, plasma.species[1].distribution, dims = 1)
+    close(fid)
+end
+
+icode = quote                   # Inside loop
+    fid = h5open(datasaver.path*"/f_reduced.h5", "r+")
+    fid["fx"][:, t] = reducedims(mean, plasma.species[1].distribution, dims = 2)
+    fid["fv"][:, t] = reducedims(mean, plasma.species[1].distribution, dims = 1)
+    close(fid)
+end
+
+acode = quote                   # After loop
+    println("All done!")
+end
 
 Vlasova.inject_to_integrator(before_loop = bcode,
                              inside_loop = icode,
                              after_loop = acode )
 
+# Debugging
 Vlasova.enable_debugging()
 
 # Final conditions
