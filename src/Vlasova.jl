@@ -37,10 +37,11 @@ include("implementations/integrate.jl")
 # Misc tools
 # Multiple exports here. They are specified in each file.
 include("tools/integrators.jl")
-include("tools/field_tools.jl")
-include("tools/fourier_tools.jl")
-include("tools/other_tools.jl")
 include("tools/distributions.jl")
+include("tools/fourier_tools.jl")
+include("tools/result_analysis.jl")
+include("tools/convenience_tools.jl")
+include("tools/other_tools.jl")
 include("tools/defaults.jl")
 
 # Extras
