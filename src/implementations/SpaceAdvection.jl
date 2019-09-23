@@ -17,7 +17,7 @@ function (space_advection::SpaceAdvection)(plasma::Plasma; advection_number::Int
                                space_advection.shift[advection_number][s] )
         end
 
-        TimerOutputs.@timeit_debug timer "Inverse Fourier Transform" begin
+        TimerOutputs.@timeit_debug timer "inverse Fourier transform" begin
             LinearAlgebra.ldiv!(plasma.species[s].distribution,
                                 space_advection.plan, space_advection.transformed_DF)
         end
