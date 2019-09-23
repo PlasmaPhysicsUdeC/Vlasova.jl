@@ -1,6 +1,7 @@
 ## Installation
 
-Currently, the [`official repository`](https://gitlab.com/jgidi/Vlasova.jl) is private. If you want to install this package, you need a gitlab account (you can connect to gitlab using a github account too) and send an email to `jorgegidi@udec.cl` asking for permission to access the repository.
+Currently, the [`official repository`](https://gitlab.com/jgidi/Vlasova.jl) is private.
+If you want to install this package, you need a gitlab account (you can connect to gitlab using a github account, too) and permission to access the repository (which you can get by asking to the mail `jorgegidi@udec.cl`).
 
 
 When you have access to read the repository, you can install Vlasova to julia by typing on the REPL:

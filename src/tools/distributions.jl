@@ -119,10 +119,12 @@ end
 maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64})
 ```
 
-Generate a 1-dimensional superposition of Maxwellian distributions, where
-`vt` is the array of thermal velocities, `vd` is the array of drift velocities,
-and `n` is the array of densities of each Maxwellian.
+Generate a 1-dimensional superposition of Maxwellian distributions with velocity `v`.
 
+# Notes
+* `vt` is the array of thermal velocities of each Maxwellian.
+* `vd` is the array of drift velocities of each Maxwellian.
+* `n` is the array of densities of each Maxwellian.
 """
 function maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64})
 
@@ -145,8 +147,13 @@ end
 maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1)
 ```
 
-Extension of `maxwellian_superposition1d` that allows to pass a `Box` element and its dimension, `dim`, along
-which it is desired to generate the superposition of Maxwellian distributions.
+Generate a 1-dimensional superposition of Maxwellian distributions with the velocity defined in a [`Box`](@ref),
+along the dimension `dim`.
+
+# Notes
+* `vt` is the array of thermal velocities of each Maxwellian.
+* `vd` is the array of drift velocities of each Maxwellian.
+* `n` is the array of densities of each Maxwellian.
 """
 function maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1)
     return maxwellian_superposition1d(box.v[dim], vt = vt, vd = vd, n = n)

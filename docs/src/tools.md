@@ -8,7 +8,6 @@ Public = true
 
 ## Symplectic Integrators
 
-# TODO: Cite verlet integrators
 Vlasova implements a way to define arbitrary gradient and non-gradient symplectic integrators with the function [`VlasovaIntegrator`](@ref). Nonetheless, a few integrators come defined by default, and those integrators are the following (unless explicitly cited, they were taken from [`Omelyan (2003)`](https://www.sciencedirect.com/science/article/pii/S0010465502007543) ).
 
 ```@autodocs
@@ -26,13 +25,32 @@ Private = false
 Public = true
 ```
 
-## Field Analysis
-<!-- Add simulation/post-simulation tools-->
+## Result analysis
+Since the electrostatic regime is assumed, it is generally easier to work with the charge density, instead of the electric field. For this reason Vlasova saves the charge density of the simulations, and consequently, all the tools to analyze the fields take the charge density as input.
 
-## Mathematical operations
+```@autodocs
+Modules = [Vlasova]
+Pages = ["result_analysis.jl"]
+Private = false
+Public = true
+```
+
+## Convenience and mathematical tools
+```@autodocs
+Modules = [Vlasova]
+Pages = ["convenience_tools.jl"]
+Private = false
+Public = true
+```
+
+```@autodocs
+Modules = [Vlasova]
+Pages = ["fourier_tools.jl"]
+Private = false
+Public = true
+```
 
 ## Other Tools
-# TODO: Separate the mathematical operator from here, and put them in their section
 
 ```@autodocs
 Modules = [Vlasova]

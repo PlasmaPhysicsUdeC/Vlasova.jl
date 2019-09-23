@@ -4,7 +4,7 @@
 
 One simple example of a simulation would be
 
-```
+```julia
 using Vlasova
 
 #=    Define parameters	=#

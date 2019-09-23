@@ -9,7 +9,7 @@ Public = true
 ## Injecting code to the integrator
 ```@autodocs
 Modules = [Vlasova]
-Pages = ["VlasvaIntegrator.jl"]
+Pages = ["VlasovaIntegrator.jl"]
 Private = true
 Public = true
 ```

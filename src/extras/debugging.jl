@@ -6,7 +6,7 @@ enable_debugging()
 Enable debugging for the Vlasova module.
 
 # Effects
-* `TimerOutputs`:
+* `TimerOutputs` (Package [`TimerOutputs.jl`](https://github.com/KristofferC/TimerOutputs.jl)):
   * Set a global `TimerOutput` called `timer` (unexported).
     Displaying it on the REPL (i.e. writing `Vlasova.timer`) will show the measured values.
   * Enable all the `@timeit_debug` annotations. This involves code recompilation, so it could take a while.

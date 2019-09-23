@@ -14,8 +14,8 @@ makedocs(format = format,
              "Basic concepts" => "basic_concepts.md",
              "Default Behavior" => "default_behavior.md",
              "Tools" => "tools.md",
-             "Advanced Usage" => "advanced_usage.md",
              "Examples" => "examples.md",
+             "Advanced Usage" => "advanced_usage.md",
              "Not Exported" => "not_exported.md"
          ]
          )

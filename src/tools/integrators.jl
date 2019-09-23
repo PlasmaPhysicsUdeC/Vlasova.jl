@@ -72,7 +72,7 @@ VlasovaIntegrator("BACAB", [ 1/6,
                           gradient_coefficients = [ 1/48 ] )
 ```
 
-Developed by [`Chin (1997)`](https://www.sciencedirect.com/science/article/abs/pii/S03759601970000308).
+Developed by [`Chin (1997)`](https://www.sciencedirect.com/science/article/abs/pii/S0375960197000030).
 """
 ChinA = VlasovaIntegrator("BACAB", [1/6,
                                     1/2,

@@ -375,7 +375,7 @@ julia> maxima = find_local_maxima( y, discard_borders = true);
 
 julia> 1 in maxima # Is 1 on the maxima?
 false
-
+```
 """
 function find_local_maxima(a::AbstractArray{T, 1} where T <: Real; discard_borders = false  )
     sa = size(a, 1)
