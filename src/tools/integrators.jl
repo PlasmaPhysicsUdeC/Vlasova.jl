@@ -2,8 +2,8 @@ export verlet_position,
     verlet_velocity,
     mclachlan_velocity,
     BABAB,
-    ChinA,
-    ChinC,
+    chin_A,
+    chin_C,
     ABABABA,
     ABACABA
 
@@ -74,12 +74,12 @@ VlasovaIntegrator("BACAB", [ 1/6,
 
 Developed by [`Chin (1997)`](https://www.sciencedirect.com/science/article/abs/pii/S0375960197000030).
 """
-ChinA = VlasovaIntegrator("BACAB", [1/6,
-                                    1/2,
-                                    2/3,
-                                    1/2,
-                                    1/6],
-                          gradient_coefficients = [ 1/48 ] )
+chin_A = VlasovaIntegrator("BACAB", [1/6,
+                                     1/2,
+                                     2/3,
+                                     1/2,
+                                     1/6],
+                           gradient_coefficients = [ 1/48 ] )
 
 """
 ```julia
@@ -95,14 +95,14 @@ VlasovaIntegrator("ABACABA", [ 1/6,
 
 Developed by [`Chin (1997)`](https://www.sciencedirect.com/science/article/abs/pii/S03759601970000308).
 """
-ChinC = VlasovaIntegrator("ABACABA", [1/6,
-                                      3/8,
-                                      1/3,
-                                      1/4,
-                                      1/3,
-                                      3/8,
-                                      1/6],
-                          gradient_coefficients = [ 1 / 48 ])
+chin_C = VlasovaIntegrator("ABACABA", [1/6,
+                                       3/8,
+                                       1/3,
+                                       1/4,
+                                       1/3,
+                                       3/8,
+                                       1/6],
+                           gradient_coefficients = [ 1 / 48 ])
 
 """
 ```julia
@@ -150,16 +150,16 @@ VlasovaIntegrator("ABACABA", [ θ,
 where
 
 ```julia
-ξ = 0.006938106540706989
 λ = 0.2470939580390842
 θ = 0.08935804763220157
+ξ = 0.006938106540706989
 ```
 """
 ABACABA = VlasovaIntegrator("ABACABA",
                             begin
-                            ξ = 0.006938106540706989
                             λ = 0.2470939580390842
                             θ = 0.08935804763220157
+                            ξ = 0.006938106540706989
                             [ θ,
                               λ,
                               0.5 - θ,
