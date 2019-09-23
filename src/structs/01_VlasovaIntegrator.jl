@@ -16,7 +16,7 @@ The convention used by this struct is the following:
    * `'B'`: Corresponds to a velocity advection.
    * `'C'`: Corresponds to a velocity advection with gradient correction.
 
-* `coefficients`: Is an array of `Float64`s, where the \$ n\$-th element of the array is the
+* `coefficients`: Is an array of `Float64`s, where the \$n\$-th element of the array is the
    advection coefficient of the \$n\$-th advection in `sequence`.
 
 If the integrator has gradient force corrections, the keyword argument `gradient_coefficients` must be provided,
@@ -24,7 +24,7 @@ being an array where the \$n\$-th element is the coefficient of the force correc
 
 # Examples
 
-The velocity form of the Verlet integrator [1], where the integration is split in
+The [`velocity Verlet`](https://aip.scitation.org/doi/10.1063/1.442716) integrator, where the integration is split in
 * a velocity advection for half a time step,
 * a space advection for a whole time step, and
 * a velocity advection for another half of a time step,
@@ -34,15 +34,18 @@ is defined as
 verlet_velocity = VlasovaIntegrator("BAB", [0.5, 1.0, 0.5] )
 ```
 
-In a similar manner, the fourth order integrator Chin A [2], is defined as
+In a similar manner, the fourth order integrator [`Chin A`](https://www.sciencedirect.com/science/article/pii/S0375960197000030),
+which has 2 space advections and 3 velocity advections, where the central velocity advection is corrected with a gradient term
+as
+
+`` v_2 = v_1 + \\frac{2}{3} dt ( f_1 + \\frac{1}{48} dt^2 \\nabla |f_1|^2 ), ``
+
+is defined as
+
 ```julia
 chin_A = Vlasovaintegrator("BACAB", [ 1/6, 3/8, 1/3, 1/4, 1/3, 3/8, 1/6 ],
                             gradient_coefficients = [ 1/48 ] )
 ```
-
-# References
-[1]: https://aip.scitation.org/doi/10.1063/1.442716
-[2]: https://www.sciencedirect.com/science/article/pii/S0375960197000030
 """
 struct VlasovaIntegrator
     sequence::String

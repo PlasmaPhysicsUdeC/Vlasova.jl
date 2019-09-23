@@ -16,7 +16,7 @@ In Vlasova, a plasma is an element of type `Plasma`, which itself relies on two 
   Contains all the information regarding the space/velocity extention of the plasma, the number of nodes, etc.
 
 * [`Specie`](@ref):
-  Represents a charged species in the plasma. Each species must have a `name`, `charge`, `mass`, `temperature`, and `distribution`, and a plasma may be formed by many species.
+  Represents one charged species in the plasma. Each species must have a `name`, `charge`, `mass`, `temperature`, and `distribution`.
 
 
 ## Defining the phase space
@@ -25,10 +25,10 @@ First, it is necessary to provide the phase space. For example, in the 1-dimensi
 
 ```julia
 box = Box(Nx = 512,
-	      Nv = 2048,
-		  Lx = 5pi,
-		  vmin = -6,
-		  vmax = 6)
+          Nv = 2048,
+          Lx = 5pi,
+          vmin = -6,
+          vmax = 6)
 ```
 
 Where `Nx` and `Nv` are the number of space and velocity nodes, `Lx` is the space extension of the plasma, and `vmin` and `vmax` are the minimum and maximum velocities, normalized to the thermal velocity of each specie, respectively.
@@ -40,12 +40,12 @@ Having the space for the plasma defined, the next step is to define the species 
 
 ```julia
 electrons = Specie(name = "electrons",
-	               charge = -1.0,
-				   mass = 1.0,
-				   temperature = 1.0,
-				   distribution = ones(box.Nx) ⊗ maxwellian1d(box) )
+                   charge = -1.0,
+                   mass = 1.0,
+                   temperature = 1.0,
+                   distribution = ones(box.Nx) ⊗ maxwellian1d(box) )
 ```
-where [`maxwellian1d`](@ref) is one of the distributions provided by this same package.
+where [`maxwellian1d`](@ref) is one of the [distributions provided](@ref Distributions) by this same package.
 
 ## Making up the plasma
 
@@ -53,7 +53,7 @@ Finally, the plasma is constructed using the information about the space and the
 
 ```julia
 plasma = Plasma(species = [ electrons ],
-	            box = box)
+                box = box)
 ```
 
 Some important points to keep in mind are:
@@ -65,7 +65,7 @@ Some important points to keep in mind are:
 As stated earlier, the plasma may be evolved in time just by typing
 
 ```julia
-integrate!(plasma, final_time, dt),
+integrate!(plasma, final_time, dt)
 ```
 
 which will evolve `plasma` until time `final_time` using steps `dt`.
