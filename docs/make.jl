@@ -14,7 +14,7 @@ makedocs(format = format,
              "Basic concepts" => "basic_concepts.md",
              "Default Behavior" => "default_behavior.md",
              "Tools" => "tools.md",
-             "Hacking Vlasova" => "hacking_vlasova.md",
+             "Advanced Usage" => "advanced_usage.md",
              "Examples" => "examples.md",
              "Not Exported" => "not_exported.md"
          ]
