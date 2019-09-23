@@ -1,6 +1,5 @@
 export wavevector,
-    rfft_wavevector,
-    get_rfft_dims
+    rfft_wavevector
 
 """
 ```julia
@@ -59,80 +58,6 @@ function anisotropic_filter(box::Box)
     return filter
 end
 
-# ===== Exported functions start here =====
-
-"""
-```julia
-wavevector(vector::Array{Float64, 1})
-```
-
-Obtain the Fourier-conjugate of a 1-dimensional array.
-
-# Examples
-
-```julia
-julia> time_axis = collect( 0:dt:final_time );
-
-julia> frequency = wavevector( time_axis );
-
-```
-"""
-function wavevector(vector::Array{Float64, 1})
-    N = size(vector, 1)
-    length = (vector[2] - vector[1] )*N;
-    wavevector = Array(1:N) .- (N/2 +1);
-
-    return FFTW.fftshift( wavevector ) * 2pi/length;
-end
-
-
-"""
-```julia
-rfft_wavevector(vector::Array{Float64, 1})
-```
-
-Obtain the rfft-Fourier-conjugate of a 1-dimensional array.
-
-# Examples
-
-```julia
-julia> kx = rfft_wavevector( box.x[1] );
-```
-"""
-function rfft_wavevector(vector::Array{Float64, 1})
-    N = size(vector, 1)
-    length = (vector[2] - vector[1] )*N
-
-    return Array( 0:div(N,2) ) * 2pi/length;
-end
-
-"""
-```julia
-rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
-```
-
-Obtain the Fourier-conjugate of the space or velocity variables
-using the usual conventions of Vlasova.
-
-# Examples
-
-```julia
-julia> k = rfft_wavevector( box.x );
-
-```
-"""
-function rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
-    number_of_dims = length(vector)
-
-    k = Array{Array{Float64, 1}}( undef, number_of_dims )
-    k[1] = rfft_wavevector( vector[1] )
-    for d in 2:number_of_dims
-        k[d] = wavevector( vector[d] )
-    end
-
-    return k
-end
-
 """
 ```julia
 get_rfft_dims(A::Array{Float64}; transformed_dims)
@@ -175,8 +100,7 @@ end
 ```julia
 get_rfft_dims(box::Box)
 ```
-Obtain the `size` and `CartesianIndices` of the whole Fourier space of a [`Box`](@ref),
-including the space and velocity dimensions.
+Obtain the `size` and `CartesianIndices` of the whole Fourier space of a [`Box`](@ref), including the space and velocity dimensions.
 """
 function get_rfft_dims(box::Box)
 
@@ -184,4 +108,78 @@ function get_rfft_dims(box::Box)
     fourier_axis = CartesianIndices( N2p1 )
 
     return N2p1, fourier_axis
+end
+
+# ===== Exported functions start here =====
+
+"""
+```julia
+wavevector(vector::Array{Float64, 1})
+```
+
+Obtain the Fourier-conjugate of a 1-dimensional linear array.
+
+# Examples
+
+```julia
+julia> time_axis = collect( 0:dt:final_time );
+
+julia> frequency = wavevector( time_axis );
+
+```
+"""
+function wavevector(vector::Array{Float64, 1})
+    N = size(vector, 1)
+    length = (vector[2] - vector[1] )*N;
+    wavevector = Array(1:N) .- (N/2 +1);
+
+    return FFTW.fftshift( wavevector ) * 2pi/length;
+end
+
+
+"""
+```julia
+rfft_wavevector(vector::Array{Float64, 1})
+```
+
+Obtain the rfft-Fourier-conjugate of a 1-dimensional linear array.
+
+# Examples
+
+```julia
+julia> kx = rfft_wavevector( box.x[1] );
+```
+"""
+function rfft_wavevector(vector::Array{Float64, 1})
+    N = size(vector, 1)
+    length = (vector[2] - vector[1] )*N
+
+    return Array( 0:div(N,2) ) * 2pi/length;
+end
+
+"""
+```julia
+rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
+```
+
+Obtain the Fourier-conjugate of the space or velocity variables
+using the usual conventions of Vlasova.
+
+# Examples
+
+```julia
+julia> k = rfft_wavevector( box.x );
+
+```
+"""
+function rfft_wavevector(vector::Array{Array{Float64, 1}, 1} )
+    number_of_dims = length(vector)
+
+    k = Array{Array{Float64, 1}}( undef, number_of_dims )
+    k[1] = rfft_wavevector( vector[1] )
+    for d in 2:number_of_dims
+        k[d] = wavevector( vector[d] )
+    end
+
+    return k
 end
