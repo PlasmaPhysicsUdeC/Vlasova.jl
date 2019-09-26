@@ -239,17 +239,19 @@ end
 
 """
 ```julia
-find_local_maxima(a::AbstractArray{T, 1} where T <: Real; discard_borders = false )
+find_local_maxima(a::AbstractArray{T, 1} where T <: Real;
+                  discard_borders::Bool = true,
+                  min_dist::Real = 0.0)
 ```
 
 Find the indices of all the local maxima of a real-valued one-dimensional `Array`.
 
 # Notes
-* If `discard_borders = true`, the values `a[1]` and `a[end]` are not tested to be local maxima.
+* If `discard_borders`, the values `a[1]` and `a[end]` are not tested to be local maxima.
   This option is useful when the local maxima are wanted to fit the data.
+* `min_dist` is the minimum distance needed between a point and the neighbors for it to be considered a local maximum.
 
 # Examples
-
 ```jldoctest; setup = :(using Vlasova)
 julia> x = range(0.0, stop = 15pi, step = 0.1);
 
@@ -257,16 +259,18 @@ julia> y = cos.(x); # Has a maximum on the first index.
 
 julia> maxima = find_local_maxima( y );
 
-julia> 1 in maxima  # Is 1 on the maxima?
-true
-
-julia> maxima = find_local_maxima( y, discard_borders = true);
-
 julia> 1 in maxima # Is 1 on the maxima?
 false
+
+julia> maxima = find_local_maxima( y, discard_borders = false );
+
+julia> 1 in maxima  # Is 1 on the maxima?
+true
 ```
 """
-function find_local_maxima(a::AbstractArray{T, 1} where T <: Real; discard_borders = false  )
+function find_local_maxima(a::AbstractArray{T, 1} where T <: Real;
+                           discard_borders::Bool = true,
+                           min_dist::Real = 0.0)
     sa = size(a, 1)
     maxinds = Int64[]
     if sa <= 1
@@ -274,19 +278,145 @@ function find_local_maxima(a::AbstractArray{T, 1} where T <: Real; discard_borde
     else
         # Middle indices
         for i in 2:(sa-1)
-            a[i-1] < a[i] > a[i+1] ? push!(maxinds, i) : nothing
+            a[i-1] < a[i] - min_dist > a[i+1] ? push!(maxinds, i) : nothing
         end
 
         if !discard_borders
             # First index
-            a[1] > a[2] ? pushfirst!(maxinds, 1) : nothing
+            a[1] - min_dist > a[2] ? pushfirst!(maxinds, 1) : nothing
             # End index
-            a[end] > a[end-1] ? push!(maxinds, sa) : nothing
+            a[end] - min_dist > a[end-1] ? push!(maxinds, sa) : nothing
         end
     end
 
     return maxinds
 end
+
+"""
+```julia
+find_local_maxima(a::AbstractArray{T, 2} where T <: Real;
+                  discard_borders::Bool = true,
+                  min_dist::Real = 0.0)
+```
+
+Find the indices of all the local maxima of a real-valued two-dimensional `Array`.
+
+# Notes
+* If `discard_borders`, the values in the borders of `a` are not tested to be local maxima.
+* `min_dist` is the minimum distance needed between a point and the neighbors for it to be considered a local maximum.
+
+# Examples
+```jldoctest; setup = :(using Vlasova)
+julia> x = range(0, stop = 2pi, length = 101);
+
+julia> y = range(-pi, stop = pi, length = 101);
+
+julia> a = @. cos(x) + cos(y');
+
+julia> xmax, ymax = find_local_maxima( a ); # x and y indices of the maxima
+
+julia> xmax # The maxima is on the borders
+0-element Array{Any,1}
+
+julia> xmax, ymax = find_local_maxima( a, discard_borders = false);
+
+julia> xmax # There 2 maxima are found now
+2-element Array{Int64,1}:
+   1
+ 101
+
+```
+"""
+function find_local_maxima(a::AbstractArray{T, 2} where T <: Real;
+                           discard_borders::Bool = true,
+                           min_dist::Real = 0.0)
+    sx = size(a, 1)
+    sy = size(a, 2)
+    xinds = Int64[]
+    yinds = Int64[]
+    nbpos = ( (-1, -1), (0, -1), (1, -1),
+              (-1,  0),          (1,  0),
+              (-1,  1), (0,  1), (1,  1) ) # Relative position of the neighbors
+
+    if sx < 2     # First dimension is a singleton
+        xinds = find_local_maxima( dropdims(a, dims = 1),
+                                   discard_borders = discard_borders,
+                                   min_dist = min_dist)
+        yinds = repeat([1], length(xinds))
+    elseif sy < 2 # Second dimension is a singleton
+        yinds = find_local_maxima( dropdims(a, dims = 2),
+                                   discard_borders = discard_borders,
+                                   min_dist = min_dist)
+        xinds = repeat([1], length(yinds))
+    else          # No singleton dimensions
+        # Middle indices
+        for j in 2:(sy-1), i in 2:(sx-1)
+            ismax = true
+            for (ii, jj) in nbpos
+                # When a neighbor is bigger, stop checking
+                if a[i + ii, j + jj] > a[i, j] - min_dist
+                    ismax = false
+                    break
+                end
+            end
+            if ismax
+                push!(xinds, i)
+                push!(yinds, j)
+            end
+        end
+        if !discard_borders
+            # y borders
+            for j in (1, sy), i in 2:(sx-1)
+                ismax = true
+                for ii in (-1, 0, 1)
+                    # When a neighbor is bigger, stop checking
+                    if a[i + ii, j] > a[i, j] - min_dist
+                        ismax = false
+                        break
+                    end
+                end
+                if ismax
+                    push!(xinds, i)
+                    push!(yinds, j)
+                end
+            end
+            # x borders
+            for i in (1, sx), j in 2:(sy-1)
+                ismax = true
+                for jj in (-1, 0, 1)
+                    # When a neighbor is bigger, stop checking
+                    if a[i, j + jj] > a[i, j] - min_dist
+                        ismax = false
+                        break
+                    end
+                end
+                if ismax
+                    push!(xinds, i)
+                    push!(yinds, j)
+                end
+            end
+            # both are borders
+            if all( (a[1, 1] - min_dist)  .> [ a[1, 2], a[2, 1], a[2, 2] ])
+                push!(xinds, 1)
+                push!(yinds, 1)
+            end
+            if all((a[1, sy] - min_dist) .> [ a[1, sy-1], a[2, sy], a[2, sy-1] ])
+                push!(xinds, 1)
+                push!(yinds, sy)
+            end
+            if all((a[sx, 1] - min_dist) .> [ a[sx, 2], a[sx-1, 1], a[sx-1, 2] ])
+                push!(xinds, sx)
+                push!(yinds, 1)
+            end
+            if all((a[sx, sy] - min_dist) .> [ a[sx, sy-1], a[sx-1, sy], a[sx-1, sy-1] ])
+                push!(xinds, sx)
+                push!(yinds, sy)
+            end
+        end
+    end
+    return xinds, yinds
+end
+
 
 
 """
@@ -323,7 +453,6 @@ function find_exponential_growth( x, y; interval = [-Inf, Inf] )
     idx = findall( interval[1] .<= x .<= interval[2] )
     return CurveFit.exp_fit(x[idx], y[idx])[2]
 end
-
 
 # function get_electric_field(;
 #                             box::Box, potential::Array{Float64})
