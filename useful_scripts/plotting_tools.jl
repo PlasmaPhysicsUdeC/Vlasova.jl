@@ -8,9 +8,9 @@ using Plots
 """
 function marginalplot(x, y, a; seriestype = :heatmap, marginalcolor = :black, dpi = 300, kwargs...)
 
-    # reduce along both dimensions
-    ax = dropdims(sum(a, dims = 2), dims = 2)
-    ay = dropdims(sum(a, dims = 1), dims = 1)
+    # reduce along both dimensions ( a is transposed )
+    ax = dropdims(sum(a, dims = 1), dims = 1)
+    ay = dropdims(sum(a, dims = 2), dims = 2)
 
     # upper plot
     u = plot(x, ax,
@@ -29,7 +29,7 @@ function marginalplot(x, y, a; seriestype = :heatmap, marginalcolor = :black, dp
              ticks = nothing)
 
     # center plot
-    c = plot(x, y, a';
+    c = plot(x, y, a;
              seriestype = seriestype,
              colorbar = false,
              kwargs...)
