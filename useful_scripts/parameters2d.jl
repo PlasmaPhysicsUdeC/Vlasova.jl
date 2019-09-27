@@ -7,12 +7,37 @@ final_time = 500
 
 # BEHAVIOR
 @vlasova begin
-    data_path = "data/BGK_from_bigger_beam"
+    data_path = "data/BGK_from_bigger_beam_fred"
     NUM_THREADS = 4
-    save_distribution_times = 0:50:500 |> collect
     integrator = verlet_velocity
     checkpoint_percent = 1
 end
+
+# Inject code: Save reduced distribution function
+bcode = quote
+    @eval using HDF5, Statistics
+    fid = h5open(datasaver.path*"/f_reduced.h5", "w")
+
+    fid["fxy"] = Array{Float64}(undef, plasma.box.Nx..., Nt)
+    fid["fxv"] = Array{Float64}(undef, plasma.box.Nx[1], plasma.box.Nv[1], Nt)
+    fid["fyv"] = Array{Float64}(undef, plasma.box.Nx[2], plasma.box.Nv[2], Nt)
+    fid["fvv"] = Array{Float64}(undef, plasma.box.Nv..., Nt)
+
+    close( fid )
+end
+
+icode = quote
+    fid = h5open(datasaver.path*"/f_reduced.h5", "r+")
+    fid["fxy"][:, :, t] = reducedims(mean, plasma.species[1].distribution, dims = (3, 4))
+    fid["fxv"][:, :, t] = reducedims(mean, plasma.species[1].distribution, dims = (2, 4))
+    fid["fyv"][:, :, t] = reducedims(mean, plasma.species[1].distribution, dims = (1, 3))
+    fid["fvv"][:, :, t] = reducedims(mean, plasma.species[1].distribution, dims = (1, 2))
+    close(fid)
+end
+
+Vlasova.inject_to_integrator(before_loop = bcode,
+                             inside_loop = icode,
+                             after_loop = quote end)
 
 # Space nodes
 box = Box( Nx = (128, 128),
@@ -25,7 +50,7 @@ box = Box( Nx = (128, 128),
 # Species declaration
 
 let
-    fvx = bump_on_tail1d(box.v[1], vtb = 0.5, vdb = 4.5, nc = 0.8, nb = 0.2)
+    fvx = maxwellian_superposition1d(box.v[1], vt = [1.0, 0.5], vd = [0.0, 4.5], n = [0.8, 0.2] )
     fvy = maxwellian1d( box.v[2] )
     pertx = 1e-15 * rand(box.Nx[1]) # noise
     perty = 1e-15 * rand(box.Nx[2]) # noise
