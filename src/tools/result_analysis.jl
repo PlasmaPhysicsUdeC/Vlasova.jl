@@ -2,6 +2,7 @@ export get_kinetic_energy,
     get_density,
     get_density!,
     get_electric_field,
+    get_electrostatic_potential,
     get_electrostatic_energy,
     get_power_per_mode,
     get_dispersion_relation,
@@ -158,6 +159,18 @@ function get_electric_field(box::Box, chargedensity::Array{Float64})
 
     return efield
 end
+
+# TODO: Make docs
+function get_electrostatic_potential(box::Box, chargedensity::Array{Float64})
+
+    k2 = get_k2( box ); k2[1] = Inf  # So that the inverse yields 0.0
+    rhok = FFTW.rfft(chargedensity, box.space_dims) .* 4pi ./ k2
+
+    phi = FFTW.irfft(rhok, box.Nx[1], box.space_dims)
+
+    return phi
+end
+
 
 """
 ```julia
