@@ -4,7 +4,7 @@ using Plots
 """
 # Notes
 * Remember to transpose your input! (or use `transpose = true`).
-* The desired output is only produced using the GR backend.
+* The function has only been tested using the GR backend.
 """
 function marginalplot(x, y, a; seriestype = :heatmap, marginalcolor = :black, dpi = 300, kwargs...)
 
@@ -12,9 +12,19 @@ function marginalplot(x, y, a; seriestype = :heatmap, marginalcolor = :black, dp
     ax = dropdims(sum(a, dims = 1), dims = 1)
     ay = dropdims(sum(a, dims = 2), dims = 2)
 
+    uxlim = (x[1], x[end])
+    uylim = let min = minimum(ax), max = maximum(ax)
+        isapprox(min, max) ? (min - 1e-3, max + 1e-3) : (min, max)
+    end
+    rxlim = let min = minimum(ay), max = maximum(ay)
+        isapprox(min, max) ? (min - 1e-3, max + 1e-3) : (min, max)
+    end
+    rylim = (y[1], y[end])
+
     # upper plot
     u = plot(x, ax,
-             xlim = (x[1], x[end]),
+             xlim = uxlim,
+             ylim = (minimum(ax), maximum(ax)),
              color = marginalcolor,
              legend = :false,
              showaxis = false,
@@ -22,7 +32,8 @@ function marginalplot(x, y, a; seriestype = :heatmap, marginalcolor = :black, dp
 
     # right plot
     r = plot(ay, y,
-             ylim = (y[1], y[end]),
+             xlim = (minimum(ay), maximum(ay)),
+             ylim = rylim,
              color = marginalcolor,
              legend = :false,
              showaxis = false,
@@ -36,6 +47,7 @@ function marginalplot(x, y, a; seriestype = :heatmap, marginalcolor = :black, dp
 
     return plot(u, c, r, r,
                 dpi = dpi,
+                margins = -5Plots.PlotMeasures.mm ,
                 layout = @layout [ a{0.1h, 0.9w}  _ ; b{0.9w, 0.9h} c{0.1w} ]
                 )
 end

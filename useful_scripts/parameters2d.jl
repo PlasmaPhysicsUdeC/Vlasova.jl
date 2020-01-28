@@ -7,7 +7,7 @@ final_time = 500
 
 # BEHAVIOR
 @vlasova begin
-    data_path = "data/BGK_from_bigger_beam_fred"
+    data_path = "data/2d_BGK_from_pert"
     NUM_THREADS = 4
     integrator = verlet_velocity
     checkpoint_percent = 1
@@ -50,9 +50,9 @@ box = Box( Nx = (128, 128),
 # Species declaration
 
 let
-    fvx = maxwellian_superposition1d(box.v[1], vt = [1.0, 0.5], vd = [0.0, 4.5], n = [0.8, 0.2] )
+    fvx = maxwellian1d( box.v[1] )
     fvy = maxwellian1d( box.v[2] )
-    pertx = 1e-15 * rand(box.Nx[1]) # noise
+    pertx = cosine_perturbation1d(box, modes = 1, amplitudes = 5e-2)
     perty = 1e-15 * rand(box.Nx[2]) # noise
     pertx .-= mean(pertx)
     perty .-= mean(perty)
