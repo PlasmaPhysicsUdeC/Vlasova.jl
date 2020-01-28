@@ -15,7 +15,7 @@ simulation_path = "data/"*ARGS[1]
 
 # Detect if file is already completed
 file = HDF5.h5open(simulation_path*"/shared_data.h5", "r")
-iscomplete = HDF5.exists(HDF5.attrs(file), "status")
+iscomplete = HDF5.exists(HDF5.attrs(file), "Completed")
 HDF5.close(file)
 
 @assert !iscomplete "This simulation has already ended successfully"

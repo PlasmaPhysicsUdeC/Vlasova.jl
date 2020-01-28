@@ -49,7 +49,8 @@ function save_to_disk(d::DataSaver, p::Plasma, t::Integer)
     # At the last iteration, specify that the files are complete
     if t == d.checkpoint_axis[end]
         fid = HDF5.h5open(joinpath(d.path, "shared_data.h5"), "r+")
-        HDF5.attrs(fid)["status"] = "Complete"
+        # TODO: There is a Bug by now on HDF5 when saving strings: https://github.com/JuliaLang/julia/issues/32752
+        HDF5.attrs(fid)["Completed"] = true#"Complete"
         HDF5.close(fid)
     end
 
