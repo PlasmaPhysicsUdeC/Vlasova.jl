@@ -8,7 +8,8 @@ import Statistics,
     QuadGK,
     ProgressMeter,
     CurveFit,
-    TimerOutputs
+    TimerOutputs,
+    Strided
 
 # Structs
 export Box, VlasovaIntegrator, Specie, Plasma, get_zero

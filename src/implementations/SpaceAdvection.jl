@@ -29,7 +29,12 @@ end
 
 @inline function _space_advection!(transformed_DF, shift)
 
-    @. transformed_DF *= shift
+    # TODO: Threaded loop
+    @simd for i in CartesianIndices(shift)
+        @inbounds transformed_DF[i] *= shift[i]
+    end
+
+    #Strided.@strided transformed_DF .*= shift
 
     return nothing;
 end
