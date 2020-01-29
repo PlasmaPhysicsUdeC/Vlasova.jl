@@ -1,6 +1,6 @@
 # Based on https://gitlab.com/tkpapp/GitlabJuliaDemo.jl/blob/master/.gitlab-ci.yml (Thanks!)
 
-image: julia:1.1                # image comes from Docker hub
+image: julia:1.3                # image comes from Docker hub
 
 
 before_script:
