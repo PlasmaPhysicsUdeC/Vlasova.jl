@@ -33,6 +33,8 @@ box = Box(Nx = 512,
 
 Where `Nx` and `Nv` are the number of space and velocity nodes, `Lx` is the space extension of the plasma, and `vmin` and `vmax` are the minimum and maximum velocities, normalized to the thermal velocity of each specie, respectively.
 
+Please note that the veloctity-space extension must be large enough so that the distribution function is zero at the boundaries.
+
 
 ## Defining the species that form the plasma
 
