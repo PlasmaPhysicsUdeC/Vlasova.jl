@@ -178,13 +178,9 @@ function bgk1d( box; amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1
     # Consider the 1-d phase space along dimension dim.
     x = box.x[dim]
     v = box.v[dim]
-
-    dx = x[2] - x[1]
-
-    Nx = size(x, 1)
-
-    Lx = dx * Nx
-    Nv = size(v, 1)
+    Nx = box.Nx[dim]
+    Nv = box.Nv[dim]
+    Lx = box.Lx[dim]
 
     # Functions
     vx(x, W) = sqrt( 2 * ( W + amplitude * cos( wavenumber * x) ) )
@@ -201,11 +197,12 @@ function bgk1d( box; amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1
             W = 0.5 * (v[j] - vphi)^2 - amplitude * cos( wavenumber * x[i] )
 
             if abs( W ) < amplitude # Trapped particles
-                # Integration limit + small displacement to avoid singularity
-                a = acos( -W / amplitude ) / wavenumber - 1e-12 # TODO: Try to avoid this later.
+                # Integration limit with small displacement in the energy to avoid singularity
+                a = acos( -(W - eps() ) / amplitude ) / wavenumber # TODO: Try to avoid this.
 
                 # Closed path: Contribution over and under vphi
                 BGKT, = QuadGK.quadgk( x -> fpm(vx(x, W)), 0, a)
+
                 # Orbit length
                 T,  = 2 .* QuadGK.quadgk(x -> 1/vx(x, W), 0, a)
             else
