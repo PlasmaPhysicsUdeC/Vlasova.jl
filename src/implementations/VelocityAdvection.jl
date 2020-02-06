@@ -60,10 +60,7 @@ Apply element-wise product of the distribution function in the velocity-transfor
 function lowpass_velocityfilter!(transformed_DF, filter, box)
 
     Threads.@threads for i in CartesianIndices(filter)
-        f = filter[i]
-        @simd for j in box.space_axes
-            @inbounds @views transformed_DF[j, i] *= f
-        end
+        @views @. transformed_DF[box.space_axes..., i] *= filter[i]
     end
 
     return nothing;
