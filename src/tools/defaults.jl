@@ -24,19 +24,6 @@ FFTW_flags = FFTW.ESTIMATE
 
 """
 ```julia
-NUM_THREADS = 1
-```
-
-Number of threads to use in the FFT's inside Vlasova.
-
-# Notes
-* This value is passed to [`FFTW`](https://github.com/JuliaMath/FFTW.jl).
-* This value must be changed from inside Vlasova. If you want to change it, use [`@vlasova`](@ref).
-"""
-NUM_THREADS = 1
-
-"""
-```julia
 integrator = verlet_velocity
 ```
 

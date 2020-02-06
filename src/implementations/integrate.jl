@@ -16,8 +16,9 @@ function integrate!(plasma::Plasma, final_time::Real, dt::Real;
     # Number of time iterations
     Nt = round(Int, final_time / dt) + 1
 
-    # Multithread
-    (NUM_THREADS > 1) ? FFTW.set_num_threads( NUM_THREADS ) : nothing
+    # Multithread FFTW plans
+    # Threading for non-FFT operations is managed through Threads.@threads and Strided.@strided
+    FFTW.set_num_threads( Threads.nthreads() )
 
     # Initialize objects
     TimerOutputs.@timeit_debug timer "Initialize objects" begin

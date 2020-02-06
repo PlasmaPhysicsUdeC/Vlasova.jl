@@ -16,6 +16,7 @@ The Vlasova package provides tools to easily:
 * Examine the results of a simulation generically.
 * Use arbitrary symplectic **non-gradient** integrators. (gradient integrators are being implemented!)
 * Perform multi-threaded simulations.
+  By default Vlasova will use all the threads available to the julia process.
 
 ## Asumptions
 

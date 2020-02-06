@@ -14,10 +14,10 @@ Evaluate `codeblock` inside the scope of the Vlasova module.
 
 # Examples
 
-To change the default value of an inner variable of Vlasova, such as `NUM_THREADS`, use
+To change the default value of an inner variable of Vlasova, such as `continue_from_backup`, use
 
 ```jldoctest; setup = :(using Vlasova)
-julia> @vlasova NUM_THREADS = 2
+julia> @vlasova continue_from_backup = true
 2
 ```
 """
