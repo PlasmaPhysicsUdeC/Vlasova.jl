@@ -13,6 +13,7 @@ Enable debugging for the Vlasova module.
 
 # Notes
 * There is no option to disable debugging. This is accomplished by closing and re-starting the julia session.
+* If this function is called a second time, the `timer` will be reset.
 
 """
 function enable_debugging()
