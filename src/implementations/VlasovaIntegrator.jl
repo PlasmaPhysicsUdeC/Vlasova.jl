@@ -60,7 +60,7 @@ function inject_to_integrator(;before_loop::Expr, inside_loop::Expr, after_loop:
 
         # Make progress indicators
         buff = IOBuffer()
-        progressbar = ProgressMeter.Progress(length(iteration_axis),
+        progressbar = ProgressMeter.Progress(Nt,
                                              barglyphs = ProgressMeter.BarGlyphs("[=> ]"),
                                              output = buff )
 
