@@ -129,7 +129,7 @@ Generate a 1-dimensional superposition of Maxwellian distributions with velocity
 function maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64})
 
     @assert length(vt) == length(vd) == length(n) "`vt`, `vd` and `n` must have the same length."
-    @assert sum( n ) == 1 "The densities do not add up to 1."
+    @assert sum( n ) ≈ 1 "The densities do not add up to 1."
 
     # Normalization constants for each Maxwellian
     c = @. n / (sqrt(2pi) * vt )
