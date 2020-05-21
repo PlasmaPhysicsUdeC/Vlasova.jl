@@ -3,7 +3,10 @@ export maxwellian1d,
     twostream1d,
     bump_on_tail1d,
     maxwellian_superposition1d,
-    bgk1d
+    silantyev_bgk1d,
+    schamel_bgk1d,
+    schamel_potential,
+    schamel_disprel
 
 """
 ```julia
@@ -255,7 +258,7 @@ let
 
     [1] Phys. Reports 140, 161-191 (1986)
 
-    See also: [`Vlasova.schamel_disprel`](@ref) and [`Vlasova.schamel_disprel`](@ref)
+    See also: [`Vlasova.schamel_disprel`](@ref) and [`Vlasova.schamel_potential`](@ref)
 
     NOTES:
 
@@ -290,7 +293,7 @@ let
 
     See [`Vlasova.schamel_bgk1d`](@ref).
     """
-    global function schamel_pot(x, Ψ, v0, β)
+    global function schamel_potential(x, Ψ, v0, β)
         b = exp(-0.5v0^2)*(1 - β - v0^2) / √π
         return @. Ψ * sech( √(b * √Ψ / 15) * (x-x[end]/2) )^4 # Approximation for small Ψ
     end
