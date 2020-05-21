@@ -161,7 +161,7 @@ end
 
 """
 ```julia
-bgk1d( box; amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1 )
+silantyev_bgk1d( box; amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1 )
 ```
 
 Generate a 1-dimensional BGK state.
@@ -172,11 +172,11 @@ Generate a 1-dimensional BGK state.
 
 * If a 2-d box is provided, the keyword `dim` may be used to select the dimension of the box used to construct the BGK state.
 """
-function bgk1d( box;
-                amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1,
-                wave_frame = false) # Use FastGaussQuadrature instead.
+function silantyev_bgk1d( box;
+                      amplitude::Real, wavenumber::Real, vphi::Real, dim::Int = 1,
+                      wave_frame = false) # Use FastGaussQuadrature instead.
     @assert box.Lx[dim] == 2pi / wavenumber "The wavenumber provided does not fit exactly once in the box"
-
+    
     # Consider the 1-d phase space along dimension dim.
     x = box.x[dim]
     v = copy(box.v[dim])
