@@ -226,3 +226,72 @@ function silantyev_bgk1d( box;
 
     return distribution
 end
+
+# Schamel hole
+## Disprel
+let
+    global function schamel_disprel(ϕ, v0, β)
+        return ϕ - exp(-0.5v0^2) * ( P(β, ϕ) - 1 + Hint(0.5v0^2, ϕ) )
+    end
+
+    @inline P(β, ϕ) = I(ϕ) + 2*√(ϕ/π) * ( 1 - 1/β ) + 2dawson(√(-β*ϕ))/( β * √(π * abs(β)))
+
+    @inline I(ϕ) = exp(ϕ) * ( 1 - erf(√ϕ) )
+
+    @inline Hint(u, ϕp) = (2/√π) * quadgk(ϕ -> H(u, ϕ, ϕp), 0, π/2)[1]
+
+    @inline function H(u, ϕ, ϕp);
+        x = sqrt(u)*cos(ϕ)
+        return x * exp(x^2) * erf(x) * ( 1 - exp(-ϕp * tan(ϕ)^2) ) / tan(ϕ)^2
+    end
+
+    ## Distribution Function
+    """
+    ```julia
+    schamel_bgk1d(x, v; Ψ, v0, β)
+    ```
+
+    Schamel hole distribution function [1].
+
+    [1] Phys. Reports 140, 161-191 (1986)
+
+    See also: [`Vlasova.schamel_disprel`](@ref) and [`Vlasova.schamel_disprel`](@ref)
+
+    NOTES:
+
+        * The potential profile is an approximation for small amplitudes, `Ψ << 1`.
+        * The mathematical derivation demands the potential profile to decay
+    when x → ±∞.
+    """
+    global function schamel_bgk1d(x, v; Ψ, v0, β)
+        ϕ = schamel_pot(x, Ψ, v0, β) # Approximation for small Ψ
+        K = @. 0.5v^2
+        f = Array{Float64}(undef, length(ϕ), length(K))
+        Threads.@threads for i in 1:length(ϕ)
+            for j in 1:length(K)
+                local Eₑ =  K[j] - ϕ[i]
+                if Eₑ > 0
+                    σ = sign( v[j] )
+                    f[i, j] = exp( -0.5( σ * √(2Eₑ) + v0 )^2 )
+                else
+                    f[i, j] = exp( -β * Eₑ - 0.5v0^2)
+                end
+            end
+        end
+        return f/√(2π)
+    end
+
+    """
+    ```julia
+    schamel_potential(x, Ψ, v0, β)
+    ```
+
+    The approximate potential of a schamel hole in the small amplitude, `Ψ << 1` approximation.
+
+    See [`Vlasova.schamel_bgk1d`](@ref).
+    """
+    global function schamel_pot(x, Ψ, v0, β)
+        b = exp(-0.5v0^2)*(1 - β - v0^2) / √π
+        return @. Ψ * sech( √(b * √Ψ / 15) * (x-x[end]/2) )^4 # Approximation for small Ψ
+    end
+end
