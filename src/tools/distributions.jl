@@ -267,7 +267,7 @@ let
     when x → ±∞.
     """
     global function schamel_bgk1d(x, v; Ψ, v0, β)
-        ϕ = schamel_pot(x, Ψ, v0, β) # Approximation for small Ψ
+        ϕ = schamel_potential(x, Ψ, v0, β) # Approximation for small Ψ
         K = @. 0.5v^2
         f = Array{Float64}(undef, length(ϕ), length(K))
         Threads.@threads for i in 1:length(ϕ)
