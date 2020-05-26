@@ -7,8 +7,7 @@ final_time = 10
 
 # BEHAVIOR
 @vlasova begin
-    data_path = "data/silantyev-test_$(Threads.nthreads())-threads"
-    NUM_THREADS = Threads.nthreads()
+    data_path = "data/2d_silantyev"
     save_distribution_times = 0:500:Main.final_time |> collect
     integrator = verlet_velocity
     checkpoint_percent = 2
@@ -18,13 +17,14 @@ end
 box = Box( Nx = (64, 64),
            Nv = (256, 32),
            Lx = (2pi/0.35, 200pi),
-           vmin = (-6.0, -6.0),
-           vmax = (8.0, 6.0)
+           vmin = (-8.0, -6.0),
+           vmax = (6.0, 6.0)
            )
 
 # Species declaration
 
-f0 = bgk1d( box, amplitude = 0.3, wavenumber = 0.35, vphi = 3.3229)
+f0 = bgk1d( box, amplitude = 0.3, wavenumber = 0.35, vphi = 3.324,
+            wave_frame = true)
 f0 = ones(box.Nx[2]) ⊗ f0
 f0 = permutedims( f0, (2, 1, 3) )
 
