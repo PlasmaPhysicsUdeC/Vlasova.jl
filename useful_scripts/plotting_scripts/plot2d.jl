@@ -56,6 +56,27 @@ plot!(p,
 
 savefig(p, "$dirname/electrostatic_energy.png")
 
+# Power Per Mode
+let ppm = get_power_per_mode(box, chargedensity)
+    k = rfft_wavevector(box.x)
+    xmode = 1
+    ymodes = 1:7
+    p = plot()
+    for ymode in ymodes.+1
+        plot!(p, time, ppm[xmode + 1, ymode, :], lw = 2, label = "\$ k_y = $(round(k[2][ymode], digits = 3)) \$")
+    end
+    plot!(p,
+          dpi = 300,
+          grid = true,
+          yscale = :log10,
+          legend = :bottomright,
+          xlim = (time[1], time[end]),
+          xlabel = "\$ t\\omega_{pe} \$",
+          ylabel = "\$ \\widehat V (k_x = $(round(k[1][xmode+1], digits = 3)), k_y) \$"
+          )
+
+    savefig(p, "$dirname/ppm.png")
+end
 
 # Kinetic energy
 p = plot(time, T, color = :red, legend = :false)
