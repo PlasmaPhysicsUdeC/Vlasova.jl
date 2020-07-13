@@ -119,35 +119,43 @@ end
 
 """
 ```julia
-maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64})
+maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, current_neutrality::Bool = true)
 ```
 
 Generate a 1-dimensional superposition of Maxwellian distributions with velocity `v`.
+The superposition is returned in the reference frame such that there is no net current.
 
 # Notes
 * `vt` is the array of thermal velocities of each Maxwellian.
 * `vd` is the array of drift velocities of each Maxwellian.
 * `n` is the array of densities of each Maxwellian.
 """
-function maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64})
+function maxwellian_superposition1d(v; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, current_neutrality::Bool = true)
 
     @assert length(vt) == length(vd) == length(n) "`vt`, `vd` and `n` must have the same length."
     @assert sum( n ) ≈ 1 "The densities do not add up to 1."
 
+    if current_neutrality
+        # Current neutrality
+        vel = v .+ sum( n .* vd )
+    else
+        vel = copy(v)
+    end
+
     # Normalization constants for each Maxwellian
     c = @. n / (sqrt(2pi) * vt )
 
-    dist = zeros(size(v, 1))
+    dist = zeros(size(vel, 1))
     for i in 1:length(c)
-        @. dist += c[i] * exp( -0.5* ( (v - vd[i]) / vt[i] )^2 )
+        @. dist += c[i] * exp( -0.5*( (vel - vd[i]) / vt[i] )^2 )
     end
-
+ 
     return dist
 end
 
 """
 ```julia
-maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1)
+maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1, current_neutrality::Bool = true)
 ```
 
 Generate a 1-dimensional superposition of Maxwellian distributions with the velocity defined in a [`Box`](@ref),
@@ -158,8 +166,8 @@ along the dimension `dim`.
 * `vd` is the array of drift velocities of each Maxwellian.
 * `n` is the array of densities of each Maxwellian.
 """
-function maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1)
-    return maxwellian_superposition1d(box.v[dim], vt = vt, vd = vd, n = n)
+function maxwellian_superposition1d(box::Box; vt::Array{Float64}, vd::Array{Float64}, n::Array{Float64}, dim::Int = 1, current_neutrality::Bool = true)
+    return maxwellian_superposition1d(box.v[dim], vt = vt, vd = vd, n = n, current_neutrality = current_neutrality)
 end
 
 """
