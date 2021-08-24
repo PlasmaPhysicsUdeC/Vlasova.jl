@@ -60,8 +60,8 @@ mutable struct DataSaver
                               last_iteration_saved = fid["last_iteration_saved"][1][1]
                               last_distribution_saved = fid["last_distribution_saved"][1][1]
                           end
-                          plasma.species[s].distribution .= dropdims( fid["distribution"][UnitRange.(1, plasma.box.N)..., Ndf],
-                                                                      dims = 2 * plasma.box.number_of_dims + 1 )
+                          plasma.species[s].distribution .= reshape( fid["distribution"][UnitRange.(1, plasma.box.N)..., Ndf],
+                                                                     plasma.box.N )
                           HDF5.close(fid)
                           @assert last_iteration_saved < Nt "The simulation saved in the folder '$path' has already ended successfully."
                       end
