@@ -19,3 +19,9 @@ makedocs(format = format,
              "Not Exported" => "not_exported.md"
          ]
          )
+
+deploydocs(
+    ;
+    repo = "github.com/PlasmaPhysicsUdeC/Vlasova.jl",
+    branch = "gh-pages",
+)
