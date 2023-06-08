@@ -14,3 +14,5 @@ useful_scripts/thesis/
 
 # Ignore other unrelated folders used for debugging
 useful_scripts/comparison/
+
+Manifest.toml
