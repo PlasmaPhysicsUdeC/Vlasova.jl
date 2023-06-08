@@ -1,6 +1,11 @@
 Vlasova.jl
 ==========
 
-This project still under heavy development and the repository is private. If you have come here, it means you know what this library is for.
+**Notice:** The development of this project is frozen.
 
-For further information, see the [latest documentation](https://jgidi.gitlab.io/Vlasova.jl) for the master branch.
+
+Pseudospectral library to solve the Vlasov-Poisson system of equations, in an arbitrary number of dimensions. Written in the [Julia](https://julialang.org) language.
+
+
+For further information, see the [latest documentation](https://PlasmaPhysicsUdeC.github.io/Vlasova.jl).
+
