@@ -18,11 +18,11 @@ mutable struct DataSaver
               ) = begin
 
                   # Save data
-                  save_data = !isempty(data_path) ||
+                  save_data = !isempty(path) ||
                       !isempty(save_distribution_times) ||
                       ( checkpoint_percent < 100 )
 
-                  if isempty( data_path )
+                  if isempty( path )
                       @assert checkpoint_percent == 100 "The variable data_path must be specified if you want to use checkpoints."
                       @assert !continue_from_backup "The variable data_path must be specified if you want to continue from a backup."
                       @assert isempty( save_distribution_times ) "The variable data_path must be specified if you want to save distributions."
