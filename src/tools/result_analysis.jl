@@ -464,7 +464,9 @@ true
 """
 function find_exponential_growth( x, y; interval = [-Inf, Inf] )
     idx = findall( interval[1] .<= x .<= interval[2] )
-    return CurveFit.exp_fit(x[idx], y[idx])[2]
+    xs, ly = x[idx], log.(y[idx])
+    xm, lm = Statistics.mean(xs), Statistics.mean(ly)
+    return sum( (xs .- xm) .* (ly .- lm) ) / sum( (xs .- xm).^2 )
 end
 
 # function get_electric_field(;

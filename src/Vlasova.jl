@@ -8,7 +8,6 @@ import Statistics,
     QuadGK,
     SpecialFunctions,
     ProgressMeter,
-    CurveFit,
     TimerOutputs,
     Strided
 
