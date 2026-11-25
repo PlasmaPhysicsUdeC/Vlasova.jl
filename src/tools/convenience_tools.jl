@@ -51,13 +51,13 @@ julia> A = [1.0, 2.0, 3.0];
 julia> B = [0.0, 1.0];
 
 julia> outer(A, B, *)
-3×2 Array{Float64,2}:
+3×2 Matrix{Float64}:
  0.0  1.0
  0.0  2.0
  0.0  3.0
 
 julia> outer(A, B, -)
-3×2 Array{Float64,2}:
+3×2 Matrix{Float64}:
  1.0  0.0
  2.0  1.0
  3.0  2.0
@@ -94,7 +94,7 @@ julia> A = [1, 2, 3];
 julia> B = [0, 1];
 
 julia> A ⊗ B
-3×2 Array{Int64,2}:
+3×2 Matrix{Int64}:
  0  1
  0  2
  0  3

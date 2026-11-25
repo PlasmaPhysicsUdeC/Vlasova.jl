@@ -1,5 +1,21 @@
 """
-TODO
+```julia
+integrate!(plasma::Plasma, final_time::Real, dt::Real; kwargs...)
+```
+
+Evolve `plasma` in place from `t = 0` up to `final_time` with time step `dt`, solving the
+Vlasov-Poisson system with a symplectic split-step scheme.
+
+# Keyword arguments
+Every keyword defaults to the Vlasova variable of the same name (see [Default behavior](@ref)):
+* `integrator`: [`VlasovaIntegrator`](@ref) used to split each time step.
+* `external_potential`: function adding an external electrostatic potential.
+* `continue_from_backup`: resume an unfinished simulation stored in `data_path`.
+* `save_distribution_times`: times at which the full distribution function is saved.
+* `checkpoint_percent`: percentage of the simulation between checkpoints saved to disk.
+* `velocity_filtering`: apply anisotropic filtering in the transformed-velocity space.
+* `data_path`: folder where results are saved. If empty, nothing is written to disk.
+* `FFTW_flags`: flags passed to the FFTW plans.
 """
 function integrate!(plasma::Plasma, final_time::Real, dt::Real;
                     integrator::VlasovaIntegrator = integrator,

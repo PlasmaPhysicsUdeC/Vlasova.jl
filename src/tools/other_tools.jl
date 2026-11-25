@@ -18,7 +18,7 @@ To change the default value of an inner variable of Vlasova, such as `continue_f
 
 ```jldoctest; setup = :(using Vlasova)
 julia> @vlasova continue_from_backup = true
-2
+true
 ```
 """
 macro vlasova( codeblock )

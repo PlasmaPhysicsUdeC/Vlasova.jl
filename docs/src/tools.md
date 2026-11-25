@@ -1,7 +1,12 @@
+## Integration
+```@docs
+integrate!
+```
+
 ## Basic Structs
 ```@autodocs
 Modules = [Vlasova]
-Pages = ["01_Box.jl", "01_Specie.jl", "02_Plasma.jl"]
+Pages = ["01_Box.jl", "01_Zero.jl", "01_Specie.jl", "02_Plasma.jl"]
 Private = false
 Public = true
 ```

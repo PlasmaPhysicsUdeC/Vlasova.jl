@@ -329,12 +329,12 @@ julia> a = @. cos(x) + cos(y');
 julia> xmax, ymax = find_local_maxima( a ); # x and y indices of the maxima
 
 julia> xmax # The maxima is on the borders
-0-element Array{Any,1}
+Int64[]
 
 julia> xmax, ymax = find_local_maxima( a, discard_borders = false);
 
 julia> xmax # There 2 maxima are found now
-2-element Array{Int64,1}:
+2-element Vector{Int64}:
    1
  101
 
